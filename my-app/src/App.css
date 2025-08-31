@@ -1,0 +1,123 @@
+:root {
+  --bs-primary: #f3b524 !important;
+  --bs-primary-rgb: rgb(243, 181, 36);
+  --bs-primary-rgba: rgba(243, 181, 36, .5);
+  /* --bxsdw: 0 16px 16px -8px #b1b1b1; */
+  --bxsdw: 0 5px 16px -8px #b1b1b1;
+  --bdr-color: #E1E1E1;
+  --font-light-color: #767676;
+  --bg-white : #FFFFFF;
+  --header-height: 200px; 
+  --input-height: 60px;
+}
+.bg-white{
+  background-color: var(--bg-white);
+}
+.btn.btn-primary{
+  background-color: var(--bs-primary);
+}
+.bg-primary-50{
+  background-color: var(--bs-primary-rgba);
+}
+
+.border-gray{
+  border-color: var(--bdr-color);
+}
+.font-light-color{
+  color: var(--font-light-color);
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body.chat-scroll,
+html.chat-scroll {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  overflow-y: hidden;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Source Sans 3", sans-serif;
+  background-image: url(./img/tools_bg.png);
+}
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+ .otp-container {
+    max-width: 500px;
+    margin: auto;
+    padding: 2rem;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0px 5px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .alert {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+}
+
+.spacer {
+  flex: auto;
+}
+
+.gry_fnt {
+  color: #6b6b6b;
+}
+
+#ldr_txt {
+  display: flex;
+  justify-content: center;
+  font-weight: bold;
+  text-align: center;
+}
