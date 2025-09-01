@@ -724,7 +724,7 @@ const fetchImageUrl = async (photoId) => {
             boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
             position: 'relative', 
           }} 
-        //   onClick={() => window.location.href = `/chatPage/${userType}/${userId}`}
+           onClick={() => window.location.href = `/chatPage/${userType}/${userId}`}
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <AnnouncementIcon style={{ color: 'white', fontSize: '28px' }} />  

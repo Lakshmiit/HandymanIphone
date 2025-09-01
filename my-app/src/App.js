@@ -11,6 +11,14 @@ import Sidebar from './Sidebar';
 import BookTechnician from './BookTechnician.js';
 import ChatPage from './ChatPage.js';
 import BookTechnicianPaymentPage from './BookTechnicianPaymentPage.js';
+import BuyProduct from './BuyProduct.js';
+import ApartmentRaiseTicket from './ApartmentRaiseTicket.js';
+import AboutApartmentRaiseTicket from './AboutApartmentRaiseTicket.js';
+import IconsOffersProducts from './IconsOffersProducts.js'; 
+import Offers from './Offers.js';
+import BuyProductPaymentPage from './BuyProductPaymentPage.js';
+import BuyProductView from './BuyProductView';
+
 
 const PreventBackNavigation = () => {
 
@@ -48,6 +56,13 @@ function App() {
             <Route path="/bookTechnician/:userType/:userId" element={<BookTechnician />} />
             <Route path="/chatPage/:userType/:userId" element={<ChatPage />} />
             <Route path="/bookTechnicianPaymentPage/:userType/:userId/:raiseTicketId" element={<BookTechnicianPaymentPage />} />
+            <Route path="/buyProducts/:userType/:userId" element={<BuyProduct />} />
+            <Route path='/buyProductPaymentPage/:userType/:userId/:buyProductId' element={<BuyProductPaymentPage />} />
+             <Route path="/offersIcons/:userType/:userId" element={<IconsOffersProducts />} />
+            <Route path="/offers/:userType/:userId" element={<Offers />} />
+             <Route path="/apartmentRaiseTicket/:userType/:userId" element={<ApartmentRaiseTicket />} />
+            <Route path="/aboutApartmentRaiseTicket/:userType/:userId" element={<AboutApartmentRaiseTicket />} />
+            <Route path="/buyproduct-view/:userType/:userId/:id" element={<BuyProductView />} />
             </Routes>
         </main>
       </div>

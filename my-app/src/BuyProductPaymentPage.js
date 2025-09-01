@@ -1,253 +1,616 @@
-import React, { useState, useEffect } from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useEffect, useState} from 'react';
+import Sidebar from './Sidebar';
+import { Button } from 'react-bootstrap';
+import Header from './Header.js';
+import Footer from './Footer.js';
+import { Dashboard as MoreVertIcon } from '@mui/icons-material';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import './App.css';
-// import {useNavigate } from "react-router-dom";
-// import Modal from 'react-bootstrap/Modal';
-import HandyManCharacter from "./img/hm_char.png";
-import HandyManLogo from "./img/Hm_Logo 1.png";
-// import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-     
-  
-const LoginPage = () => {
-    // const Navigate = useNavigate();
-    // const {userType} = useParams();
-    // const {userId} = useParams();
-  const [mobile, setMobile] = useState('');
-// const [consent, setConsent] = useState(false);
-  const [isChecked, setIsChecked] = useState('');
-  // const [showTerms, setShowTerms] = useState(f alse);
-  // const [showPrivacy, setShowPrivacy] = useState(false);
-  const [error, setError] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  // const [countryCode, setCountryCode] = useState("+91"); 
-  // const fullMobileNumber = `${countryCode}${mobile}`;
-//   const mobileNumber = "9885803193";
-// const [mobileNumber] = useState('');     
+import { useParams, useLocation } from "react-router-dom";
 
-// const{mobileError,setMobileError}=useState("");
-
-   
-  const handleMobileChange = (e) => {
-    const value = e.target.value;
-    if (/^\d{0,10}$/.test(value)) {
-        setMobile(value);   
+const BuyProductPaymentPage = () => {
+  // const Navigate = useNavigate();
+ const location = useLocation();
+     const id = location.state?.id || localStorage.getItem('id');    
+  const {userType} = useParams();
+  const [isMobile, setIsMobile] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const {buyProductId} = useParams();
+  const [isChecked, setIsChecked] = useState(false);
+  // const [id, setId] = useState('');
+const [productData, setProductData] = useState('');
+// const [bookTechnicianIds, setBookTechnicianId] = useState('');
+const [date, setDate] = useState('');
+const [loading, setLoading] = useState(true);
+const [state, setState] = useState('');
+const [district, setDistrict] = useState('') 
+const [zipCode, setZipcode] = useState('');
+const [address, setAddress] = useState('');
+const [userId, setCustomerId] = useState(''); 
+const [customerName, setCustomerName] = useState('');
+const [technicianConfirmationCode, setTechnicianConfirmationCode] = useState('');
+// const [showConfirmation, setShowConfirmation] = useState(false);
+// const [selectedJob, setSelectedJob] = useState([{remarks: "", discount: "", moreInfo: "", afterDiscount: "", jobDescription: ""}]);
+const [selectedPayment, setSelectedPayment] = useState(null);
+const [showModal, setShowModal] = useState(false);
+const [buyProductTicketId, setBuyProductTicketId] = useState('');
+// const [buyProductId, setBuyProductId] = useState('');
+const [mobileNumber, setMobileNumber] = useState('');
+// const [afterDiscount, setAfterDiscount] = useState('');
+const [afterDiscountPrice, setAfterDiscountPrice] = useState('');
+const [colors, setColors] = useState('');
+const [requiredQuantity, setRequiredQuantity] = useState('');
+const [totalAmount, setTotalAmount] = useState(0);
+const [deliveryCharges, setDeliveryCharges] = useState(0);
+const [serviceCharges, setServiceCharges] = useState(0);
+const [totalPaymentAmount, setTotalPaymentAmount] = useState(0);
+const [addressType, setAddressType] = useState('');
+const [emailAddress, setEmailAddress] = useState("");
+const [formattedDate, setFormattedDate] = useState('');
+const [productName, setProductName] = useState("");
+  const [category, setCategory] = useState("");
+  const [productCatalogue, setProductCatalogue] = useState("");
+  const [productSize, setProductSize] = useState("");
+  const [units, setUnits] = useState("");
+  // const [productPhotos, setProductPhotos] = useState([]); 
+  const [rate, setRate] = useState("");
+  const [discount, setDiscount] = useState("");
+  const [specifications, setSpecifications] = useState([{ label: "", value: "" }]); 
+  const [warranty, setWarranty] = useState("");
+  const [moreInfo, setMoreInfo] = useState("");
+  const [error, setError] = useState(null);
+  const [product, setProduct] = useState(null);
+  const [uploadedFiles] = useState([]); 
+  const [color, setColor] = useState("");
+  const [specificationDesc, setSpecificationDesc] = useState("");
+  const [deliveryInDays,setDeliveryInDays] =useState("");
+  const [productId, setProductID] = useState('');
+  const [uniqueId, setUniqueId] = useState('');
+  const [productStatus, setProductStatus] = useState('');
+const [existingFiles, setExistingFiles] = useState([]);
+const [stockLeft, setStockLeft] = useState('');
+// const [paymenterror, setPaymentError] = useState(null);
+useEffect(() => {
+  if (date && deliveryInDays) {
+    try {
+      const parsedDate = new Date(date);
+      const days = parseInt(deliveryInDays);
+      if (!isNaN(parsedDate) && !isNaN(days)) {
+        parsedDate.setDate(parsedDate.getDate() + days);
+        const yyyy = parsedDate.getFullYear();
+        const mm = String(parsedDate.getMonth() + 1).padStart(2, '0');
+        const dd = String(parsedDate.getDate()).padStart(2, '0');
+        setFormattedDate(`${dd}-${mm}-${yyyy}`);
+      } else {
+        console.error("Invalid date or days");
+        setFormattedDate('');
+      }
+    } catch (err) {
+      console.error("Error formatting delivery date:", err);
+      setFormattedDate('');
     }
-  };
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-
-  //   // if (mobile !== mobileNumber) {
-  //   //     setError(<span>This Number is not Registered, Please contact Customer care <WhatsAppIcon style={{color: 'green'}}/> 8498892222.</span>);
-  //   //     return;
-  //   // }
-
-  //   if (!isChecked) {
-  //       alert("You must accept the terms and conditions.");
-  //       return; 
-  //     } 
-  
-  //   setError('');
-  //   setSubmitted(true);
-  
-  //   setTimeout(() => {
-  //   //   alert('Login submitted!');
-  //     setSubmitted(false);
-  //     // Navigate('/otpVerification', {
-  //     //   state: { mobile }
-  //     // });
-  //   }, 2000);
-  // };
+  }
+}, [date, deliveryInDays]);
 
   useEffect(() => {
-    const input = document.getElementById('mobileInput');
-    const preventDefault = (e) => e.preventDefault();
-    ['copy', 'paste', 'cut', 'drop', 'contextmenu'].forEach(event =>
-      input.addEventListener(event, preventDefault)
-    );
-    return () => {
-      ['copy', 'paste', 'cut', 'drop', 'contextmenu'].forEach(event =>
-        input.removeEventListener(event, preventDefault)
-      );
+      console.log( productData,product, technicianConfirmationCode);
+    }, [productData, product, technicianConfirmationCode]);
+
+
+  useEffect(() => {
+    const fetchProductData = async () => {
+      try {
+        const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BuyProduct/GetBuyProductDetailsById/${buyProductId}`);
+        if (!response.ok) {
+          throw new Error('Failed to fetch product data');
+        }    
+        const data = await response.json();
+        setProductData(data);
+      //  alert(JSON.stringify(data)); 
+        // setBuyProductId(data.id);
+        setBuyProductTicketId(data.buyProductId);
+        setAddress(data.address);
+        setCategory(data.category);
+        setProductName(data.productName);
+        setProductCatalogue(data.productCatalogue);
+        setProductSize(data.productSize);
+        setRate(data.rate);
+        setDiscount(data.discount);
+        setAfterDiscountPrice(data.afterDiscountPrice);
+        setColors(data.selectedColors);
+        setTotalAmount(data.totalAmount);
+        setRequiredQuantity(data.requiredQuantity);
+        setAddressType(data.addressType);
+        setCustomerId(data.customerId);
+        setState(data.state);
+        setDistrict(data.district);
+        setZipcode(data.zipCode);
+        setEmailAddress(data.customerEmail);
+        setMobileNumber(data.customerPhoneNumber);
+        setColor(data.color);
+        setCustomerName(data.customerName);
+        setDate(data.date);
+        } catch (error) {
+        console.error('Error fetching product data:', error);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchProductData();
+  }, [buyProductId]);
+
+   useEffect(() => {
+            const fetchProductData = async () => {
+                try {
+                    setLoading(true);
+                    const productResponse = await fetch(`https://handymanapiv2.azurewebsites.net/api/Product/${id}`);
+                    if (!productResponse.ok) {
+                        throw new Error('Product not found');
+                    }
+                    const productData = await productResponse.json();
+                    console.log("productData:", productData);
+                    // alert(JSON.stringify(productData));
+                    setProduct(productData);
+                    setUniqueId(productData.id);
+                    setProductName(productData.productName);
+                   setProductID(productData.productId);
+                   setProductStatus(productData.productStatus);
+                    setCategory(productData.category);
+                    setProductCatalogue(productData.catalogue);
+                    setColor(productData.color);
+                    setProductSize(productData.productSize);
+                    setUnits(productData.units);
+                    setRate(productData.rate);
+                    setDiscount(productData.discount);
+                    setSpecifications(productData.specifications || [{ label: "", value: "" }]);
+                    setSpecificationDesc(productData.specificationDesc);
+                    setWarranty(productData.warranty);
+                    setMoreInfo(productData.additionalInformation);
+                    setDeliveryInDays(productData.deliveryInDays);
+                    setExistingFiles(productData.productPhotos || []);
+                    setStockLeft(productData.numberOfStockAvailable);
+                  } catch (error) {
+                    setError(error.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            if (id) {
+                fetchProductData();
+            }
+        }, [id]);
+
+  // const deliveryCharges = parseFloat(((totalAmount * 5) / 100).toFixed(2));
+  // const serviceCharges = parseFloat(((totalAmount * 5) / 100).toFixed(2));
+  //  const totalPaymentAmount=(totalAmount + deliveryCharges+serviceCharges).toFixed(2);
+
+   //const totalPaymentAmount = parseFloat((totalAmount + deliveryCharges + serviceCharges).toFixed(2));
+
+   useEffect(() => {
+    if (!isNaN(totalAmount) && totalAmount > 0) {
+      const delivery = parseFloat(((Number(totalAmount) * 0) / 100).toFixed(2)) || 0;
+      const service = parseFloat(((Number(totalAmount) * 0) / 100).toFixed(2)) || 0;
+      const total = parseFloat((Number(totalAmount) + delivery + service).toFixed(2)) || 0;
+  
+      setDeliveryCharges(delivery);
+      setServiceCharges(service);
+      setTotalPaymentAmount(total);
+    }
+  }, [totalAmount]);
+
+    // Detect screen size for responsiveness
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize(); // Set initial state
+    window.addEventListener('resize', handleResize);
+  
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  
-//   const handleOTP = async (e) => {
-//     e.preventDefault();
-//     if(!mobile)
-//     {setError("Please Enter mobile Number");
-//     };
-//   setError("");
-
-//     const payload = {
-//       senderValue: mobile,
-//       type: "sms",
-//     };
-// try {
-//       const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Auth/sendotp`,{
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify(payload),
-//       });
-//       if (!response.ok) {
-//        throw new Error("Failed to send sms.");
-//       }
-//       localStorage.setItem('mobile', mobile);
-//       Navigate('/otpVerification', {
-//         state: { mobile }
-//       });
-//     } catch (error) {
-//       console.error("Error sending sms:", error);
-//       window.alert('Failed to send sms. Please try again later.');    }
-//   };
-const handleOTP = async (e) => {
+const handleGetQuotation = async (e) => {
   e.preventDefault();
+  // if (selectedPayment === "online") {
+  //   setPaymentError("⚠️ Online payment is not available at the moment. Only Cash On Delivery Available.");
+  //   return;
+  // }
 
-  if (!mobile) {
-    setError("Please enter a mobile number");
+  if (!selectedPayment) {
+    setError("Please select at least one payment mode.");
     return;
   }
 
-  setError("");
-  setSubmitted(true);
+  if (!isChecked) {
+    alert("You must accept the terms and conditions.");
+    return; 
+  } 
 
   const payload = {
-    senderValue: mobile,
-    type: "sms",
+    BuyProductId: buyProductTicketId,
+    id: buyProductId,
+    date: date,
+    Address: address,
+    CustomerPhoneNumber: mobileNumber,
+    CustomerName: customerName,
+    category: category,
+    productName: productName,
+    ProductCatalogue: productCatalogue,
+    productSize: productSize,
+    rate: rate.toString(),
+    discount: discount.toString(),
+    afterDiscountPrice: afterDiscountPrice.toString(),
+    color: color,
+    selectedColors: colors,
+    requiredQuantity: requiredQuantity.toString(),
+    totalAmount: totalAmount.toString(),
+    AssignedTo: "Customer Care",
+    DeliveryCharges: deliveryCharges.toString(),
+    ServiceCharges: serviceCharges.toString(),
+    TotalPaymentAmount: totalPaymentAmount.toString(),
+    AddressType: addressType,
+    State: state,
+    District: district,
+    ZipCode: zipCode,
+    CustomerId: userId,
+    RequestedBy: userId,
+    PaymentMode: selectedPayment,
+    UTRTransactionNumber:"",
+    TechnicianConfirmationCode:"",
+    DeliveryDate: formattedDate,
+    TechnicianDetils:"",
+    ProductView: "Open",
+    InvoiceDetails:"",
+    UploadInvoice: [],
+    WarrentyPeriod: "",
+    CustomerEmail: emailAddress,
+    OrderId: "",
+    OrderDate: "",
+    PaidAmount: "",
+    TransactionStatus: "",
+    TransactionType: "",
+    InvoiceId: "",
+    InvoiceURL: "",
+  };
+  const payload1 = {
+    ...payload, 
+    status: selectedPayment === "online" ? "Draft" : "Open",
   };
 
   try {
-    const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Auth/bhashsmssendotp`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });      
-
-    if (!response.ok) {
-      throw new Error("Failed to send sms.");
-    }
+    let response;
+  if (selectedPayment === 'online') {
+       response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BuyProduct/${buyProductId}`,{
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+         body: JSON.stringify(payload1),
+      });
+      if (!response.ok) {
+       throw new Error("Failed to submit Payment.");
+      }
+      const data = await response.json();
+      // Store confirmation code in state
+      setTechnicianConfirmationCode(data.technicianConfirmationCode);
   
-    localStorage.setItem('mobile', mobile);
-    window.location.href = `/otpVerification`;
-
-  } catch (error) {
-    console.error("Error sending sms:", error);
-    setError('Failed to send sms. Please try again later.');
-  } finally {
-    setSubmitted(false);
+    window.alert(`We are Redirecting to the Payment Page! Your reference number is ${buyProductTicketId}. Technician will contact you shortly.`);
+      window.location.href=`https://handymanserviceproviders-h2gncthtfdemdwe5.centralindia-01.azurewebsites.net/BuyProductPaymentPage/${buyProductId}`;
+    }  else if (selectedPayment === 'technician') {
+      
+         response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BuyProduct/${buyProductId}`,{
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+           body: JSON.stringify(payload1),
+        });
+        if (!response.ok) {
+         throw new Error("Failed to submit Payment.");
+        }
+        const data = await response.json();
+        // Store confirmation code in state
+        setTechnicianConfirmationCode(data.technicianConfirmationCode);
+    
+     window.alert(`Thank You for choosing the HandyMan Services! Your reference number is ${buyProductTicketId}. Technician will contact you shortly.`);
+     window.location.href = `/profilePage/${userType}/${userId}`;
+    } 
+  
+  }  catch (error) {
+    console.error("Error submitting Payment:", error);
+    window.alert('Failed to submitting Payment. Please try again later.');    
   }
 };
 
- return (
-  <div className="h-100 mt-3 d-flex align-items-center py-2 flex-column">
-  <div className="login_section rounded-5 p-3">
-    <div className="d-flex align-items-center justify-content-center mb-3">
-  <img 
-    src={HandyManCharacter} 
-    alt="Character"  
-    width="200"  
-    height="200" 
-    className="img-fluid"
-  />
+const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const allProductPhotos = [
+    ...existingFiles, 
+    ...uploadedFiles.map(file => file.src), 
+  ];
+
+    const payload = {
+      id: uniqueId,
+      ProductId:  productId,
+      deliveryInDays: deliveryInDays,
+      category: category,
+      ProductStatus: productStatus,
+      productName,
+      productPhotos: allProductPhotos,
+      catalogue: productCatalogue,
+      productSize: productSize,
+      color: color,
+      units: units,
+      rate: parseFloat(rate),
+      discount: parseFloat(discount),
+      afterDiscountPrice: parseFloat(rate) - parseFloat(discount),
+      specifications: specifications.map(spec => ({
+        label: spec.label,
+        value: spec.value,
+      })),
+      specificationDesc: specificationDesc,
+      warranty: warranty,
+      AdditionalInformation: moreInfo,
+      ProductOwnedBy:"Admin",
+      numberOfStockAvailable: (stockLeft-requiredQuantity).toString(),
+    };
+
+    try {
+      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Product/${uniqueId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      }); 
+
+      if (response.ok) {
+        // alert("Product updated successfully!");
+      } else {
+        alert("Failed to update product.");
+      }
+    } catch (error) {
+      alert("An error occurred while updating the product.");
+    }
+  };
+
+ const handleBothActions = (e) => {
+  e.preventDefault();
+  handleGetQuotation(e);
+  handleSubmit(e);
+};
+
+// const handleUpdateJobDescription = async (e) => {
+//   e.preventDefault();
+//   if (!isChecked) {
+//       alert("You must accept the terms and conditions.");
+//       return; 
+//     }  
+
+//   const payload2 = {
+//     id: raiseTicketId,  
+//     bookTechnicianId: bookTechnicianIds,
+//     date: new Date(),
+//     customerName: customerName,
+//     address: address,
+//     state: state,
+//     district: district,
+//     zipCode: zipCode,
+//     category: category,
+//     jobDescription: jobDescription,
+//     rate: rate,
+//     discount: discount,
+//     afterDiscount: afterDiscount,
+//     remarks: remarks,
+//     moreInfo: moreInfo,
+//     status: "Open",
+//     customerId: customerId,
+//     assignedTo: "",
+//     phoneNumber: phoneNumber,
+//     paymentMode: selectedPayment,
+//     approvedAmount: afterDiscount,
+//     utrTransactionNumber: "",
+//     technicianConfirmationCode: "",
+//   };
+
+//   try {
+//     const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BookTechnician/${raiseTicketId}`, {
+//       method: 'PUT',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify(payload2),
+//     });
+
+//     if (!response.ok) {
+//       throw new Error('Failed to Update Technician.');
+//     }
+//     const data = await response.json();
+
+//     // Store confirmation code in state
+//     setTechnicianConfirmationCode(data.technicianConfirmationCode);
+//     // setShowConfirmation(true); 
+//     // alert("Book Technician Updated Successfully!");
+//   } catch (error) {
+//     console.error('Error:', error);
+//     window.alert('Failed to Update Technician. Please try again later.');
+//   }
+// };
+
+
+
+  
+if (loading) {
+  return <div>Loading...</div>;
+}
+
+ const handleCheckboxChange = (value) => {
+  const newValue = selectedPayment === value ? null : value;
+  setSelectedPayment(newValue);
+  setError("");
+
+  if (newValue) {
+    setIsChecked(true);
+  } else {
+    setIsChecked(false);
+  }
+};
+
+  return (
+    <div>
+  {isMobile && <Header />}
+    <div className="d-flex">
+        {!isMobile && (
+        <div className="ml-0 p-0 sde_mnu">
+          <Sidebar />
+        </div>
+      )} 
+
+      {/* Floating menu for mobile */}
+      {isMobile && (
+        <div className="floating-menu">
+          <Button
+            variant="primary"
+            className="rounded-circle shadow"
+            onClick={() => setShowMenu(!showMenu)}
+          >
+            <MoreVertIcon />
+          </Button>
+
+          {showMenu && (
+              <div className="sidebar-container">
+                <Sidebar />
+              </div>
+          )}
+        </div>
+      )}
+
+<div className={`container ${isMobile ? "w-100" : "w-75"}`}>
+<h2 className="title mt-mob-100">BUY PRODUCT PAYMENT CONFIRMATION</h2>
+    <div className="booking-confirmation">
+      <p className='text-center fs-4'><strong className='name'>{customerName}</strong> Thank you for Choosing the HandyMan Services</p>
+
+      <table className="booking-table">
+        <tbody>
+          <tr>
+            <td><strong>Ticket Number</strong></td>
+            <td>{buyProductTicketId}</td>   
+          </tr>
+          <tr>
+            <td><strong>Product Name</strong></td>
+            <td>{productName}</td>
+          </tr>
+          <tr>
+            <td><strong>Product Catalogue</strong></td>
+            <td>{productCatalogue}</td>
+          </tr>
+         
+          <tr>
+            <td><strong>Color</strong></td>
+            <td>{colors}</td>
+          </tr>
+          <tr>
+            <td><strong>Delivery Charges</strong></td>
+            <td>{deliveryCharges}</td>
+          </tr>
+          <tr>
+            <td><strong>Installation Charges</strong></td>
+            <td>{serviceCharges}</td>
+          </tr>
+          <tr>
+         <td><strong>Delivery Before Date</strong></td>
+          <td>{formattedDate || 'Delivery Soon'}</td>
+          </tr>
+           <tr>
+            <td><strong>Quantity</strong></td>
+            <td>{requiredQuantity}</td>
+          </tr>
+          <tr>
+            <td><strong>Total Amount</strong></td>
+            <td>{`Rs ${totalAmount} /-`}</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div className='payment m-2'>
+        <label className='bg-warning fw-bold fs-5 w-100 p-2'>Payment Mode</label>
+        <div className='d-flex flex-column m-1'>
+        {isMobile ? (
+        <div className='d-flex flex-column'>
+        <label className='fs-5'>
+            <input 
+            type="radio" 
+            className="form-check-input border-dark m-1"
+            checked={selectedPayment === 'online'}
+            onChange={() => handleCheckboxChange('online')}
+            required/>
+            Pay Through Online
+          </label>
+          {/* {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>} */}
+          <label className='fs-5'>
+            <input 
+            type="radio" 
+            className="form-check-input border-dark m-1"
+            checked={selectedPayment === 'technician'}
+            onChange={() => handleCheckboxChange('technician')}
+            required/>
+            Cash On Delivery 
+          </label>
+          {error && <p className="text-danger" >{error}</p>}
+          </div>
+        ) : (
+          <div className="desktop-view d-flex flex-column">
+      <label className="me-4">
+        <input 
+          type="radio" 
+          className="form-check-input border-dark me-2"
+          checked={selectedPayment === 'online'}
+          onChange={() => handleCheckboxChange('online')}
+          required
+        />
+        Pay Through Online
+      </label>
+          {/* {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>} */}
+      <label>
+        <input 
+          type="radio" 
+          className="form-check-input border-dark me-2"
+          checked={selectedPayment === 'technician'}
+          onChange={() => handleCheckboxChange('technician')}
+          required
+        />
+       Cash On Delivery (COD)
+      </label>
+      {error && <p className="text-danger">{error}</p>}
+    </div>
+  )}    
+</div>
 </div>
 
-<form className="d-flex gap-3 flex-column" onSubmit={handleOTP} autoComplete="off">
-  <div className="row">
-    <div className="col d-flex justify-content-center">
-      <img 
-        src={HandyManLogo} 
-        alt="Logo" 
-        width="190" 
-        height="90" 
-        className="img-fluid"
-      />
-    </div>
-  </div>
-
-  <h4 style={{fontSize: "15px", marginBottom: '0px'}}>Sign into your account</h4>
-  {/* <div> */}
-    <label>Mobile Number <span className="req_star mt-0">*</span></label>
-    <div style={{ display: 'flex', gap: '0.5rem' }}>
-    {/* <select
-      value={countryCode}
-      onChange={(e) => setCountryCode(e.target.value)}
-      className="form-control"
-      style={{ width: '40%' }}
-    >
-      <option value="+91">🇮🇳 +91 (India)</option>
-      <option value="+1">🇺🇸 +1 (USA)</option>
-      <option value="+44">🇬🇧 +44 (UK)</option>
-      <option value="+971">🇦🇪 +971 (UAE)</option>
-    </select> */}
-    <input
-    id="mobileInput"
-    type="text"
-    inputMode="numeric"
-    pattern="[0-9]*"
-    className="form-control mt-0"
-    placeholder="Enter Mobile Number"
-    value={mobile}
-    onChange={handleMobileChange}
-    autoComplete="off"
-    required
-    style={{ width: '80%' }}
-  />
-  </div>
-    {error && <div className="text-danger mt-1">{error}</div>}
-  {/* </div> */}
-          <a className="link" href="/userIdLogin" style={{fontSize: "14px"}}>Login With User ID</a>
-          <div className="d-flex align-items-center flex-wrap">
-  <input 
-    type="checkbox" 
-    className="form-check-input border-dark me-2"
-    checked={isChecked}
-    required
-    onChange={(e) => setIsChecked(e.target.checked)}
-  />
-  <button 
-    onClick={(e) => {
-      e.preventDefault();
-      setShowModal(true);
-    }}
-    className="text-dark p-0"
-    style={{ 
-      background: "none", 
-      border: "none", 
-      textDecoration: "underline", 
-      cursor: "pointer",
-      whiteSpace: "nowrap",
-      fontSize: "14px",
-    }}
-  >
-    Terms and conditions & Privacy Policy
-  </button>
-</div>   
+      <div className="note m-1">
+           <label className='fs-5'>
+            <input 
+            type="checkbox" 
+            className="form-check-input border-dark m-1"
+            checked={isChecked}
+            onChange={(e) => setIsChecked(e.target.checked)}
+            required
+            />
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                setShowModal(true);
+              }}
+              className="text-primary ms-1"
+              style={{ background: "none", border: "none", padding: 0, textDecoration: "underline", cursor: "pointer" }}
+              >
+                Terms and Conditions & Privacy Policy & Cancellation and Refund Policy..
+              </button>
+          </label>
       {/* Modal for Terms and Conditions */}
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <button
-      onClick={() => setShowModal(false)}
-      style={{
-        color: "red",
-        position: "absolute",
-        top: "10px",
-        right: "15px",
-        background: "none",
-        border: "none",
-        fontSize: "20px",
-        fontWeight: "bold",
-        cursor: "pointer"
-      }}
-    >
-      ✕
-    </button>
             <h2>Terms and Conditions</h2>
             <div className="text-justify">
                     <div className="mt-20">
@@ -303,7 +666,6 @@ const handleOTP = async (e) => {
                         <ul>
                         <li>
                             Lakshmi Sai Service Provider reserves the right not to upload or distribute to, or otherwise publish through the Site any Communication which
-                        
                             is obscene, indecent, pornographic, profane, sexually explicit, threatening, or abusive;
                         </li>
                         <li>
@@ -371,8 +733,7 @@ const handleOTP = async (e) => {
                         </p>
                         <p>
                             While every attempt has been made to ascertain the authenticity of the content in the Platform, Lakshmi Sai Service Provider is not liable for any kind of damages, losses or action arising directly or indirectly, due to access and/or use of the content in the Platform including but not limited to any decisions based on content in the Platform resulting in loss of revenue, profits, property etc.
-                        </p>
-                        
+                        </p>                        
                         </div>
                         <div className="mt-20">
                         <h4>IX. WARRANTY DISCLAIMER</h4>
@@ -394,7 +755,6 @@ const handleOTP = async (e) => {
                         <p>
                             LAKSHMI SAI SERVICE PROVIDER DISCLAIMS ANY AND ALL WARRANTIES TO THE FULLEST EXTENT OF THE LAW, INCLUDING ANY WARRANTIES FOR ANY INFORMATION, GOODS, OR SERVICES, OBTAINED THROUGH, ADVERTISED OR RECEIVED THROUGH ANY LINKS PROVIDED BY OR THROUGH THE PLATFORM SOME COUNTRIES OR OTHER JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES, SO THE ABOVE EXCLUSIONS MAY NOT APPLY TO YOU. YOU MAY ALSO HAVE OTHER RIGHTS THAT VARY FROM COUNTRY TO COUNTRY AND JURISDICTION TO JURISDICTION.
                         </p>
-                        
                         </div>
                         <div className="mt-20">
                         <h4>X. USING HANDYMANSERVICEPROVIDERS.COM LOCAL SERVICE NEED FULFILLMENT</h4>
@@ -411,7 +771,7 @@ const handleOTP = async (e) => {
                             Service Providers and Users are responsible for researching and complying with any applicable laws, regulations or restrictions on items, services, or manner of sale or exchange that may pertain to transactions in which they participate.
                         </p>
                         <p>
-                            Service Providers and Users are responsible for all applicable taxes and for all costs incurred by participating in the local service need fulfillment platform.
+                            Service Providers and Users are responsible for all applicable taxes and for all costs incurred by participating in the local service need fulfillment platform. 
                         </p>
                         <p>
                             Lakshmi Sai Service Provider will not be liable for damages of any kind incurred to any parties as a result of the information contained on this Platform. Users shall not use or manipulate this service for any fraudulent activity or purpose. Items or services offered for sale must comply with applicable laws. Lakshmi Sai Service Provider disclaims any and / or all responsibility and / or liability for any harm resulting from your use of third party services, and you hereby irrevocably waive any claim against Lakshmi Sai Service Provider with respect to the Content or operation of any third party services.
@@ -446,19 +806,16 @@ const handleOTP = async (e) => {
                         <p>
                             You hereby approve and / or authorise Lakshmi Sai Service Provider to take such measures as are necessary for security purposes and / or improving the quality of services and / or to enhance and provide better Service Provider services to the satisfaction of the User. The User hereby disclaims his right to prevent and/ or proceed against Lakshmi Sai Service Provider in relation to the same.
                         </p>
-                        
                         </div>
-                        
                         <div className="mt-20">
                         <h4>XII. ADDITIONAL DISCLAIMER</h4>
                         <p>
-                            Users using any of Lakshmi Sai Service Provider service across the following mediums ie. through internet ie <a href="https://handymanserviceproviders.com"> https://handymanserviceproviders.com </a>Websiteis bound by this additional disclaimer wherein they are cautioned to make proper enquiry before they (Users) rely, act upon or enter into any transaction (any kind or any sort of transaction including but not limited to monetary transaction ) with the Advertiser listed with Lakshmi Sai Service Provider.
+                            Users using any of Lakshmi Sai Service Provider service across the following mediums ie. through internet ie<a href="https://handymanserviceproviders.com"> https://handymanserviceproviders.com</a> Website is bound by this additional disclaimer wherein they are cautioned to make proper enquiry before they (Users) rely, act upon or enter into any transaction (any kind or any sort of transaction including but not limited to monetary transaction ) with the Advertiser listed with Lakshmi Sai Service Provider.
                         </p>
                         <p>
                             All the Users are cautioned that all and any information of whatsoever nature provided or received from the Advertiser/s is taken in good faith, without least suspecting the bonafides of the Advertiser/s and Lakshmi Sai Service Provider does not confirm, does not acknowledge, or subscribe to the claims and representation made by the Advertiser/s listed with Lakshmi Sai Service Provider. Further, Lakshmi Sai Service Provider is not at all responsible for any act of Advertiser/s listed at Lakshmi Sai Service Provider.
                         </p>
                         </div>
-                        
                         <div className="mt-20">
                         <h4>XIII. LIMITATION OF LIABILITY</h4>
                         <p>
@@ -467,9 +824,7 @@ const handleOTP = async (e) => {
                         <p>
                             THE USER OF THE PLATFORM ASSUMES ALL RESPONSIBILITY AND RISK FOR THE USE OF THIS PLATFORM AND THE INTERNET GENERALLY. THE FOREGOING LIMITATIONS SHALL APPLY NOTWITHSTANDING ANY FAILURE OF THE ESSENTIAL PURPOSE OF ANY LIMITED REMEDY AND TO THE FULLEST EXTENT PERMITTED UNDER APPLICABLE LAW. SOME COUNTRIES DO NOT ALLOW THE EXCLUSION OR LIMITATION OF LIABILITY OF CONSEQUENTIAL OR INCIDENTAL DAMAGES, SO THE ABOVE EXCLUSIONS MAY NOT APPLY TO ALL USERS; IN SUCH COUNTRIES LIABILITY IS LIMITED TO THE FULLEST EXTENT PERMITTED BY LAW.
                         </p>
-                        
                         </div>
-                        
                         <div className="mt-20">
                         <h4>XIV. THIRD PARTY SITES</h4>
                         <p>
@@ -481,16 +836,13 @@ const handleOTP = async (e) => {
                         <p>
                             <b>DELETIONS FROM SERVICE:</b> Lakshmi Sai Service Provider will delete any materials at the request of the user who submitted the materials or at the request of an advertiser who has decided to "opt-out" of the addition of materials to its advertising, including, but not limited to ratings and reviews provided by third parties. Lakshmi Sai Service Provider reserves the right to delete (or to refuse to post to public forums) any materials it deems detrimental to the system or is, or in the opinion of Lakshmi Sai Service Provider, may be, defamatory, infringing or violate of applicable law. Lakshmi Sai Service Provider reserves the right to exclude Material from the Platform. Materials submitted to Lakshmi Sai Service Provider for publication on the Platform may be edited for length, clarity and/or consistency with Lakshmi Sai Service Provider editorial standards.
                         </p>
-                        
                         </div>
-                        
                         <div className="mt-20">
                         <h4>XV. INDEMNIFICATION</h4>
                         <p>
                             You agree to indemnify and hold us and (as applicable) our parent, subsidiaries, affiliates, officers, directors, agents, and employees, harmless from any claim or demand, including reasonable attorneys' fees, made by any third party due to or arising out of your breach of these Terms, your violation of any law, or your violation of the rights of a third party, including the infringement by you of any intellectual property or other right of any person or entity. These obligations will survive any termination of the Terms.
                         </p>
                         </div>
-                        
                         <div className="mt-20">
                         <h4>XVI. MISCELLANEOUS</h4>
                         <p>
@@ -505,15 +857,44 @@ const handleOTP = async (e) => {
                         <p>
                             Entire Agreement. These Terms constitutes the entire agreement between you and us with respect to the subject matter of these Terms and supersedes all prior written and all prior or contemporaneous oral communications regarding such subject matter. Accordingly, you should not rely on any representations or warranties that are not expressly set forth in these Terms. If any provision or provisions of these Terms shall be held to be invalid, illegal, unenforceable or in conflict with the law of any jurisdiction, the validity, legality and enforceability of the remaining provisions shall not in any way be affected or impaired. Except as provided in Section 1, these Terms may not be modified except by writing signed by you and us; provided, however, we may change these Terms from time to time, and such revised terms and conditions shall be effective with respect to any Advertising Products ordered after written notice of such revised terms to you or, if earlier, posting of such revised terms and conditions on our Website.
                         </p>
-                        </div> 
+                        </div>
                         <div className="mt-20">
                         <h4>XVII. END OF TERMS OF SERVICE</h4>
                         <p>
                             If you have any questions or concerns regarding this Agreement, please contact us at <a href="mailto:handymanserviceproviders@gmail.com.">handymanserviceproviders@gmail.com.</a>
                         </p>
-                        </div>
+                        </div> 
                 </div>
             </div>
+            <div align="center">
+                <h3 class="tc">Cancellation and Refund Policy</h3>
+            </div>
+            <div class="text-justify">
+                <div class="mt-20">
+                    <h4>1. Cancellation Policy</h4>
+                    <p>
+                        Customers can request a cancellation before the service begins for a full refund.
+                        If the technician has already arrived or started the work, a partial refund may be issued based on the work completed.
+                        Cancellations must be requested via phone, email, or the official website.
+                    </p>
+                    </div>
+                    <div class="mt-20">
+                        <h4>2. Refund Policy </h4>
+                        <p>
+                            Full Refund: Issued if the service is canceled before the technician starts work.
+                            Partial Refund: If the service is partially completed, the refund amount will be adjusted accordingly.
+                            No Refund: If the service is fully completed and meets the agreed-upon standards.
+                        </p>
+                  </div>
+                    <div class="mt-20">
+                        <h4>3. Exceptions & Special Cases</h4>
+                        <p>
+                            If the technician is unable to complete the job due to unforeseen issues (e.g., faulty wiring, additional materials needed), the customer may be eligible for a reschedule or partial refund.
+                            Refunds are processed within 5-7 business days via the original payment method.
+                            For any cancellation or refund inquiries, please contact <a href="mailto:lakshmisaiserviceproviders@gmail.com">lakshmisaiserviceproviders@gmail.com</a>.
+                        </p>
+                    </div>
+                  </div>
             <div className = "text-center">
             <button className="btn btn-danger w-20" title="close" onClick={() => setShowModal(false)}>Close</button>
             </div>
@@ -521,56 +902,44 @@ const handleOTP = async (e) => {
         </div>
       )} 
 
-          <div style={{ width: '100%', textAlign: 'start', padding: '1rem' }}>
-          <button
-    type="submit"
-    className={`responsive-login-btn ${submitted ? 'disabled' : ''}`}
-    disabled={submitted}>
-    {submitted ? 'Loading...' : 'Login'}
-  </button>
+<div className="button">
+    {/* <button className="btn-back m-2">Back</button> */}
+    <button className="btn-continue m-2"  onClick={handleBothActions}
+    >Proceed</button>
+</div>
+ 
+{/* {showConfirmation && (
+    <div className='text-center m-2'>
+         <label className='blinking-text fw-bold fs-2 text-success'>
+            Technician Arrived as per your time slot
+        </label> 
+        <label className='fs-2 bg-warning fw-bold w-100 p-2'>
+            Technician Confirmation Code is: {technicianConfirmationCode}
+        </label>
+        <button className='btn btn-primary m-2' onClick={handleSendSMSLowestBidder}>Send SMS</button>
+    </div> )}
+  */}
     </div>
-        </form>
-      </div>
+    </div>
+    </div>
+    </div>
+    <Footer /> 
 
-      {/* Terms Modal
-      <Modal show={showTerms} onHide={() => setShowTerms(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Terms and Conditions</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <iframe src="/TermsAndConditions" width="100%" height="400px" title="Terms" />
-        </Modal.Body>
-      </Modal>
-
-      {/* Privacy Policy Modal 
-      <Modal show={showPrivacy} onHide={() => setShowPrivacy(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Privacy Policy</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <iframe src="/PrivacyPolicy" width="100%" height="400px" title="Privacy Policy" />
-        </Modal.Body>
-      </Modal> */}
-      {/* Styles for floating menu */}
+    {/* Styles for floating menu */}
 <style jsx>{`
-        .floating-menu {
+        .modal-overlay {
           position: fixed;
-          top: 80px; /* Increased from 20px to avoid overlapping with the logo */
-          left: 20px; /* Adjusted for placement on the left side */
+          top: 0;
+          left: 0;
+          width: 110%;
+          height: 110%;
+          background: rgba(0, 0, 0, 0.5);
+          display: flex;
+          justify-content: center;
+          align-items: center;
           z-index: 1000;
         }
-        // .modal-overlay {
-        //   position: fixed;
-        //   top: 0;
-        //   left: 0;
-        //   width: 110%;
-        //   height: 110%;
-        //   background: rgba(0, 0, 0, 0.5);
-        //   display: flex;
-        //   justify-content: center;
-        //   align-items: center;
-        //   z-index: 1000;
-        // }
+
         .modal-content {
           background: white;
           padding: 20px;
@@ -586,4 +955,4 @@ const handleOTP = async (e) => {
   );
 };
 
-export default LoginPage;
+export default BuyProductPaymentPage;

@@ -1387,7 +1387,7 @@ textarea {
 }
 
 .sidebar-container {
-  background-color: #FAFAFA;
+  /* background-color: #FAFAFA; */
   width: 200px;
   height: 420px;
   max-height: 100vh;
