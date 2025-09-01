@@ -6,7 +6,7 @@ import './App.css';
 import HandyManCharacter from "./img/hm_char.png";
 import HandyManLogo from "./img/Hm_Logo 1.png";
 // import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-    
+     
   
 const LoginPage = () => {
     // const Navigate = useNavigate();

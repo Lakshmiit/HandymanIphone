@@ -9,7 +9,7 @@ const LandingPage = () => {
       
   const wordRefs = useRef([]);
 
-  useEffect(() => {
+  useEffect(() => { 
     wordRefs.current.forEach((word, index) => {
       setTimeout(() => {
         if (word) word.classList.add('show');
