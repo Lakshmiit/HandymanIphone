@@ -2,7 +2,7 @@ import React, {useEffect, useRef } from "react";
 import './App.css';
 import HandyManCharacter from "./img/hm_char.png";
 import HandyManLogo from "./img/Hm_Logo 1.png";
-// import { useNavigate } from 'react-router-dom';
+
 
 const LandingPage = () => {
   // const navigate = useNavigate();
@@ -16,11 +16,11 @@ const LandingPage = () => {
       }, index * 1000);
     });
 
-    // const totalDuration = wordRefs.current.length * 1500;
-    // const redirectTimeout = setTimeout(() => {
-    //   window.location.href = '/loginnew';
-    // }, totalDuration);
-    // return () => clearTimeout(redirectTimeout);
+    const totalDuration = wordRefs.current.length * 1500;
+    const redirectTimeout = setTimeout(() => {
+      window.location.href = '/loginnew';
+    }, totalDuration);
+    return () => clearTimeout(redirectTimeout);
   }, []);
 
   return (
