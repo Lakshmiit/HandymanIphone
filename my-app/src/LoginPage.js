@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-// import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 // import {useNavigate } from "react-router-dom";
 // import Modal from 'react-bootstrap/Modal';
@@ -15,7 +15,7 @@ const LoginPage = () => {
   const [mobile, setMobile] = useState('');
 // const [consent, setConsent] = useState(false);
   const [isChecked, setIsChecked] = useState('');
-  // const [showTerms, setShowTerms] = useState(false);
+  // const [showTerms, setShowTerms] = useState(f alse);
   // const [showPrivacy, setShowPrivacy] = useState(false);
   const [error, setError] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -23,11 +23,11 @@ const LoginPage = () => {
   // const [countryCode, setCountryCode] = useState("+91"); 
   // const fullMobileNumber = `${countryCode}${mobile}`;
 //   const mobileNumber = "9885803193";
-// const [mobileNumber] = useState('');
+// const [mobileNumber] = useState('');     
 
 // const{mobileError,setMobileError}=useState("");
 
-
+   
   const handleMobileChange = (e) => {
     const value = e.target.value;
     if (/^\d{0,10}$/.test(value)) {
@@ -210,7 +210,7 @@ const handleOTP = async (e) => {
     required
     onChange={(e) => setIsChecked(e.target.checked)}
   />
-  <button
+  <button 
     onClick={(e) => {
       e.preventDefault();
       setShowModal(true);
