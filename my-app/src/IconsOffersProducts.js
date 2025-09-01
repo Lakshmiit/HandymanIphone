@@ -11,11 +11,11 @@ import { useParams } from 'react-router-dom';
 import Footer from './Footer';
 import { Button } from 'react-bootstrap';
 import axios from 'axios';
-import Electrical from './img/Electrical.jpeg';
-import Electronics from './img/Electronics.jpeg';
-import Plumbing from './img/Plumbing.jpeg';
-import Hardware from './img/Hardware.jpeg';
-import HomeDecor from './img/HomeDecor.jpeg';
+import Electrical from './img/Electrical1.jpeg';
+import Electronics from './img/Electronics1.jpeg';
+import Plumbing from './img/Plumbing1.jpeg';
+import Hardware from './img/Hardware1.jpeg';
+import HomeDecor from './img/HomeDecor1.jpeg';
 // import Beauty from './img/Beauty.jpeg.webp';
 
 // import HomeIcon from '@mui/icons-material/Home';
@@ -104,7 +104,7 @@ const [error, setError] = useState('');
           setProducts([]);
           setError(`Oops! No products found for ${value} category.`);
         }
-      };
+      }; 
       
       
   return (

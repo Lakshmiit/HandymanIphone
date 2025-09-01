@@ -3,27 +3,27 @@ import { Link } from "react-router-dom";
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import RouteIcon from '@mui/icons-material/Route';
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+// import RouteIcon from '@mui/icons-material/Route';
+// import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import StorefrontIcon from '@mui/icons-material/Storefront';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import InventoryIcon from '@mui/icons-material/Inventory';
-import UploadIcon from '@mui/icons-material/Upload';
-import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import TransferWithinAStationIcon from '@mui/icons-material/TransferWithinAStation';
+// import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+// import InventoryIcon from '@mui/icons-material/Inventory';
+// import UploadIcon from '@mui/icons-material/Upload';
+// import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+// import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+// import TransferWithinAStationIcon from '@mui/icons-material/TransferWithinAStation';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import ApartmentIcon from '@mui/icons-material/Apartment';
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 
 import { useParams } from 'react-router-dom';
 const Sidebar = () => {  
   const {userType} = useParams();
   const {userId} = useParams();
-  const {district} = useParams();
-  const {category} = useParams();
-  const {ZipCode} =useParams();
-  const {technicianFullName}=useParams();
+//   const {district} = useParams();
+//   const {category} = useParams();
+//   const {ZipCode} =useParams();
+//   const {technicianFullName}=useParams();
 
 const menuConfig = {
     customer: [
@@ -55,7 +55,7 @@ const menuConfig = {
     //   { MenuIcon: <ShoppingCartIcon />, MenuTitle: "Lakshmi Home Grocery", TargetUrl: `/grocery/${userType}/${userId}`},
       { MenuIcon: <ApartmentIcon />, MenuTitle: "Apartment Common Area Maintenance", TargetUrl: `/aboutApartmentRaiseTicket/${userType}/${userId}`}, 
     ],
-
+ 
     // builder: [
     //   { MenuIcon: <DashboardIcon />, MenuTitle: "Dashboard", TargetUrl: `/profilePage/${userType}/${userId}` },
     //   { MenuIcon: <PersonAddIcon />, MenuTitle: "Book A Technician", TargetUrl: `/bookTechnician/${userType}/${userId}` },

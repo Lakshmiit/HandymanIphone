@@ -914,7 +914,7 @@ const fetchImageUrl = async (photoId) => {
                     <div className="d-flex align-items-start" style={{ cursor: "pointer" }} onClick={() => document.getElementById('myTicketsSection')?.scrollIntoView({ behavior: 'smooth' })}>
                       <ConfirmationNumberIcon sx={{ fontSize: 24, marginRight: '8px' }} />
                       <small style={{ fontSize: "13px", fontFamily: "Poppins", lineHeight: "28px" }}>My Tickets</small>
-                    </div>
+                    </div> 
                     <hr style={{ margin: '8px 0' }} />
                   <div className="d-flex align-items-center logout-btn" style={{ cursor: 'pointer' }} onClick={() => window.location.href = "/loginnew"}>
                     <LogoutIcon className="me-2" />

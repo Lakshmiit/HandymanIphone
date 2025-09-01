@@ -12,7 +12,7 @@ import { Button} from 'react-bootstrap';
 import {  useParams } from 'react-router-dom';
 const AboutApartmentRaiseTicket = () => {
     // const Navigate = useNavigate();
-  const {userType} = useParams();
+  const {userType} = useParams(); 
    const {userId} = useParams();
   const {selectedUserType} = useParams();
   const [isMobile, setIsMobile] = useState(false);

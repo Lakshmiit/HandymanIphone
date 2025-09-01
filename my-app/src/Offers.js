@@ -632,7 +632,7 @@ useEffect(() => {
     onClick={() => window.location.href = `/profilePage/${userType}/${userId}`}
   >
     Back
-  </button>
+  </button> 
 </div>
 </div>
 </div>

@@ -9,7 +9,7 @@ import axios from 'axios';
 // import RaiseTicketConfirmation from './RaiseTicketConfirmation.js';
 import Sidebar from './Sidebar';
 import {  useParams } from 'react-router-dom';
-const ApartmentRaiseTicket = () => {
+const ApartmentRaiseTicket = () => { 
 //    const navigate = useNavigate();
    const {userType} = useParams();
    const {userId} = useParams();

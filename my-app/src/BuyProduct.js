@@ -15,7 +15,7 @@ const BuyProduct = () => {
 //   const navigate = useNavigate();
   // const location = useLocation();
   const [category, setCategory] = useState('');
-  const [productName, setProductName] = useState('');
+  const [productName, setProductName] = useState(''); 
   const [productCatalogue, setProductCatalogue] = useState('');
   const [productSize, setProductSize] = useState('');
   const [chooseColor, setChooseColor] = useState('');

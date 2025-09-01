@@ -21,7 +21,7 @@ const OTPVerificationPage = () => {
    
 //  const [mobileNumber, setMobileNumber] = useState('');
    
-useEffect(() => {
+useEffect(() => { 
   console.log(userId, userData);
 }, [userId, userData]);
 

@@ -18,7 +18,7 @@ import IconsOffersProducts from './IconsOffersProducts.js';
 import Offers from './Offers.js';
 import BuyProductPaymentPage from './BuyProductPaymentPage.js';
 import BuyProductView from './BuyProductView';
-
+ 
 
 const PreventBackNavigation = () => {
 

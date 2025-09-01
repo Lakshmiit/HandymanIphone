@@ -10,7 +10,7 @@ import './App.css';
 import axios from "axios";
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { Dialog, } from '@mui/material';
-import ChatLogo from './img/ChatLogo_123.jpeg';
+import ChatLogo from './img/ChatLogo_1234.jpeg';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
