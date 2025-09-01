@@ -27,7 +27,7 @@ const LoginPage = () => {
 
 // const{mobileError,setMobileError}=useState("");
 
-
+   
   const handleMobileChange = (e) => {
     const value = e.target.value;
     if (/^\d{0,10}$/.test(value)) {
