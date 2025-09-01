@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 // import {useNavigate } from "react-router-dom";
 // import Modal from 'react-bootstrap/Modal';
 import HandyManCharacter from "./img/hm_char.png";
 import HandyManLogo from "./img/Hm_Logo 1.png";
 // import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-   
+    
   
 const LoginPage = () => {
     // const Navigate = useNavigate();

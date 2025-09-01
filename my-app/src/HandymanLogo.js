@@ -6,7 +6,7 @@ import HandyManLogo from "./img/Hm_Logo 1.png";
 
 const LandingPage = () => {
   // const navigate = useNavigate();
-     
+      
   const wordRefs = useRef([]);
 
   useEffect(() => {
