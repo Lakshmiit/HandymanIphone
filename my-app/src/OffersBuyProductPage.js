@@ -1,252 +1,440 @@
-import React, { useEffect, useState} from 'react';
+import React, { useState, useEffect, useCallback} from "react";
+import "./App.css";
 import Sidebar from './Sidebar';
-import { Button } from 'react-bootstrap';
 import Header from './Header.js';
 import Footer from './Footer.js';
-import { Dashboard as MoreVertIcon } from '@mui/icons-material';
 import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
-import './App.css';
 import { useParams } from "react-router-dom";
+import { Dashboard as MoreVertIcon,} from '@mui/icons-material';
+import ViewOffersBuyProductPage from "./ViewOffersBuyProductPage.js";
+import { Button, Form, Modal } from 'react-bootstrap'; 
+import axios from "axios";
 
-const PaymentConfirmation = () => {
-  // const Navigate = useNavigate();
-  const {userType} = useParams();
-  const {userId} = useParams();
+const OffersBuyProduct = () => { 
+//   const navigate = useNavigate();
+  const {id} = useParams();
+  const {userType} = useParams(); 
+  const [loading, setLoading] = useState(true);
+  const [buyProductId, setBuyProductId] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
- const {raiseTicketId} = useParams();
-  const [isChecked, setIsChecked] = useState('');
-  // const [id, setId] = useState('');
-const [technicianData, setTechnicianData] = useState('');
-const [bookTechnicianIds, setBookTechnicianId] = useState('');
-const [loading, setLoading] = useState(true);
-const [state, setState] = useState('');
-const [district, setDistrict] = useState('') 
-const [zipCode, setZipcode] = useState('');
-const [address, setAddress] = useState('');
-// const [customerId, setCustomerId] = useState(''); 
-const [category, setCategory] = useState('');
-const [customerName, setCustomerName] = useState('');
-const [technicianConfirmationCode, setTechnicianConfirmationCode] = useState('');
-// const [showConfirmation, setShowConfirmation] = useState(false);
-// const [selectedJob, setSelectedJob] = useState([{remarks: "", discount: "", moreInfo: "", afterDiscount: "", jobDescription: ""}]);
-const [selectedPayment, setSelectedPayment] = useState(null);
-const [showModal, setShowModal] = useState(false);
-// const [status, setStatus] = useState('');
-const [rate, setRate] = useState('');
-const [discount, setDiscount] = useState('');
-const [afterDiscount, setAfterDiscount] = useState('');
-const [jobDescription, setJobDescription] = useState('');
-const [phoneNumber, setPhoneNumber] = useState('');
-const [moreInfo, setMoreInfo] = useState('');
-const [remarks, setRemarks] = useState('');
-const [error, setError] = useState("");
-const [emailAddress, setEmailAddress] = useState("");
-const [requiredQuatity, setRequiredQuantity] = useState('');
-const [totalAmount, setTotalAmount] = useState('');
-const [paymenterror, setPaymentError] = useState(null);
-
-  // const paymentDataTime = new Date().toLocaleString("en-IN", {
-  //   timeZone: "Asia/Kolkata",
-  //   day: "2-digit",
-  //   month: "2-digit",
-  //   year: "numeric",
-  //   hour: "2-digit",
-  //   minute: "2-digit",
-  //   hour12: false
-  // }).replace(",", "");
-
+  const { selectedUserType } = useParams(); 
+  const [category, setCategory] = useState("");
+  const [productSize, setProductSize] = useState("");
+  const [productCatalogue, setProductCatalogue] = useState("");
+  const [chooseColor, setChooseColor] = useState([]);
+  const [selectedColor, setSelectedColor] = useState("");
+  const [requiredQuality, setRequiredQuality] = useState("");
+  const [rate, setRate] = useState("");
+  const [discount, setDiscount] = useState("");
+  const [productName, setProductName] = useState("");
+  const [newAddress, setNewAddress] = useState('');
+  const [addresses, setAddresses] = useState([]);
+  const [fullName, setFullName] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [quantityError, setQuantityError] = useState("");
+  const [checkError, setCheckError] = useState("");
+  const [isChecked, setIsChecked] = useState(false);
+  const [showModals, setShowModals] = useState(false);
+  const [colorError, setColorError] = useState("");
+  const [productOptions, setProductOptions] = useState([]);
+  const { userId } = useParams(); 
+  const [showProductModal, setShowProductModal] = useState(false);
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [state, setState] = useState('');
+  const [districtList, setDistrictList] = useState([]);  
+  const [stateList, setStateList] = useState([]);
+  const [district, setDistrict] = useState('');  
+  const [districtId, setDistrictId] = useState('');    
+  const [stateId, setStateId] = useState(null); 
+  const [zipCode, setZipCode] = useState('');
+  const [guestCustomerId, setGuestCustomerId] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState(null);
+  const [addressData, setAddressData] = useState({
+  fullName  : '',
+  mobileNumber: '',
+  address: '',
+  state: '',
+  district: '',
+  zipCode: '',
+  });
+  const [shouldBlink,setShouldBlink] = useState(false);
+  const [deliveryInDays, setDeliveryInDays] = useState('');
+  const [numberOfStockAvailable, setNumberOfStockAvailable] = useState('');
+  const [disableBuy, setDisableBuy] = useState(false);
   useEffect(() => {
-      console.log( technicianData, technicianConfirmationCode);
-    }, [technicianData, technicianConfirmationCode]);
+    console.log(loading, productOptions, editingAddressId, buyProductId);
+  }, [loading, productOptions, editingAddressId, buyProductId]);
   
-  useEffect(() => {
-    const fetchtechnicianData = async () => {
+    const fetchProfileType = useCallback(async () => {
       try {
-        const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BookTechnician/GetBookTechnician/${raiseTicketId}`);
+        const API_URL = "https://handymanapiv2.azurewebsites.net/api/Address/GetAddressById/";
+        const response = await fetch(`${API_URL}${userId}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch technician data');
+          throw new Error("Failed to fetch customer profile data");
         }
         const data = await response.json();
-        setTechnicianData(data);
-        // alert(JSON.stringify(data));
-        // setTechnicianConfirmationCode(data.id);
-        setBookTechnicianId(data.bookTechnicianId);
-        setCustomerName(data.customerName);
-        setAddress(data.address);
-        setCategory(data.category); 
-        // setCustomerId(data.customerId);
-        setState(data.state);
-        setDistrict(data.district);
-        setZipcode(data.zipCode);
-        setPhoneNumber(data.phoneNumber);
-        setRemarks(data.remarks);
-        setDiscount(data.discount);
-        setMoreInfo(data.moreInfo);
-        setAfterDiscount(data.afterDiscount);
-        setJobDescription(data.jobDescription);
-        setRate(data.rate);
-        setEmailAddress(data.customerEmail);
-        setRequiredQuantity(data.noOfQuantity);
-        setTotalAmount(data.totalAmount);
-        } catch (error) {
-        console.error('Error fetching ticket data:', error);
-      } finally {
-        setLoading(false);
+        console.log(data);
+        const addresses = Array.isArray(data) ? data : [data];
+        const formattedAddresses = addresses.map((addr) => ({
+          id: addr.addressId,
+          type: addr.isPrimaryAddress ? "primary" : "secondary",
+          address: addr.address,
+          state: addr.state,
+          district: addr.district,
+          zipCode: addr.zipCode,
+          mobileNumber: addr.mobileNumber,
+          customerName: addr.customerName,
+          emailAddress: addr.emailAddress,
+          fullName: addr.fullName, 
+        }));
+        
+        setAddresses(formattedAddresses);
+        const customerName = Array.isArray(data) ? data[0]?.fullName || '' : data.fullName || '';
+        setFullName(customerName);
+      } catch (error) {
+        console.error("Error fetching customer data:", error);
       }
-    };
-    fetchtechnicianData();
-  }, [raiseTicketId]);
+  }, [userId]);
 
-  // Detect screen size for responsiveness
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    handleResize(); // Set initial state
-    window.addEventListener('resize', handleResize);
-  
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    fetchProfileType();
+  }, [fetchProfileType]);
 
+   useEffect(() => {
+     axios.get('https://handymanapiv2.azurewebsites.net/api/MasterData/getStates')
+       .then(response => {
+         const data = response.data;
+         console.log("States API Response:", data); 
+         setStateList(data);
+         setStateId('');
+       })
+       .catch(error => {
+         console.error('Error fetching states:', error);
+       });
+   }, []);
+   
+    
+    useEffect(() => {
+     if (stateId) {
+       axios.get(`https://handymanapiv2.azurewebsites.net/api/MasterData/getDistricts/${stateId}`)
+         .then(response => {
+           setDistrictList(response.data);
+         })
+         .catch(error => {
+           console.error('Error fetching districts:', error);
+         });
+     } else {
+       setDistrictList([]);
+     }
+   }, [stateId]);
 
-const handleUpdateJobDescription = async (e) => {
-  e.preventDefault();
-  if (selectedPayment === "online") {
-    setPaymentError("⚠️ Online payment is not available at the moment. Only Cash On Delivery Available.");
+  const validRate = Number(rate) || 0;
+  const validDiscount = Number(discount) || 0;
+  const afterDiscountPrice = parseFloat((validRate - (validRate * validDiscount) / 100).toFixed(0));
+  const totalAmount = parseFloat((requiredQuality * afterDiscountPrice).toFixed(0));
+
+  const handleGetQuotation = async (e) => {
+    e.preventDefault();
+
+     if (numberOfStockAvailable === 0) {
+    setQuantityError("No stock available.");
     return;
   }
 
-  if (!selectedPayment) {
-    setError("Please select at least one payment method.");
+    if (!selectedColor) {
+        setColorError("Please Enter Select Color Field!");
+        return;
+      }
+
+    if (!requiredQuality) {
+      setQuantityError("Please Enter Required Quantity Field!");
+      return;
+    }
+
+    if (!isChecked) {
+      setCheckError("You must accept the terms and conditions before submitting.");
+      return;
+    }
+  
+    const primaryAddress = addresses.find((addr) => addr.type === "primary");
+    const state = primaryAddress?.state || "";
+    const district = primaryAddress?.district || "";
+    const pincode = primaryAddress?.zipCode || "";
+    const mobileNumber = primaryAddress?.mobileNumber || "";
+    // const emailAddress = primaryAddress?.emailAddress || "";
+  
+    const payload = {
+      BuyProductId:"string",
+      id: "string",
+      date: new Date(),
+      Address: addressData.address || primaryAddress?.address || "",
+      CustomerPhoneNumber: addressData.mobileNumber || mobileNumber,
+      category:category,
+      status: "Draft",
+      productName,
+      ProductCatalogue: productCatalogue,
+      productSize,
+      rate: rate.toString(),
+      discount: discount.toString(),
+      afterDiscountPrice: afterDiscountPrice.toString(),
+      color: chooseColor,
+      selectedColors: selectedColor,
+      requiredQuantity: requiredQuality.toString(),
+      totalAmount: totalAmount.toString(),
+      AssignedTo: "Customer Care",
+      DeliveryCharges: "",
+      ServiceCharges: "",
+      TotalPaymentAmount: "",
+      AddressType: primaryAddress ? "primary" : "secondary",
+      State: addressData.state || state,
+      District: addressData.district || district,
+      ZipCode: addressData.zipCode || pincode,
+      CustomerId: userId,
+      CustomerName: addressData.fullName || fullName,
+      RequestedBy: userId,
+      PaymentMode:"",
+      UTRTransactionNumber:"",
+      TechnicianConfirmationCode:"",
+      DeliveryDate: deliveryInDays,
+      TechnicianDetils:"",
+      ProductView: "Draft",
+      InvoiceDetails:"",
+      UploadInvoice: [],
+      WarrentyPeriod: "",
+      CustomerEmail: "emailAddress",
+      OrderId: "",
+      OrderDate: "",
+      PaidAmount: "",
+      TransactionStatus: "",
+      TransactionType: "",
+      InvoiceId: "",
+      InvoiceURL: "",
+    };
+  
+    try {
+      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BuyProduct/BuyProductUpload`,{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+       throw new Error("Failed to submit quotation.");
+      }
+      const buyProductData = await response.json();
+      setBuyProductId(buyProductData.buyProductId);
+      localStorage.setItem('id', id); 
+     window.location.href = `/buyProductPaymentPage/${userType}/${userId}/${buyProductData.buyProductId}`;
+    } catch (error) {
+      console.error("Error submitting quotation:", error);
+      window.alert('Failed to submitting quotation. Please try again later.');    }
+  };
+
+  const handleColorChange = (e) => {
+    const inputColor = e.target.value;
+    if (chooseColor.includes(inputColor)) {
+      setSelectedColor(inputColor);
+      setColorError("");
+    } else {
+      setColorError("Please choose a color from the given options!");
+    }
+  };
+
+  const handleQuantityChange = (e) => {
+    const value = e.target.value.trim();
+  if (Number(numberOfStockAvailable) === 0) {
+    setRequiredQuality("");
+    setQuantityError("No stock available.");
+    setDisableBuy(true);
+    setIsChecked(false);
     return;
   }
 
-  if (!isChecked) {
-      alert("You must accept the terms and conditions.");
-      return; 
-    }  
-
-  const payload = {
-    id: raiseTicketId,  
-    bookTechnicianId: bookTechnicianIds,
-    date: new Date(),
-    customerName: customerName,
-    address: address,
-    state: state,
-    district: district,
-    zipCode: zipCode,
-    category: category,
-    jobDescription: jobDescription,
-    rate: rate,
-    discount: discount,
-    afterDiscount: afterDiscount,
-    remarks: remarks,
-    moreInfo: moreInfo,
-    status: "Open",
-    customerId: userId,
-    CustomerEmail: emailAddress,
-    assignedTo: "",
-    phoneNumber: phoneNumber,
-    paymentMode: selectedPayment,
-    approvedAmount: afterDiscount,
-    utrTransactionNumber: "",
-    technicianConfirmationCode: "",
-    noOfQuantity: requiredQuatity,
-    totalAmount: totalAmount, 
-    OrderId: "", 
-    OrderDate: "",
-    PaidAmount: "",
-    TransactionStatus: "",
-    TransactionType: "",
-    InvoiceId: "", 
-    InvoiceURL: "",
-    TechnicianPincode: "",
-    TechnicianName: [],
-    TechnicianFullName: "",
-  };
-
-
-  const payload1 = {
-    ...payload, 
-    status: selectedPayment === "online" ? "Draft" : "Open",
-  };
-
-  try {
-    let response;
-    if (selectedPayment === 'online') {
-     response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BookTechnician/${raiseTicketId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload1),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to Update Technician.');
-    }
-    const data = await response.json();
-
-    // Store confirmation code in state
-    setTechnicianConfirmationCode(data.technicianConfirmationCode);
-    window.alert(`We are Redirecting to the Payment Page! Your reference number is ${bookTechnicianIds}. Technician will contact you shortly.`);
-    window.location.href=`https://localhost:7155/PaymentPage/${raiseTicketId}`;
-  } else if (selectedPayment === 'technician') {
-    response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BookTechnician/${raiseTicketId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload1),
-    });
-
-    if (!response.ok) {
-    }
-    const data = await response.json();
-
-    // Store confirmation code in state
-    setTechnicianConfirmationCode(data.technicianConfirmationCode);
-    window.alert(`Thank You for choosing the HandyMan Services! Your reference number is ${bookTechnicianIds}. Technician will contact you shortly.`);
-    window.location.href = `/profilePage/${userType}/${userId}`;
-   }
-  } catch (error) {
-    console.error('Error:', error);
-    window.alert('Failed to Update Technician. Please try again later.');
+  if (value === "") {
+    setRequiredQuality("");
+    setQuantityError("Quantity is required.");
+    setDisableBuy(true);
+    setIsChecked(false);
+    return;
   }
-};
 
-// const handleBothActions = (e) => {
-//   e.preventDefault();
-//   // handleBookTechnicianPayment(e);
-//   handleUpdateJobDescription(e);
-// };
+  if (/^[1-9]\d*$/.test(value)) {
+    const qty = Number(value);
 
-  
-if (loading) {
-  return <div>Loading...</div>;
-}
+    if (qty > Number(numberOfStockAvailable)) {
+      setQuantityError(`Only ${numberOfStockAvailable} left in stock.`);
+      setDisableBuy(true);
+      setIsChecked(false);
+    } else {
+      setQuantityError("");
+      setDisableBuy(false);
+      setIsChecked(true);
+    }
 
-const handleCheckboxChange = (value) => {
-  const newValue = selectedPayment === value ? null : value;
-  setSelectedPayment(newValue);
-  setError("");
-
-  if (newValue) {
-    setIsChecked(true);
+    setRequiredQuality(qty);
   } else {
+    setQuantityError("Please enter a valid quantity.");
+    setDisableBuy(true);
     setIsChecked(false);
   }
 };
 
+  // Detect screen size for responsiveness
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth <= 768);
+  handleResize(); // Set initial state
+  window.addEventListener('resize', handleResize);
+
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
+
+   const handleSubmit = (e) => {
+     e.preventDefault();
+   };
+
+  // Handle address editing
+  const resetAddressForm = () => {
+    setFullName('');
+    setMobileNumber('');
+    setNewAddress(''); 
+    setState('');
+    setDistrict('');
+    setZipCode('');
+  };
+  
+  const handleAddressEdit = async () => {
+
+  if (!newAddress || !zipCode || !mobileNumber || !state || !district) {
+    alert("Please fill in all required fields.");
+    return; 
+  }
+  if (fullName.trim().toLowerCase() === 'guest') {
+    alert("Please Change Your Full Name.");
+    return;
+  }  
+
+  if (!/^\d{6}$/.test(zipCode)) {
+    alert("Pincode must be exactly 6 digits.");
+    return;
+  }
+
+    const updatedAddress = {
+      id: guestCustomerId,
+      fullName,
+      mobileNumber,
+      address: newAddress,
+      state,
+      district,
+      zipCode,
+    };
+  
+    const payload3 = {
+      id: guestCustomerId,
+      profileType: "profileType",
+      addressId: guestCustomerId,
+      isPrimaryAddress: true,
+      address: newAddress,
+      state: state,
+      district: district,
+      StateId: stateId,
+      DistrictId: districtId,
+      zipCode: zipCode,
+      mobileNumber: mobileNumber,
+      emailAddress: "emailAddress",
+      userId: userId,
+      firstName: fullName,
+      lastName: "lastName",
+      fullName: fullName,
+    };
+  
+    try {
+      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Customer/CustomerAddressEdit`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload3),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error Response:", errorText);
+        throw new Error("Failed to edit address.");
+      }
+  
+      setAddresses(prev =>
+        prev.map(addr => addr.id === guestCustomerId ? updatedAddress : addr)
+      );
+  
+      setAddressData(updatedAddress);
+      await fetchProfileType();
+      alert("Address Updated Successfully!");
+      setShowModal(false);
+      resetAddressForm();
+      setIsEditing(false);
+      setEditingAddressId(null);
+    } catch (error) {
+      console.error("Error editing address:", error);
+      alert("Failed to edit address. Please try again later.");
+    }
+  };
+
+useEffect(() => {
+const fetchProducts = async () => {
+  try {
+    const response = await fetch(
+      `https://handymanapiv2.azurewebsites.net/api/Product/${id}`
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch products");
+    }
+    const data = await response.json();
+    console.log("Fetched Products:", data);
+      setProductOptions(data);
+      setProductName(data.productName);
+      setDeliveryInDays(data.deliveryInDays);
+      setProductCatalogue(data.catalogue);
+      setProductSize(data.productSize);
+      setChooseColor(data.color);
+      setRate(data.rate);
+      setDiscount(data.discount);
+      setCategory(data.category);
+      setNumberOfStockAvailable(data.numberOfStockAvailable);
+      // setPriceAfterDiscount(data.priceAfterDiscount);
+
+  } catch (error) {
+    console.error("Error fetching products:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+fetchProducts();
+}, [id]);
+
+
+const primaryAddress = addresses.find(addr => addr.type === 'primary');
+const isAddressInvalid = !primaryAddress || !primaryAddress.address || !primaryAddress.zipCode;
+useEffect(() => {
+    if (isAddressInvalid) {
+      setShouldBlink(true);
+    } else {
+      setShouldBlink(false);
+    }
+  }, [isAddressInvalid]);
+
   return (
     <div>
-  {isMobile && <Header />}
-    <div className="d-flex">
-        {!isMobile && (
-        <div className="ml-0 p-0 sde_mnu">
-          <Sidebar />
+  <Header />
+    <div className="d-flex flex-row justify-content-start align-items-start">
+      {/* Sidebar menu for Larger Screens */}
+      {!isMobile && (
+        <div className=" ml-0 m-4 p-0 sde_mnu">
+          <Sidebar userType={selectedUserType} />
         </div>
-      )} 
+      )}
 
       {/* Floating menu for mobile */}
       {isMobile && (
@@ -261,110 +449,416 @@ const handleCheckboxChange = (value) => {
 
           {showMenu && (
               <div className="sidebar-container">
-                <Sidebar />
+                <Sidebar userType={selectedUserType} />
               </div>
           )}
         </div>
       )}
 
-<div className={`container m-1 ${isMobile ? "w-100" : "w-75"}`}>
-<h2 className="title mt-mob-100">PAYMENT CONFIRMATION</h2>
-    <div className="booking-confirmation">
-      <p className='text-center fs-4'><strong className='name'>{customerName}</strong> Thank you for Choosing the HandyMan Services</p>
-
-      <table className="booking-table">
-        <tbody>
-          <tr>
-            <td><strong>Ticket Number</strong></td>
-            <td>{bookTechnicianIds}</td>   
-          </tr>
-          <tr>
-            <td><strong>Job Description</strong></td>
-            <td>{jobDescription}</td>
-          </tr>
-          <tr>
-            <td><strong>Required Quantity</strong></td>
-            <td>{requiredQuatity}</td>
-          </tr>
-          <tr>
-            <td><strong>Amount</strong></td>
-            <td>{`Rs ${totalAmount} /-`}</td> 
-          </tr>
-        </tbody>
-      </table>
+      {/* Main Content */}
+      <div className={`container ${isMobile ? 'w-100' : 'w-75'}`}>
+      <h3 className=" text-center mt-mob-50">Buy Products Offers Page</h3>
+        <div className=" rounded-3 p-2 bx_sdw w-100">
+          <form className="form" onSubmit={handleSubmit}>
+           <div className="d-flex justify-content-between align-items-center">
+                               <label className="mt-2">Address <span className="req_star">*</span></label>
+                               {/* <Button variant="success m-1 text-white" onClick={() => setShowModal(true)}>
+                                 Add Address
+                               </Button> */}    
+                    
+                     {/* Modal */}
+                           <Modal show={showModal} onHide={() => setShowModal(false)}>
+                       <Modal.Header closeButton>
+                           <Modal.Title>{isEditing ? 'Edit Address' : 'Add Address'}</Modal.Title>
+                         </Modal.Header>
+                       <Modal.Body>
+                         <Form>
+                           <Form.Group className="mb-3">
+                             <Form.Label>Full Name</Form.Label>
+                             <Form.Control
+                               type="text"
+                               value={fullName}
+                               onChange={(e) => setFullName(e.target.value)}
+                               placeholder="Enter Full name"
+                               required
+                             />
+                           </Form.Group>
+                           <Form.Group className="mb-3">
+                             <Form.Label>Mobile Number</Form.Label>
+                             <Form.Control
+                               name="MobileNumber"
+                               className="form-control"
+                               placeholder="Enter Mobile Number"
+                               maxLength="10"
+                               value={mobileNumber}
+                               onChange={(e) => setMobileNumber(e.target.value)}
+                               
+                             />
+                             </Form.Group>
+                           <Form.Group className="mb-3">
+                             <Form.Control
+                               type="hidden"
+                               name="UserId"
+                               className="form-control"
+                               placeholder="UserId"
+                               value={guestCustomerId}
+                             />
+                           </Form.Group>
+                           <Form.Group className="mb-3">
+                             <Form.Label>Address</Form.Label>
+                             <Form.Control
+                               type="text"
+                               value={newAddress}
+                               onChange={(e) => setNewAddress(e.target.value)}
+                               placeholder="Enter address"
+                               required
+                             />
+                           </Form.Group>
+                           <Form.Group className="mb-3">
+                            <Form.Label>State <span className="req_star">*</span></Form.Label>
+                            <Form.Select
+                              value={stateId || ''}
+                              onChange={(e) => {
+                                const selectedId = e.target.value;
+                                setStateId(selectedId);
+                                const selectedState = stateList.find(
+                                  (s) => s?.StateId?.toString() === selectedId
+                                );
+                                if (selectedState) {
+                                  setState(selectedState.StateName);
+                                }
+                              }}
+                              required
+                            >
+                              <option value="">Select State</option>
+                              {Array.isArray(stateList) &&
+                                stateList
+                                  .filter((s) => s && s.StateId && s.StateName)
+                                  .map((s) => (
+                                    <option key={s.StateId} value={s.StateId.toString()}>
+                                      {s.StateName}
+                                    </option>
+                                  ))}
+                            </Form.Select>
+                          </Form.Group>
       
-      <div className='payment m-2'>
-        <label className='bg-warning fw-bold fs-5 w-100 p-2'>Payment Mode</label>
-        <div className='d-flex flex-column m-1'>
-        {isMobile ? (
-        <div className='d-flex flex-column'>
-        <label className='fs-5'>
-            <input 
-            type="checkbox" 
-            className="form-check-input border-dark m-1"
-            checked={selectedPayment === 'online'}
-            onChange={() => handleCheckboxChange('online')}/>
-            Pay Through Online
-          </label>
-          {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>}
-          <label className='fs-5'>
-            <input 
-            type="checkbox" 
-            className="form-check-input border-dark m-1"
-            checked={selectedPayment === 'technician'}
-            onChange={() => handleCheckboxChange('technician')}/>
-            Cash On Delivery
-          </label>
-          </div>
-        ) : (
-          <div className="desktop-view d-flex flex-column">
-      <label className="me-4">
-        <input 
-          type="checkbox" 
-          className="form-check-input border-dark me-2"
-          checked={selectedPayment === 'online'}
-          onChange={() => handleCheckboxChange('online')}
-        />
-        Pay Through Online
-      </label>
-          {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>}
+                          <Form.Group className="mb-3">
+                            <Form.Label>District <span className="req_star">*</span></Form.Label>
+                          <Form.Select
+                              value={districtId || ''}
+                              onChange={(e) => {
+                                const selectedId = e.target.value;
+                                setDistrictId(selectedId);
+                                const selectedDistrict = districtList.find(d => d.districtId.toString() === selectedId);
+                                if (selectedDistrict) {
+                                  setDistrict(selectedDistrict.districtName);
+                                }
+                              }}
+                              required
+                            >
+                              <option value="">Select District</option>
+                              {districtList.map((d) => (
+                                <option key={d.districtId} value={d.districtId.toString()}>
+                                  {d.districtName}
+                                </option>
+                              ))}
+                            </Form.Select>
+                            </Form.Group>
+                           <Form.Group className="mb-3">
+                             <Form.Label>Pincode</Form.Label>
+                             <Form.Control
+                               type="text"
+                               value={zipCode}
+                               onChange={(e) => {
+                                 const numericValue = e.target.value.replace(/\D/g, ""); 
+                                 if (numericValue.length <= 6) {
+                                   setZipCode(numericValue);
+                                 }
+                               }}              
+                                 placeholder="Enter pincode"
+                                 required
+                             />
+                           </Form.Group>
+                           <Button type="button" variant="primary" onClick={handleAddressEdit}>
+                             {isEditing ? 'Edit Address' : 'Add Address'}
+                           </Button>
+                         </Form>
+                       </Modal.Body>
+                     </Modal>
+                             </div>
+               
+                         <div className="p-3 border rounded bg-light">
+                         {addresses
+                             .map((address) => (
+                               <div 
+                                 key={address.id}
+                                 className="list-group-item d-flex justify-content-between align-items-center bg-white text-dark"
+                               >
+                                 <div>
+                                   {/* <span className="m1-2">{address.id}</span>
+                                   <br /> */}
+                                   <span className="ml-2">{address.fullName}</span>
+                                   <br />
+                                   <span className="ml-2">{address.mobileNumber}</span>
+                                   <br />
+                                   <span className="ml-2">{address.address}</span>
+                                   <br />
+                                   <span className="ml-2">{address.state}</span>
+                                   <br />
+                                   <span className="ml-2">{address.district}</span>
+                                   <br />
+                                   <span className="ml-2">{address.zipCode}</span> 
+                                   <br />
+                                   {/* <hr /> */}
+                                 </div>
+                                 <div className="text-end">
+                                 {addresses.map((address) => (
+                                   <Button
+                                    key={address.id}
+                                    variant={isAddressInvalid ? "primary" : "warning"}
+                                    className={`text-white mx-1 ${shouldBlink ? "blinking-button" : ""}`}                                     onClick={() => {
+                                       setGuestCustomerId(address.id);
+                                       setFullName(address.fullName);
+                                       setMobileNumber(address.mobileNumber);
+                                       setNewAddress(address.address);
+                                       setState(address.state);
+                                       setDistrict(address.district);
+                                       setZipCode(address.zipCode);
+                                       setIsEditing(true);
+                                       setShowModal(true);
+                                     }}
+                                   >
+                                     {address.address === "" ? "Add Address" : "Edit Address"}
+                                   </Button>
+                                 ))}
+                             </div> 
+                               </div>
+                             ))}       
+                             </div>
+                             {fullName.trim().toLowerCase() === "guest" && (
+                              <p className="text-danger">
+                                Note: Please enter your address to Buy A Product.
+                              </p>
+                            )}
+  
+            <div className="form-group">
+              <label>
+                Category <span className="req_star">*</span>
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                value={category}
+                // onChange={handleCategoryChange}
+                readOnly
+              />
+            </div>
+
+      <div className="form-group">
       <label>
-        <input 
-          type="checkbox" 
-          className="form-check-input border-dark me-2"
-          checked={selectedPayment === 'technician'}
-          onChange={() => handleCheckboxChange('technician')}
-        />
-        Cash On Delivery (COD)
+        Product Name <span className="req_star">*</span>
       </label>
-      {error && <p className="text-danger">{error}</p>}
-    </div>
-  )}
-</div>
+      <input
+        type="text"
+        className="form-control"
+        value={productName}
+        // onChange={handleProductChange}
+        placeholder="Choose Product Ceiling Fan, Air Conditioner"
+        readOnly
+        />
+        </div>
+        
+            <div className="form-group">
+              <label>
+                Product Catalogue <span className="req_star">*</span>
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                value={productCatalogue}
+                //  onChange={(e) => setProductCatalogue(e.target.value)}
+                placeholder="Product Catalogue"
+                readOnly
+              />
+            </div>
+
+            <div className="form-group">
+              <label>
+                Product Size <span className="req_star">*</span>
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                value={productSize}
+                // onChange={(e) => setProductSize(e.target.value)}
+                placeholder="Product Size"
+                readOnly
+              />
+            </div>
+
+            <div className="col-md-6">
+                <label>Price <span className="req_star">*</span></label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={rate}
+                  // onChange={rate}
+                  placeholder="Rate"
+                  readOnly
+                />
+              </div>
+              <div className="col-md-6">
+                <label>Discount <span className="req_star">*</span></label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={discount}
+                  // onChange={(e) => setDiscount(e.target.value)}
+                  placeholder="Discount"
+                  readOnly
+                />
+              </div>
+              <div className="col-md-6">
+                <label>Price After Discount <span className="req_star">*</span></label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={afterDiscountPrice}
+                  // onChange={(e) => setAfterDiscount(e.target.value)}
+                  placeholder="After Discount"
+                  readOnly
+                />
+              </div>
+
+              <button
+                type="button"
+                className="btn btn-warning text-white w-50 mt-2"
+                onClick={() => setShowProductModal(true)}
+              >
+                View Product
+              </button>
+              <ViewOffersBuyProductPage
+                show={showProductModal}
+                handleClose={() => setShowProductModal(false)}
+                productId={id}
+              />
+
+            <div className="row">
+            
+<div className="form-group">
+  <label>Available Colours (Optional)</label>
+  <input
+    type="text"
+    className="form-control"
+    value={chooseColor || ""}
+    placeholder="Color"
+    readOnly
+  />
 </div>
 
-      <div className="note m-1">
+<div className="form-group">
+  <label>Select Required Colour</label>
+  <select
+    className="form-control"
+    value={selectedColor}
+    onChange={handleColorChange}
+    required
+  >
+    <option value="">Select Required Color</option>
+    {(typeof chooseColor === "string" ? chooseColor.split(",") : []).map(
+      (color, index) => (
+        <option key={index} value={color.trim()}>
+          {color.trim()}
+        </option>
+      )
+    )}
+  </select>
+  {colorError && <p style={{ color: "red" }}>{colorError}</p>}
+</div>
+
+              {/* <div className="col-md-6">
+                <label>
+                  Required Quantity <span className="req_star">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={requiredQuality}
+                  onChange={handleQuantityChange}
+                  placeholder="Enter Required Quantity"
+                  required
+                  disabled={numberOfStockAvailable === 0}
+                />
+                {/* <input
+                  type="text"
+                  className="form-control"
+                  value={requiredQuality}
+                  onChange={handleQuantityChange}
+                  placeholder="Enter Required Quantity"
+                  required
+                /> 
+                {quantityError && <p style={{ color: "red" }}>{quantityError}</p>}
+              </div> */}
+
+              <div className="col-md-6">
+              <label>
+                Required Quantity <span className="req_star">*</span>
+              </label>
+              <select
+                className="form-control"
+                value={requiredQuality}
+                onChange={handleQuantityChange}
+                disabled={isAddressInvalid}
+                required
+              >
+                <option value="">Select Quantity</option>
+                {[1, 2, 3, 4, 5].map((qty) => (
+                  <option key={qty} value={qty}>
+                    {qty}
+                  </option>
+                ))}
+              </select>
+              {quantityError && <p style={{ color: "red" }}>{quantityError}</p>}
+            </div>
+
+              <div className="col-md-6">
+                <label>
+                  Total Amount<span className="req_star">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={totalAmount}
+                  // onChange={(e) => setTotalAmounts(e.target.value)}
+                  // placeholder="Enter Total Amount"
+                  readOnly
+                />
+              </div>
+             
+            </div>
+
+            <div className="note m-1">
            <label className='fs-5'>
             <input 
             type="checkbox" 
             className="form-check-input border-dark m-1"
             checked={isChecked}
-            onChange={(e) => setIsChecked(e.target.checked)}
-            required
-            />
+            onChange={(e) => setIsChecked(e.target.checked)}/>
             <button
               onClick={(e) => {
                 e.preventDefault();
-                setShowModal(true);
+                setShowModals(true);
               }}
               className="text-primary ms-1"
               style={{ background: "none", border: "none", padding: 0, textDecoration: "underline", cursor: "pointer" }}
               >
-                Terms and Conditions & Privacy Policy & Cancellation and Refund Policy..
+                Terms and conditions & Privacy Policy & Shipping Process ..
               </button>
           </label>
+                {checkError && <p style={{ color: "red" }}>{checkError}</p>}
+
       {/* Modal for Terms and Conditions */}
-      {showModal && (
+      {showModals && (
         <div className="modal-overlay">
           <div className="modal-content">
             <button
@@ -383,7 +877,7 @@ const handleCheckboxChange = (value) => {
     >
       ✕
     </button>
-            <h2>Terms and Conditions</h2>
+            <h2 className="text-center">Terms and Conditions</h2>
             <div className="text-justify">
                     <div className="mt-20">
                         <h4>I. YOUR ACCEPTANCE OF THIS AGREEMENT</h4>
@@ -438,6 +932,7 @@ const handleCheckboxChange = (value) => {
                         <ul>
                         <li>
                             Lakshmi Sai Service Provider reserves the right not to upload or distribute to, or otherwise publish through the Site any Communication which
+                        
                             is obscene, indecent, pornographic, profane, sexually explicit, threatening, or abusive;
                         </li>
                         <li>
@@ -461,7 +956,7 @@ const handleCheckboxChange = (value) => {
                         <li>
                             impersonates another person or entity, or that collects or uses any information about Site visitors.
                         </li>
-                        </ul> 
+                        </ul>
                         <p>
                             It is also clarified that, if there are any issues or claims due to your posts by way of Reviews, Ratings and Comments, then Lakshmi Sai Service Provider reserves right to take appropriate legal action against you. Further, you shall indemnify and protect Lakshmi Sai Service Provider against such claims or damages or any issues, due to your posting of such Reviews, Ratings and Comments Lakshmi Sai Service Provider takes no responsibility and assumes no liability for any content posted by you or any third party on Lakshmi Sai Service Provider site or on any mediums of Lakshmi Sai Service Provider.
                         </p>
@@ -506,6 +1001,7 @@ const handleCheckboxChange = (value) => {
                         <p>
                             While every attempt has been made to ascertain the authenticity of the content in the Platform, Lakshmi Sai Service Provider is not liable for any kind of damages, losses or action arising directly or indirectly, due to access and/or use of the content in the Platform including but not limited to any decisions based on content in the Platform resulting in loss of revenue, profits, property etc.
                         </p>
+                        
                         </div>
                         <div className="mt-20">
                         <h4>IX. WARRANTY DISCLAIMER</h4>
@@ -540,7 +1036,7 @@ const handleCheckboxChange = (value) => {
                         <p>
                             Both User and Service Provider do hereby agree that Lakshmi Sai Service Provider shall not be required to mediate or resolve any dispute or disagreement that might arise between the parties out of these transactions.
                         </p>
-                        <p>
+                        <p> 
                             Service Providers and Users are responsible for researching and complying with any applicable laws, regulations or restrictions on items, services, or manner of sale or exchange that may pertain to transactions in which they participate.
                         </p>
                         <p>
@@ -579,7 +1075,9 @@ const handleCheckboxChange = (value) => {
                         <p>
                             You hereby approve and / or authorise Lakshmi Sai Service Provider to take such measures as are necessary for security purposes and / or improving the quality of services and / or to enhance and provide better Service Provider services to the satisfaction of the User. The User hereby disclaims his right to prevent and/ or proceed against Lakshmi Sai Service Provider in relation to the same.
                         </p>
-                        </div>                        
+                        
+                        </div>
+                        
                         <div className="mt-20">
                         <h4>XII. ADDITIONAL DISCLAIMER</h4>
                         <p>
@@ -589,6 +1087,7 @@ const handleCheckboxChange = (value) => {
                             All the Users are cautioned that all and any information of whatsoever nature provided or received from the Advertiser/s is taken in good faith, without least suspecting the bonafides of the Advertiser/s and Lakshmi Sai Service Provider does not confirm, does not acknowledge, or subscribe to the claims and representation made by the Advertiser/s listed with Lakshmi Sai Service Provider. Further, Lakshmi Sai Service Provider is not at all responsible for any act of Advertiser/s listed at Lakshmi Sai Service Provider.
                         </p>
                         </div>
+                        
                         <div className="mt-20">
                         <h4>XIII. LIMITATION OF LIABILITY</h4>
                         <p>
@@ -597,7 +1096,9 @@ const handleCheckboxChange = (value) => {
                         <p>
                             THE USER OF THE PLATFORM ASSUMES ALL RESPONSIBILITY AND RISK FOR THE USE OF THIS PLATFORM AND THE INTERNET GENERALLY. THE FOREGOING LIMITATIONS SHALL APPLY NOTWITHSTANDING ANY FAILURE OF THE ESSENTIAL PURPOSE OF ANY LIMITED REMEDY AND TO THE FULLEST EXTENT PERMITTED UNDER APPLICABLE LAW. SOME COUNTRIES DO NOT ALLOW THE EXCLUSION OR LIMITATION OF LIABILITY OF CONSEQUENTIAL OR INCIDENTAL DAMAGES, SO THE ABOVE EXCLUSIONS MAY NOT APPLY TO ALL USERS; IN SUCH COUNTRIES LIABILITY IS LIMITED TO THE FULLEST EXTENT PERMITTED BY LAW.
                         </p>
+                        
                         </div>
+                        
                         <div className="mt-20">
                         <h4>XIV. THIRD PARTY SITES</h4>
                         <p>
@@ -605,17 +1106,20 @@ const handleCheckboxChange = (value) => {
                         </p>
                         <p>
                             <b>MONITORING OF MATERIALS TRANSMITTED BY YOU:</b> Changes may be periodically incorporated into the Platforms. Lakshmi Sai Service Provider may make improvements and/or changes in the products, services and/or programs described in the Platform and the Materials at any time without notice. We are under no obligation to monitor the material residing on or transmitted to the Platform. However, anyone using the Platform agrees that Lakshmi Sai Service Provider may monitor the Platform contents periodically to (1) comply with any necessary laws, regulations or other governmental requests; (2) to operate the Platform properly or to protect itself and its users. Lakshmi Sai Service Provider reserves the right to modify, reject or eliminate any material residing on or transmitted to its Platform that it, in its sole discretion, believes is unacceptable or in violation of the law or these Terms and Conditions.
-                        </p>
+                        </p> 
                         <p>
                             <b>DELETIONS FROM SERVICE:</b> Lakshmi Sai Service Provider will delete any materials at the request of the user who submitted the materials or at the request of an advertiser who has decided to "opt-out" of the addition of materials to its advertising, including, but not limited to ratings and reviews provided by third parties. Lakshmi Sai Service Provider reserves the right to delete (or to refuse to post to public forums) any materials it deems detrimental to the system or is, or in the opinion of Lakshmi Sai Service Provider, may be, defamatory, infringing or violate of applicable law. Lakshmi Sai Service Provider reserves the right to exclude Material from the Platform. Materials submitted to Lakshmi Sai Service Provider for publication on the Platform may be edited for length, clarity and/or consistency with Lakshmi Sai Service Provider editorial standards.
                         </p>
+                        
                         </div>
+                        
                         <div className="mt-20">
                         <h4>XV. INDEMNIFICATION</h4>
                         <p>
                             You agree to indemnify and hold us and (as applicable) our parent, subsidiaries, affiliates, officers, directors, agents, and employees, harmless from any claim or demand, including reasonable attorneys' fees, made by any third party due to or arising out of your breach of these Terms, your violation of any law, or your violation of the rights of a third party, including the infringement by you of any intellectual property or other right of any person or entity. These obligations will survive any termination of the Terms.
                         </p>
                         </div>
+                        
                         <div className="mt-20">
                         <h4>XVI. MISCELLANEOUS</h4>
                         <p>
@@ -631,75 +1135,108 @@ const handleCheckboxChange = (value) => {
                             Entire Agreement. These Terms constitutes the entire agreement between you and us with respect to the subject matter of these Terms and supersedes all prior written and all prior or contemporaneous oral communications regarding such subject matter. Accordingly, you should not rely on any representations or warranties that are not expressly set forth in these Terms. If any provision or provisions of these Terms shall be held to be invalid, illegal, unenforceable or in conflict with the law of any jurisdiction, the validity, legality and enforceability of the remaining provisions shall not in any way be affected or impaired. Except as provided in Section 1, these Terms may not be modified except by writing signed by you and us; provided, however, we may change these Terms from time to time, and such revised terms and conditions shall be effective with respect to any Advertising Products ordered after written notice of such revised terms to you or, if earlier, posting of such revised terms and conditions on our Website.
                         </p>
                         </div>
+                        
                         <div className="mt-20">
                         <h4>XVII. END OF TERMS OF SERVICE</h4>
                         <p>
                             If you have any questions or concerns regarding this Agreement, please contact us at <a href="mailto:handymanserviceproviders@gmail.com.">handymanserviceproviders@gmail.com.</a>
                         </p>
-                        </div> 
-                </div>
+                        
+                        </div>                       
+                </div>               
             </div>
-            <div align="center">
-                <h3 class="tc">Cancellation and Refund Policy</h3>
+            <div class="container mt_100px h-100 p-0">
+        <div align="center">
+            <h3 class="tc">Shipping and Delivery Policy</h3>
+        </div>
+        <div class="text-justify">
+            <div class="mt-10">
+
+                <h3>1. Shipping Process</h3>
+                <p>
+                    Orders are processed within 1-2 business days after payment confirmation.
+                    Customers receive a tracking number once the order is shipped.
+                    Shipping times vary based on location and shipping method selected at checkout.
+                </p>
+
             </div>
-            <div class="text-justify">
-                <div class="mt-20">
-                    <h4>1. Cancellation Policy</h4>
-                    <p>
-                        Customers can request a cancellation before the service begins for a full refund.
-                        If the technician has already arrived or started the work, a partial refund may be issued based on the work completed.
-                        Cancellations must be requested via phone, email, or the official website.
-                    </p>
-                    </div>
-                   <div class="mt-20">
-                        <h4>2. Refund Policy </h4>
-                        <p>
-                            Full Refund: Issued if the service is canceled before the technician starts work.
-                            Partial Refund: If the service is partially completed, the refund amount will be adjusted accordingly.
-                            No Refund: If the service is fully completed and meets the agreed-upon standards.
-                        </p>
-                  </div>
-                    <div class="mt-20">
-                        <h4>3. Exceptions & Special Cases</h4>
-                        <p>
-                            If the technician is unable to complete the job due to unforeseen issues (e.g., faulty wiring, additional materials needed), the customer may be eligible for a reschedule or partial refund.
-                            Refunds are processed within 5-7 business days via the original payment method.
-                            For any cancellation or refund inquiries, please contact <a href="mailto:lakshmisaiserviceproviders@gmail.com">lakshmisaiserviceproviders@gmail.com</a>.
-                        </p>
-                    </div>
-                  </div>
+
+            <div class="mt-10">
+                <h3>2. Delivery Time </h3>
+                <p>
+                    Standard Shipping: Estimated delivery within 5-7 business days.
+                    Express Shipping: Estimated delivery within 2-3 business days.
+                    Same-Day Delivery: Available for select locations if the order is placed before the cutoff time.
+                </p>
+            </div>
+            <div class="mt-10">
+                <h3>3. Shipping Charges</h3>
+                <p>
+                    Shipping fees are calculated at checkout based on weight, destination, and shipping method.
+                    Free shipping may be available on orders over a specified amount.
+                </p>
+
+            </div>
+
+            <div class="mt-10">
+                <h3>4. Delivery Conditions</h3>
+                <p>
+                    Orders are delivered to the address provided by the customer.
+                    If the recipient is unavailable, a delivery attempt will be rescheduled, or the package may be held at a pickup location.
+                    Customers must inspect packages upon arrival and report any damages within 48 hours.
+                </p>
+
+            </div>
+
+            <div class="mt-10">
+                <h3>5. International Shipping</h3>
+                <p>
+                    International shipping availability depends on the destination country.
+                    Customers are responsible for customs duties, taxes, and import regulations.
+                    For any shipping or delivery inquiries, please contact <a href="mailto:lakshmisaiserviceproviders@gmail.com">lakshmisaiserviceproviders@gmail.com</a>.
+                </p>
+
+            </div>
+            </div>
+            </div>
             <div className = "text-center">
-            <button className="btn btn-danger w-20" title="close" onClick={() => setShowModal(false)}>Close</button>
+            <button className="btn btn-danger w-20" title="close" onClick={() => setShowModals(false)}>Close</button>
             </div>
           </div>
         </div>
-      )} 
+      )}
+    </div>
 
-<div className="button">
-    {/* <button className="btn-back m-2">Back</button> */}
-    <button className="btn-continue m-2"  onClick={handleUpdateJobDescription}>Proceed</button>
-  
-</div>
- 
-{/* {showConfirmation && (
-    <div className='text-center m-2'>
-         <label className='blinking-text fw-bold fs-2 text-success'>
-            Technician Arrived as per your time slot
-        </label> 
-        <label className='fs-2 bg-warning fw-bold w-100 p-2'>
-            Technician Confirmation Code is: {technicianConfirmationCode}
-        </label>
-        <button className='btn btn-primary m-2' onClick={handleSendSMSLowestBidder}>Send SMS</button>
-    </div> )}
-  */}
+            <div className=" d-flex justify-content-between">
+            <button
+                type="button"
+                className="text-white text-end btn btn-warning"
+                onClick={handleGetQuotation} disabled={isAddressInvalid || disableBuy}
+              >
+                Buy Product
+              </button> 
+              {/* <button
+                type="button"
+                className="text-white text-end btn btn-success"
+                onClick={handleGetQuotation} disabled={isAddressInvalid}
+              >
+                Add to Cart
+              </button> */}   
+              <Button 
+                type="button"
+                className="back-btn"
+                onClick={() => window.location.href =`/profilePage/${userType}/${userId}`}
+              >
+                Back
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+      </div>
+      <Footer /> 
 
-    </div>
-    </div>
-    </div>
-    </div>
-    <Footer /> 
-
-    {/* Styles for floating menu */}
+      {/* Styles for floating menu */}
 <style jsx>{`
         .modal-overlay {
           position: fixed;
@@ -718,15 +1255,36 @@ const handleCheckboxChange = (value) => {
           background: white;
           padding: 20px;
           border-radius: 20px;
-          width: 100%;
-          max-width: 600px;
+          width: 90%;
+          max-width: 500px;
           max-height: 80vh;
           overflow-y: auto;
           text-align: left;
+        }
+        .menu-popup {
+          position: absolute;
+          top: 50px; /* Keeps the popup aligned below the floating menu */
+          left: 0; /* Aligns the popup to the left */
+          background: white;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          width: 200px;
+        }
+        .menu-item {
+          padding: 10px;
+          border-bottom: 1px solid #ddd;
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+        }
+
+        .menu-item:last-child {
+          border-bottom: none;
         }
       `}</style>
     </div>
   );
 };
 
-export default PaymentConfirmation;
+export default OffersBuyProduct;

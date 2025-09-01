@@ -941,6 +941,22 @@ const handleUpdateJobDescription = async (e) => {
       {showModals && (
         <div className="modal-overlay">
           <div className="modal-content">
+            <button
+      onClick={() => setShowModal(false)}
+      style={{
+        color: "red",
+        position: "absolute",
+        top: "10px",
+        right: "15px",
+        background: "none",
+        border: "none",
+        fontSize: "20px",
+        fontWeight: "bold",
+        cursor: "pointer"
+      }}
+    >
+      ✕
+    </button>
             <h2>Terms and Conditions</h2>
             <div className="text-justify">
                     <div className="mt-20">

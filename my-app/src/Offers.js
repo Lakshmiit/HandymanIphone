@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams, useLocation } from 'react-router-dom';
 import './App.css';
@@ -9,12 +9,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Dashboard as MoreVertIcon,} from '@mui/icons-material';
 import { Button, Carousel, Modal } from 'react-bootstrap';
 import SearchIcon from '@mui/icons-material/Search';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 
 const OffersProductCard = () => {
-//   const navigate = useNavigate();
+  // const navigate = useNavigate();
    const location = useLocation();
-const encodedCategory = location.state?.encodedCategory || localStorage.getItem('encodedCategory');
+   const encodedCategory = location.state?.encodedCategory || localStorage.getItem('encodedCategory');
    const {userType} = useParams();
   const {userId} = useParams(); 
   const [isMobile, setIsMobile] = useState(false);
@@ -26,141 +25,84 @@ const encodedCategory = location.state?.encodedCategory || localStorage.getItem(
   const [zoomImage, setZoomImage] = useState("");
   const [products, setProducts] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  // const [imageLoading, setImageLoading] = useState(true);
+  const [imageLoading, setImageLoading] = useState(true);
 const [searchQuery, setSearchQuery] = useState('');
-const productScrollRef = useRef(null); 
-// const [groupedProducts, setGroupedProducts] = useState({});
-const [expandedCategories, setExpandedCategories] = useState({});
-const [loadingStatus, setLoadingStatus] = useState({}); 
-const [selectedProduct, setSelectedProduct] = useState(null);
 
 useEffect(() => {
-  console.log(products, selectedCategory);
-}, [products, selectedCategory]);
-
-// function to fetch images for ONE product
-const fetchImagesForProduct = async (product) => {
-  try {
-    setLoadingStatus((prev) => ({ ...prev, [product.id]: true }));
-
-    const photoPromises = product.productPhotos.map(async (photo) => {
-      const res = await fetch(
-        `https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${photo}`
-      );
-      const imgData = await res.json();
-      return { imageData: imgData.imageData };
-    });
-
-    const allImages = await Promise.all(photoPromises);
-    setImageUrls((prev) => ({ ...prev, [product.id]: allImages }));
-  } catch (err) {
-    console.error(`Failed to fetch images for product ${product.id}`, err);
-  } finally {
-    setLoadingStatus((prev) => ({ ...prev, [product.id]: false }));
-  }
-};
-
-// fetch list of products
-useEffect(() => {
-  const fetchProducts = async () => {
+  const fetchProductsAndAllImages = async () => {
     try {
-      const response = await fetch(
-        `https://handymanapiv2.azurewebsites.net/api/Product/GetAllProductList`
+      // const start = performance.now();
+
+      const productRes = await fetch('https://handymanapiv2.azurewebsites.net/api/Product/GetAllProductList');
+      const productList = await productRes.json();
+      setProductData(productList);
+
+      const allImagePromises = productList.flatMap(product => 
+        product.productPhotos?.map(photo => 
+          fetch(`https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${photo}`)
+            .then(res => res.json())
+            .then(data => {
+              const byteCharacters = atob(data.imageData);
+              const byteNumbers = new Array(byteCharacters.length);
+              for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i);
+              }
+              const byteArray = new Uint8Array(byteNumbers);
+              const blob = new Blob([byteArray], { type: 'image/jpeg' });
+              const imageUrl = URL.createObjectURL(blob);
+              return { productId: product.id, imageUrl };
+            })
+            .catch(() => null)
+        ) || []
       );
-      const data = await response.json();
-      const sorted = [...data].sort((a, b) => {
-        const dateA = new Date(a.createdDate || a.uploadedDate || a.updatedAt);
-        const dateB = new Date(b.createdDate || b.uploadedDate || b.updatedAt);
-        return dateB - dateA;
+
+      const imageResults = await Promise.allSettled(allImagePromises);
+      const imageMap = {};
+      imageResults.forEach(result => {
+        if (result.status === 'fulfilled' && result.value) {
+          const { productId, imageUrl } = result.value;
+          if (!imageMap[productId]) {
+            imageMap[productId] = [];
+          }
+          imageMap[productId].push(imageUrl);
+        }
       });
 
-      setProductData(sorted);
+      setImageUrls(imageMap);
+      setImageLoading(false);
+
+      // const duration = performance.now() - start;
+      // console.log(`All images loaded in ${duration.toFixed(1)} ms`);
     } catch (error) {
-      console.error("Error fetching product data:", error);
+      console.error("Error loading all images fast:", error);
     }
   };
 
-  fetchProducts();
+  fetchProductsAndAllImages();
 }, []);
 
-// FETCH CATEGORY 
+  
+  const handleImageClick = (imageSrc) => {
+    setZoomImage(imageSrc);
+    setShowZoomModal(true);
+  };
+  
 useEffect(() => {
   const handleCategoryClick = async () => {
     try {
       setSelectedCategory(encodedCategory);
-      setProducts([]);
-
+      setProducts([]); 
       const url = `https://handymanapiv2.azurewebsites.net/api/Product/GetProductsByCategory?Category=${encodedCategory}`;
       const response = await axios.get(url);
-
-      const sorted = response.data.sort(
-        (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
-      );
-
-      setProducts(sorted);
-
-      // fetch all images immediately
-      if (sorted.length > 0) {
-        fetchImagesForProduct(sorted);
-      }
+      setProducts(response.data);
     } catch (error) {
-      console.error("Error fetching products:", error);
-      setProducts([]);
+      console.error('Error fetching products:', error);
+      setProducts([]); 
     }
   };
-
-  if (encodedCategory) {  
-    handleCategoryClick();
-  }
+  handleCategoryClick();
 }, [encodedCategory]);
 
-useEffect(() => {
-  if (!products || products.length === 0) return;
-
-  products.forEach((product) => {
-    if (!imageUrls[product.id] && product.productPhotos?.length) {
-      fetchImagesForProduct(product);  
-    }
-  });
-}, [products, imageUrls]);   
-
-// Filter only products of the selected category
-const filteredProducts = products.filter((product) => {
-  const productName = product.productName?.toLowerCase().trim();
-  const query = searchQuery.toLowerCase().trim();
-  const normalize = (str) => (str.endsWith("s") ? str.slice(0, -1) : str);
-  return (
-    productName.includes(query) ||
-    normalize(productName).includes(normalize(query))
-  );
-});
-
-// Sort by latest date
-const sortedProducts = [...filteredProducts].sort(
-        (a, b) => new Date(b.date) - new Date(a.date)
-      );
-
-// Show only 9 latest if not expanded
-const isExpanded = expandedCategories[selectedCategory || "all"];
-const visibleProducts = isExpanded
-  ? sortedProducts
-  : sortedProducts.slice(0, 6);
-
-useEffect(() => {
-  if (!visibleProducts || visibleProducts.length === 0) return;
-
-  visibleProducts.forEach((product) => {
-    if (!imageUrls[product.id] && product.productPhotos?.length) {
-      fetchImagesForProduct(product);
-    }
-  });
-}, [visibleProducts, imageUrls]);
-
-  const handleImageClick = (imageSrc) => {
-    setZoomImage(imageSrc); 
-    setShowZoomModal(true);
-  };
-  
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize();
@@ -177,16 +119,16 @@ useEffect(() => {
       </div>
     );
   }
-
+  
   return (
     <>
       <Header />
-      <div className="wrapper d-flex ">
+      <div className="wrapper d-flex">
         {!isMobile && (
           <div className="ml-0 m-4 p-0 sde_mnu">
             <Sidebar userType={selectedUserType} />
           </div>
-        )}     
+        )}
 
         {isMobile && (
           <div className="floating-menu">
@@ -207,7 +149,7 @@ useEffect(() => {
         )}
 
         <div className={`container m-1 ${isMobile ? 'w-100' : 'w-75'}`}>
-          <div className='d-flex justify-content-center'>
+          <div className='d-flex justify-content-center mt-mob-100'>
         <div className="position-relative flex-grow-1 ms-4">
           <input
             type="text"
@@ -221,7 +163,7 @@ useEffect(() => {
               style={{ pointerEvents: 'none' }}
             />
           </div>
-        {/* {selectedCategory && (
+        {selectedCategory && (
           <div className="m-1 d-flex align-items-center position-relative" style={{ gap: '10px' }}>
           
           <Button
@@ -233,9 +175,9 @@ useEffect(() => {
             Show All Products
           </Button>
         </div>
-        )} */}
+        )}
 </div>
-            {/* <div className="row g-4">
+            <div className="row g-4">
             {(selectedCategory ? products : productData)
   ?.filter(product => {
     const productName = product.productName?.toLowerCase().trim();
@@ -303,7 +245,7 @@ useEffect(() => {
                           if (userId === "guest") {
                             window.location.href = "https://handymanserviceproviders.com/";
                           } else {
-                            navigate(`/offersBuyProduct/${userType}/${userId}/${product.id}`);
+                            window.location.href = `/offersBuyProduct/${userType}/${userId}/${product.id}`;
                           }
                         }}
                       >
@@ -356,7 +298,7 @@ useEffect(() => {
                           <button
                             className="btn btn-warning btn-sm fw-bold mt-1"
                             onClick={() => {
-                              navigate(`/offersBuyProduct/${userType}/${userId}/${product.id}`);
+                              window.location.href = `/offersBuyProduct/${userType}/${userId}/${product.id}`;
                             }}
                           >
                             Buy Now
@@ -368,288 +310,15 @@ useEffect(() => {
       </div>
     );
   })}
-</div> */}
-
-{/* <h4 style={{ color: '#ff5722', fontFamily: 'Poppins, sans-serif', fontWeight: 700,fontSize: '22px', textTransform: 'uppercase',
-    letterSpacing: '1px', textAlign: 'center', marginBottom: '1px'}}>
-   🎉 Top Deals For You! 🎉
-</h4> */}
-{/* Products Display */}
-{/* <div className="product-scroll-wrapper " ref={productScrollRef}>
-  {Object.entries(groupedProducts)
-    .sort(([a], [b]) => (a === "Home Decors" ? -1 : b === "Home Decors" ? 1 : 0)) 
-    .map(([categoryName, products]) => {
-      const isExpanded = expandedCategories[categoryName];
-      const filteredProducts = products.filter((product) => {
-        const productName = product.productName?.toLowerCase().trim();
-        const query = searchQuery.toLowerCase().trim();
-        const normalize = (str) => (str.endsWith('s') ? str.slice(0, -1) : str);
-        return (
-          productName.includes(query) ||
-          normalize(productName).includes(normalize(query))
-        );
-      });
-      const sortedProducts = [...filteredProducts].sort(
-        (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
-      );
-      const visibleProducts = isExpanded ? sortedProducts : sortedProducts.slice(0, 9);
-      if (filteredProducts.length === 0) return null;
-
-      return (
-        <div key={categoryName} className="mt-0">
-          {/* <h5 className="mb-1 ">{categoryName.toUpperCase()}</h5> 
-          <div className="product-row">
-            {visibleProducts.map((product) => {
-              const discountedPrice =
-                product.rate && product.discount
-                  ? (product.rate - (product.rate * product.discount) / 100).toFixed(0)
-                  : product.rate;
-
-              return (
-                <>
-                <div
-                  key={product.id}
-                  className="product-card me-2 mb-3"
-                  onClick={() => setSelectedProduct(product)}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {/* {product.discount && (
-                    <div className="discount-badge-wrapper">
-                      <span className="discount-badge">
-                        {Math.round(product.discount)}%
-                      </span>
-                    </div>
-                  )} 
-
-                 <div className="image-container">
-                  {product.discount && (
-                    <div className="discount-badge-wrapper">
-                      <span className="discount-badge">{Math.round(product.discount)}%</span>
-                    </div>
-                  )}
-                  {loadingStatus[product.id] ? (
-                    <div className="image-placeholder m-1">Loading...</div>
-                  ) : imageUrls[product.id]?.length > 0 ? (
-                    <img
-                      src={`data:image/jpeg;base64,${imageUrls[product.id][0].imageData}`}
-                      className="product-image"
-                      alt="product"
-                    />
-                  ) : (
-                    <div className="image-placeholder">No Image</div>
-                  )}
-                </div>
-
-                  <div className="product-info">
-                    <h6 className="product-name">{product.productName.toUpperCase()}</h6>
-                    <div className="product-price">Rs {discountedPrice} /-</div>                   
-                    </div>
-                     {/* <p className="text-danger">Limited deal</p> 
-                </div>
-           </>
-              );
-            })}
-          </div>
-
-          {filteredProducts.length > 9 && (
-  <div className="text-end">
-    <Button
-      variant="outline-primary"
-      size="sm"
-      onClick={() =>
-        setExpandedCategories((prev) => ({
-          ...prev, 
-          [categoryName]: !prev[categoryName],
-        }))
-      }
-    >
-      {isExpanded ? 'Less' : 'More'}
-    </Button>
-  </div>
-)}
-        </div>
-      );
-    })}
-</div> */}
-
-{/* Products Display */}
-<div className="product-scroll-wrapper" ref={productScrollRef}>
-  <div className="mt-0">
-    <div className="product-row">
-      {visibleProducts.map(
-        (product) => {
-          const discountedPrice =
-            product.rate && product.discount
-              ? (
-                  product.rate -
-                  (product.rate * product.discount) / 100
-                ).toFixed(0)
-              : product.rate;
-
-          return (
-            <div
-              key={product.id}
-              className="product-card me-2 mb-3"
-              onClick={() => setSelectedProduct(product)}
-              style={{ cursor: "pointer" }}
-            >
-              <div className="image-container">
-                {product.discount && (
-                  <div className="discount-badge-wrapper">
-                    <span className="discount-badge">
-                      {Math.round(product.discount)}%
-                    </span>
-                  </div>
-                )}
-                {loadingStatus[product.id] ? (
-                  <div className="image-placeholder m-1">Loading...</div>
-                ) : imageUrls[product.id]?.length > 0 ? (
-                  <img
-                    src={`data:image/jpeg;base64,${imageUrls[product.id][0].imageData}`}
-                    className="product-image"
-                    alt={product.productName}
-                  />
-                ) : (
-                  <div className="image-placeholder">No Image</div>
-                )}
-              </div>
-
-              <div className="product-info">
-                <h6 className="product-name">
-                  {product.productName?.toUpperCase()}
-                </h6>
-                <div className="product-price">Rs {discountedPrice} /-</div>
-              </div>
-            </div>
-          );
-        }
-      )}
-    </div>  
-
-    {filteredProducts.length > 6 && (
-      <div className="text-end">
-        <Button
-          variant="outline-primary"
-          size="sm"
-          onClick={() =>
-            setExpandedCategories((prev) => ({
-              ...prev,
-              [selectedCategory]: !prev[selectedCategory],
-            }))
-          }
-        >
-          {isExpanded ? "Less" : "More"}
-        </Button>
-      </div>
-    )}
-  </div>            
-</div>
-
- {/* Selected Product Display */}
-{selectedProduct && (
-  <div className="custom-modal-backdrop" onClick={() => setSelectedProduct(null)}>
-     <div className="custom-modal-content" onClick={(e) => e.stopPropagation()}>
-       <button className="close-button" onClick={() => setSelectedProduct(null)}>&times;</button>
-  <div className="d-flex flex-column align-items-center">
-  <div style={{ width: '100%', maxWidth: '300px' }}>
-    {loadingStatus[selectedProduct.id] ? (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '250px', background: '#f8f9fa' }}>
-        <div className="spinner-border text-secondary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-      </div>  
-    ) : imageUrls[selectedProduct.id]?.length > 0 ? (
-      <Carousel>
-        {imageUrls[selectedProduct.id].map((img, index) => (
-          <Carousel.Item key={index}>
-            <img
-  src={`data:image/jpeg;base64,${img.imageData}`}
-  className="card-img-top"
-  style={{
-    height: '230px',
-    width: '100%',
-    objectFit: 'contain',
-  }}
-  alt={`product-image-${index}`}
-  onClick={() => handleImageClick(`data:image/jpeg;base64,${img.imageData}`)}
-/>
-          </Carousel.Item>
-        ))}
-      </Carousel>
-    ) : (
-      <div className="d-flex justify-content-center align-items-center" style={{ height: '150px', background: '#f8f9fa' }}>
-        No Image
-      </div>
-    )}
-  </div>
-
-  <div className="text-center mt-3">
-    <h6 className=" fw-bold" style={{ fontFamily: "Rubik" }}>
-      {selectedProduct.productName.toUpperCase()}
-    </h6>
-    <div className="small text-primary fw-bold">
-      Rs {(selectedProduct.rate - (selectedProduct.rate * selectedProduct.discount) / 100).toFixed(0)} /-
-    </div>
-    <div className="small text-muted fw-bold" style={{ textDecoration: 'line-through' }}>
-      MRP: Rs {selectedProduct.rate} /-
-    </div>
-    <div className="small text-danger fw-bold">
-      Discount: {selectedProduct.discount}%
-    </div>
-   <div
-  className="small fw-bold fs-6 text-start d-flex align-items-center"
-  style={{
-    color: '#7851a9',
-    fontFamily: 'Italianno, cursive',
-    whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  }}
->
-  <LocalShippingIcon style={{ color: '#f88379', fontSize: '1rem' }} />
-  <span className="ms-1">Free Delivery and Free Installation</span>
-</div>
-    <div className="fs-5">
-      <span className="badge text-primary">✔️ Genuine Product</span>
-      <span className="badge text-secondary">↩️ Easy Returns</span>
-      <span className="badge text-success">💳 COD Available</span>
-      <span className="badge text-danger">📦 Stock Left : {selectedProduct.numberOfStockAvailable} </span>
-    </div>
-    <button
-      className="buy-now-btn"
-      onClick={() => window.location.href =  `/offersBuyProduct/${userType}/${userId}/${selectedProduct.id}`}
-    >
-      Buy Now
-    </button>
-  </div>
 </div>
 </div>
 </div>
-)}
- <div className="text-start">
-  <button 
-    className="btn btn-warning m-2" 
-    onClick={() => window.location.href = `/profilePage/${userType}/${userId}`}
-  >
-    Back
-  </button> 
-</div>
-</div>
-</div>
- <Modal show={showZoomModal} onHide={() => setShowZoomModal(false)} centered>
-          <button className="close-button text-end mt-0" onClick={() => setShowZoomModal(false)}>
-              &times; </button>
-                <Modal.Body className="text-center position-relative">
-                  <div className="zoom-container">
-                    <img src={zoomImage} alt="Zoomed Product" className="zoom-image" />
-                  </div>
-                </Modal.Body>
-              </Modal>
-{/* Zoom Modal
+
+{/* Zoom Modal */}
 <Modal show={showZoomModal} onHide={() => setShowZoomModal(false)} centered>
         <Modal.Body className="text-center position-relative">
           <div className="zoom-container">
-              Close Button (X)   
+             {/* Close Button (X) */}    
     <button
       className="close-button text-end"
       onClick={() => setShowZoomModal(false)}
@@ -659,7 +328,16 @@ useEffect(() => {
             <img src={zoomImage} alt="Zoomed Product" className="zoom-image" />
           </div>
         </Modal.Body>
-      </Modal> */}
+      </Modal>
+
+      <div className="text-start">
+  <button 
+    className="btn btn-warning m-2" 
+    onClick={() => window.location.href = `/offersIcons/${userType}/${userId}`}
+  >
+    Back
+  </button>
+</div>
       <style jsx>{`
        .zoomable-image {
           transition: transform 0.3s ease-in-out;

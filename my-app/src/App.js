@@ -18,7 +18,8 @@ import IconsOffersProducts from './IconsOffersProducts.js';
 import Offers from './Offers.js';
 import BuyProductPaymentPage from './BuyProductPaymentPage.js';
 import BuyProductView from './BuyProductView';
- 
+import OffersBuyProductPage from './OffersBuyProductPage.js';
+import ViewOffersBuyProductPage from './ViewOffersBuyProductPage.js';
 
 const PreventBackNavigation = () => {
 
@@ -63,6 +64,8 @@ function App() {
              <Route path="/apartmentRaiseTicket/:userType/:userId" element={<ApartmentRaiseTicket />} />
             <Route path="/aboutApartmentRaiseTicket/:userType/:userId" element={<AboutApartmentRaiseTicket />} />
             <Route path="/buyproduct-view/:userType/:userId/:id" element={<BuyProductView />} />
+            <Route path="/offersBuyProduct/:userType/:userId/:id" element={<OffersBuyProductPage />} />
+            <Route path="/viewOffersBuyProduct/:userType/:userId/:id" element={<ViewOffersBuyProductPage />} />
             </Routes>
         </main>
       </div>

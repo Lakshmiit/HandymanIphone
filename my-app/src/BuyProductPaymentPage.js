@@ -28,7 +28,7 @@ const [district, setDistrict] = useState('')
 const [zipCode, setZipcode] = useState('');
 const [address, setAddress] = useState('');
 const [userId, setCustomerId] = useState(''); 
-const [customerName, setCustomerName] = useState(''); 
+const [customerName, setCustomerName] = useState('');
 const [technicianConfirmationCode, setTechnicianConfirmationCode] = useState('');
 // const [showConfirmation, setShowConfirmation] = useState(false);
 // const [selectedJob, setSelectedJob] = useState([{remarks: "", discount: "", moreInfo: "", afterDiscount: "", jobDescription: ""}]);
@@ -70,7 +70,7 @@ const [productName, setProductName] = useState("");
   const [productStatus, setProductStatus] = useState('');
 const [existingFiles, setExistingFiles] = useState([]);
 const [stockLeft, setStockLeft] = useState('');
-// const [paymenterror, setPaymentError] = useState(null);
+const [paymenterror, setPaymentError] = useState(null);
 useEffect(() => {
   if (date && deliveryInDays) {
     try {
@@ -210,10 +210,10 @@ useEffect(() => {
 
 const handleGetQuotation = async (e) => {
   e.preventDefault();
-  // if (selectedPayment === "online") {
-  //   setPaymentError("⚠️ Online payment is not available at the moment. Only Cash On Delivery Available.");
-  //   return;
-  // }
+  if (selectedPayment === "online") {
+    setPaymentError("⚠️ Online payment is not available at the moment. Only Cash On Delivery Available.");
+    return;
+  }
 
   if (!selectedPayment) {
     setError("Please select at least one payment mode.");
@@ -294,7 +294,7 @@ const handleGetQuotation = async (e) => {
       setTechnicianConfirmationCode(data.technicianConfirmationCode);
   
     window.alert(`We are Redirecting to the Payment Page! Your reference number is ${buyProductTicketId}. Technician will contact you shortly.`);
-      window.location.href=`https://handymanserviceproviders-h2gncthtfdemdwe5.centralindia-01.azurewebsites.net/BuyProductPaymentPage/${buyProductId}`;
+      window.location.href=`https://handymanserviceproviders.com/BuyProductPaymentPage/${buyProductId}`;
     }  else if (selectedPayment === 'technician') {
       
          response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BuyProduct/${buyProductId}`,{
@@ -546,7 +546,7 @@ if (loading) {
             required/>
             Pay Through Online
           </label>
-          {/* {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>} */}
+          {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>}
           <label className='fs-5'>
             <input 
             type="radio" 
@@ -570,7 +570,7 @@ if (loading) {
         />
         Pay Through Online
       </label>
-          {/* {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>} */}
+          {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>}
       <label>
         <input 
           type="radio" 
@@ -611,6 +611,22 @@ if (loading) {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
+            <button
+      onClick={() => setShowModal(false)}
+      style={{
+        color: "red",
+        position: "absolute",
+        top: "10px",
+        right: "15px",
+        background: "none",
+        border: "none",
+        fontSize: "20px",
+        fontWeight: "bold",
+        cursor: "pointer"
+      }}
+    >
+      ✕
+    </button>
             <h2>Terms and Conditions</h2>
             <div className="text-justify">
                     <div className="mt-20">
