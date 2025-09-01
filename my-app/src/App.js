@@ -6,7 +6,12 @@ import LoginPage from './LoginPage.js';
 import OTPVerificationPage from './OTPVerificationPage.js';
 import ProfilePage from './ProfilePage.js';   
 import UserIdLogin from './UserIdLogin.js';
-  
+import RaiseTicket from './RaiseTicket';
+import Sidebar from './Sidebar'; 
+import BookTechnician from './BookTechnician.js';
+import ChatPage from './ChatPage.js';
+import BookTechnicianPaymentPage from './BookTechnicianPaymentPage.js';
+
 const PreventBackNavigation = () => {
 
 useEffect(() => {
@@ -38,6 +43,11 @@ function App() {
             <Route path="/otpVerification" element={<OTPVerificationPage />} /> 
             <Route path="/profilePage/:userType/:userId" element={<ProfilePage />} />
             <Route path="/userIdLogin" element={<UserIdLogin />} />
+            <Route path="/raiseTicket/:userType/:userId" element={<RaiseTicket />} />
+            <Route path="/sidebar/:userType" element={<Sidebar />} />
+            <Route path="/bookTechnician/:userType/:userId" element={<BookTechnician />} />
+            <Route path="/chatPage/:userType/:userId" element={<ChatPage />} />
+            <Route path="/bookTechnicianPaymentPage/:userType/:userId/:raiseTicketId" element={<BookTechnicianPaymentPage />} />
             </Routes>
         </main>
       </div>
