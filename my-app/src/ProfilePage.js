@@ -53,7 +53,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 // import TimelapseIcon from '@mui/icons-material/Timelapse';
 // import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 // import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-
+ 
 const getMenuList = (userType, userId, category, district ,ZipCode,technicianFullName, isMobile) => {
   const iconSize = isMobile ? 20  : 40;
   const customer = [

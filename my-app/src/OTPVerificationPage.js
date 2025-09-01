@@ -18,7 +18,7 @@ const OTPVerificationPage = () => {
 //   const [zipCode, setZipCode] = useState('');
   const [userId, setUserId] = useState(null); 
     const [userData] = useState('');
-  
+   
 //  const [mobileNumber, setMobileNumber] = useState('');
    
 useEffect(() => {

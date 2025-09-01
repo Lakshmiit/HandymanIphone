@@ -12,7 +12,7 @@
   --bg-white : #FFFFFF;
   --header-height: 200px; 
   --input-height: 60px;
-}
+}   
 .bg-white{
   background-color: var(--bg-white);
 }

@@ -8,7 +8,7 @@ const LandingPage = () => {
   // const navigate = useNavigate();
       
   const wordRefs = useRef([]);
-
+ 
   useEffect(() => { 
     wordRefs.current.forEach((word, index) => {
       setTimeout(() => {

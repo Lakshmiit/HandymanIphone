@@ -10,7 +10,7 @@ import UserIdLogin from './UserIdLogin.js';
 const PreventBackNavigation = () => {
 
 useEffect(() => {
-    const handlePopState = (event) => {
+    const handlePopState = (event) => { 
       event.preventDefault();
       window.location.reload(); 
     };
@@ -25,7 +25,7 @@ useEffect(() => {
 
   return null;
 };
-
+ 
 function App() {
   return ( 
     <Router>   
@@ -35,7 +35,7 @@ function App() {
           <Routes>
             <Route path="/" element={<HandyManLogo />} /> 
             <Route path="/loginnew" element={<LoginPage />} />
-            <Route path="/otpVerification" element={<OTPVerificationPage />} />
+            <Route path="/otpVerification" element={<OTPVerificationPage />} /> 
             <Route path="/profilePage/:userType/:userId" element={<ProfilePage />} />
             <Route path="/userIdLogin" element={<UserIdLogin />} />
             </Routes>
