@@ -7,7 +7,7 @@ const Footer = () => {
       <br />
       <span className="small">&copy; 2024 Lakshmi software development center. All rights reserved.</span>
     </footer>
-  );
+  );  
 };
    
 export default Footer;
