@@ -23,7 +23,7 @@ const LoginPage = () => {
   // const [countryCode, setCountryCode] = useState("+91"); 
   // const fullMobileNumber = `${countryCode}${mobile}`;
 //   const mobileNumber = "9885803193";
-// const [mobileNumber] = useState('');
+// const [mobileNumber] = useState('');     
 
 // const{mobileError,setMobileError}=useState("");
 
