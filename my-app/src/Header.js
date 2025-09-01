@@ -5,9 +5,9 @@ import React from "react";
 import Logo from "./img/Hm_Logo 1.png";
 // import Tooltip from '@mui/material/Tooltip';
 
-const Header = () => {
+const Header = () => { 
   return (
-    <header className="header d-flex">
+    <header className="header d-flex">   
       <img className="h-100" src={Logo} alt="Handy Man Logo" />
       <div className="spacer"></div>
       {/* <div class="d-flex align-items-center gap-4">

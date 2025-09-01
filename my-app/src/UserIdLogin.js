@@ -112,7 +112,7 @@ if (!userName || !userPassword) {
     type={showPassword ? "text" : "password"}  
     name="userPassword"
     value={formData.userPassword}
-    onChange={handleChange}
+    onChange={handleChange}   
     style={{ width: "100%", paddingRight: "40px" }}
   />
   <span

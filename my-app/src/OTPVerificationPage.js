@@ -4,7 +4,7 @@ import HandyManCharacter from './img/hm_char.png';
 import HandyManLogo from './img/Hm_Logo 1.png';
 import { useLocation } from 'react-router-dom';
 const OTPVerificationPage = () => {
-    //  const Navigate = useNavigate();
+    //  const Navigate = useNavigate();   
     const location = useLocation();
     const mobile = location.state?.mobile || localStorage.getItem('mobile');    
     // const {senderValue} = useParams();

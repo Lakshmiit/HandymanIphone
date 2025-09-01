@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
+// import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import { Modal, Button, Carousel } from 'react-bootstrap';
 // import LocationOnIcon from '@mui/icons-material/LocationOn';
@@ -7,7 +7,7 @@ import { Modal, Button, Carousel } from 'react-bootstrap';
 // import NotificationBell from "./NotificationsBell";
 // import OrdersNotificationBell from "./OrdersBellNotifications";
 // import TrackStatusNotificationBell from "./TrackStatusBellNotifications";
-import axios from "axios";    
+import axios from "axios";       
 import Footer from './Footer.js';
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
