@@ -123,7 +123,7 @@ useEffect(() => {
   return (
     <>
       <Header />
-      <div className="wrapper d-flex">
+      <div className="wrapper d-flex mt-100">
         {!isMobile && (
           <div className="ml-0 m-4 p-0 sde_mnu">
             <Sidebar userType={selectedUserType} />
@@ -149,7 +149,7 @@ useEffect(() => {
         )}
 
         <div className={`container m-1 ${isMobile ? 'w-100' : 'w-75'}`}>
-          <div className='d-flex justify-content-center mt-mob-100'>
+          <div className='d-flex justify-content-center'>
         <div className="position-relative flex-grow-1 ms-4">
           <input
             type="text"
@@ -177,7 +177,7 @@ useEffect(() => {
         </div>
         )}
 </div>
-            <div className="row g-4">
+            <div className="row">
             {(selectedCategory ? products : productData)
   ?.filter(product => {
     const productName = product.productName?.toLowerCase().trim();
@@ -197,117 +197,117 @@ useEffect(() => {
                 ? ((product.rate - (product.rate * product.discount) / 100).toFixed(0)) 
                 : product.rate;
               return (
-                <div key={product.id} className="col-md-4">
-                  {!isMobile ? (
-                  <div className="card w-100 border-light rounded-4">
-                  {imageLoading ? (
-                    <div
-                      className="d-flex justify-content-center align-items-center"
-                      style={{ height: '250px', background: '#f8f9fa' }}
-                    >
-                      <div className="spinner-border text-secondary" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                      </div>
-                    </div>
-                  ) : imageUrls[product.id]?.length > 0 ? (
-                        <Carousel>
-                        {imageUrls[product.id]?.map((img, index) => (
-                          <Carousel.Item key={index}>
-                            <img
-                              loading="eager"
-                              src={img}
-                              className="card-img-top rounded-top zoomable-image"
-                              style={{ height: "250px", width: 'auto', objectFit: "cover", cursor: "pointer" }}
-                              alt={`product-image-${index}`}
-                              onClick={() => handleImageClick(img)}
-                            />
-                          </Carousel.Item>
-                        ))}
-                      </Carousel>
-                  ) : (
-                    <div 
-                      className="d-flex justify-content-center align-items-center"
-                      style={{ height: '250px', background: '#f8f9fa' }}
-                    >
-                      Loading 
-                    </div> 
-                  )}  
-                      <div className="card-body p-1">
-                        <h5 className="card-title">{product.productName}</h5>
-                        <h5 className="card-title text-primary">{product.catalogue}</h5>
-                        <div className="card-text fw-bold text-primary fs-5 no-break"> After Discount Price: Rs {discountedPrice}</div>
-                            <div className="card-text fw-bold text-muted fs-6" style={{ textDecoration: 'line-through' }}>MRP: Rs {product.rate}</div>
-                            <div className="card-text fw-bold text-danger fs-6">Discount: {product.discount}%</div>
-                            <div className="card-text fw-bold text-success fs-5">Free Delivery and Installation</div>
-                      <Button
-                        className="btn btn-warning w-50 fw-bold mt-1"
-                        onClick={() => {
-                          if (userId === "guest") {
-                            window.location.href = "https://handymanserviceproviders.com/";
-                          } else {
-                            window.location.href = `/offersBuyProduct/${userType}/${userId}/${product.id}`;
-                          }
-                        }}
-                      >
-                        Buy Now
-                      </Button>
-                      </div>
-                    </div>
-                    ) : (
-                      <div className="card w-100 border-light rounded-4 d-md-none">
-                      <div className="d-flex">
-                        <div style={{ flex: '0 0 55%' }}>
-                        {imageLoading ? (
-                        <div
-                          className="d-flex justify-content-center align-items-center"
-                          style={{ height: '250px', background: '#f8f9fa' }}
-                        >
-                          <div className="spinner-border text-secondary" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                          </div>
-                        </div>
-                      ) : imageUrls[product.id]?.length > 0 ? (
-                        <Carousel>
-                          {imageUrls[product.id].map((img, index) => (
-                            <Carousel.Item key={index}>
-                              <img
-                                loading="eager"
-                                src={img}
-                                className="card-img-top rounded-top zoomable-image"
-                                style={{ height: "250px", objectFit: "cover", cursor: "pointer" }}
-                                alt={`product-image-${index}`}
-                                onClick={() => handleImageClick(img)}/>
-                            </Carousel.Item>
-                          ))}
-                        </Carousel>
-                      ) : (
-                        <div
-                          className="d-flex justify-content-center align-items-center"
-                          style={{ height: '250px', background: '#f8f9fa' }}
-                        >
-                          No Image
-                        </div>
-                      )}
-                        </div>
-                        <div >
-                          <h6 className="mb-1">{product.productName}</h6>
-                          <div className="small text-primary fw-bold">Rs {discountedPrice}</div>
-                          <div className="small text-muted fw-bold" style={{ textDecoration: 'line-through' }}>MRP: Rs {product.rate}</div>
-                          <div className="small text-danger fw-bold">Discount: {product.discount}%</div>
-                          <div className="small text-success fw-bold">Free Delivery and Installation</div>
-                          <button
-                            className="btn btn-warning btn-sm fw-bold mt-1"
-                            onClick={() => {
-                              window.location.href = `/offersBuyProduct/${userType}/${userId}/${product.id}`;
-                            }}
-                          >
-                            Buy Now
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                     )}
+                 <div key={product.id} className="col-12 col-md-4 d-flex">
+      {isMobile ? (
+       <div className="d-flex w-100 border rounded-2 shadow-sm p-2 align-items-center">
+  {/* Image */}
+  <div className="flex-shrink-0" style={{ width: "45%", maxWidth: "150px" }}>
+    {imageLoading ? (
+      <div className="d-flex justify-content-center align-items-center h-100 bg-light">
+        <div className="spinner-border text-secondary" role="status" />
       </div>
+    ) : imageUrls[product.id]?.length > 0 ? (
+      <img
+        src={imageUrls[product.id][0]}
+        alt={product.productName}
+        className="img-fluid w-100 h-100 rounded"
+        style={{ objectFit: "contain", cursor: "pointer" }}
+        onClick={() => handleImageClick(imageUrls[product.id][0])}
+      />
+    ) : (
+      <div className="d-flex justify-content-center align-items-center h-100 bg-light">
+        No Image
+      </div>
+    )}
+  </div>
+
+  {/* Details */}
+  <div className="flex-grow-1 d-flex flex-column text-center px-2">
+    <h6 className="fw-semibold two-line-text" style={{fontSize: "13px"}}>{product.productName}</h6>
+    <small className="text-primary" style={{fontSize: "12px"}}>{product.catalogue}</small>
+    <div className="fw-bold text-primary" style={{fontSize: "13px"}}>Rs {discountedPrice} /-</div>
+    <div className="text-muted small" style={{ textDecoration: "line-through", fontSize: "10px" }}>
+      MRP: {product.rate}
+    </div>
+    <div className="text-danger small fw-bold" style={{fontSize: "12px"}}>Discount: {product.discount}%</div>
+    <div className="text-success small fw-semibold" style={{fontSize: "12px"}}>Free Delivery & Installation</div>
+
+    <button
+      className="btn btn-warning fw-bold mt-auto btn-sm" style={{fontSize: "12px"}}
+      onClick={() => {
+        if (userId === "guest") {
+          window.location.href = "https://handymanserviceproviders.com/";
+        } else {
+          window.location.href = `/offersBuyProduct/${userType}/${userId}/${product.id}`;
+        }
+      }}
+    >
+      Buy Now
+    </button>
+  </div>
+</div>
+      ) : (
+        /* ----------- Desktop Layout (Image Top, Details Below) ----------- */
+        <div className="card w-100 h-100 border-light rounded-4 d-flex flex-column">
+          {/* Image Section */}
+          {imageLoading ? (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "250px", background: "#f8f9fa" }}>
+              <div className="spinner-border text-secondary" role="status" />
+            </div>
+          ) : imageUrls[product.id]?.length > 0 ? (
+            <Carousel>
+              {imageUrls[product.id].map((img, index) => (
+                <Carousel.Item key={index}>
+                  <img
+                  loading="eager"
+                  src={imageUrls[product.id][0]}
+                  className="card-img-top rounded-top zoomable-image"
+                  style={{
+                    height: "150px",
+                    width: "100%",      
+                    objectFit: "cover",
+                    cursor: "pointer"
+                  }}
+                  alt={product.productName}
+                  onClick={() => handleImageClick(imageUrls[product.id][0])}
+                />
+
+                </Carousel.Item>
+              ))}
+            </Carousel>
+          ) : (
+            <div className="d-flex justify-content-center align-items-center" style={{ height: "250px", background: "#f8f9fa" }}>
+              No Image
+            </div>
+          )}
+
+          {/* Details Section */}
+          <div className="card-body p-2 d-flex flex-column">
+            <h5 className="card-title two-line-text" style={{fontSize: "15px"}}>{product.productName}</h5>
+            <h6 className="text-primary">{product.catalogue}</h6>
+            <div className="fw-bold text-primary" style={{fontSize: "14px"}}>Discount Price: Rs {discountedPrice}/-</div>
+            <div className="fw-bold text-muted" style={{ textDecoration: "line-through", fontSize: "12px" }}>MRP: {product.rate}</div>
+            <div className="fw-bold text-danger fs-6" style={{fontSize: "12px"}}>Discount: {product.discount}%</div>
+            <div className="fw-bold text-success" style={{fontSize: "14px"}}>Free Delivery and Installation</div>
+
+            <div className="mt-auto">
+              <Button
+                className="btn btn-warning w-100 fw-bold mt-2" style={{fontSize: "12px"}}
+                onClick={() => {
+                  if (userId === "guest") {
+                    window.location.href = "https://handymanserviceproviders.com/";
+                  } else {
+                    window.location.href = `/offersBuyProduct/${userType}/${userId}/${product.id}`;
+                  }
+                }}
+              >
+                Buy Now
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
     );
   })}
 </div>

@@ -20,6 +20,10 @@ import BuyProductPaymentPage from './BuyProductPaymentPage.js';
 import BuyProductView from './BuyProductView';
 import OffersBuyProductPage from './OffersBuyProductPage.js';
 import ViewOffersBuyProductPage from './ViewOffersBuyProductPage.js';
+import BuyProductOnlinePaymentPage from './BuyProductOnlinePaymentPage.js';
+import BuyProductPaymentSuccess from './BuyProductPaymentSuccess.js';
+import BookTechnicianOnlinePayment from './BookTechnicianOnlinePayment.js'
+import BookTechnicianPaymentSuccess from './BookTechnicianPaymentSuccess.js';
 
 const PreventBackNavigation = () => {
 
@@ -66,6 +70,10 @@ function App() {
             <Route path="/buyproduct-view/:userType/:userId/:id" element={<BuyProductView />} />
             <Route path="/offersBuyProduct/:userType/:userId/:id" element={<OffersBuyProductPage />} />
             <Route path="/viewOffersBuyProduct/:userType/:userId/:id" element={<ViewOffersBuyProductPage />} />
+            <Route path="/buyProductOnlinePaymentPage/:id" element={<BuyProductOnlinePaymentPage />} />
+            <Route path="/BuyProductPaymentSuccess" element={<BuyProductPaymentSuccess />} />
+            <Route path="/bookTechnicianOnlinePayment/:id" element={<BookTechnicianOnlinePayment />} />
+            <Route path="/BookTechnicianPaymentSuccess" element={<BookTechnicianPaymentSuccess />} />
             </Routes>
         </main>
       </div>

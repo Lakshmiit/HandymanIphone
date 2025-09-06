@@ -241,7 +241,7 @@ const handleCheckboxChange = (value) => {
   return (
     <div>
   {isMobile && <Header />}
-    <div className="d-flex">
+    <div className="d-flex mt-100">
         {!isMobile && (
         <div className="ml-0 p-0 sde_mnu">
           <Sidebar />

@@ -53,7 +53,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 // import TimelapseIcon from '@mui/icons-material/Timelapse';
 // import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
 // import WhatsAppIcon from '@mui/icons-material/WhatsApp';
- 
+
 const getMenuList = (userType, userId, category, district ,ZipCode,technicianFullName, isMobile) => {
   const iconSize = isMobile ? 20  : 40;
   const customer = [
@@ -724,7 +724,7 @@ const fetchImageUrl = async (photoId) => {
             boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
             position: 'relative', 
           }} 
-           onClick={() => window.location.href = `/chatPage/${userType}/${userId}`}
+        //   onClick={() => window.location.href = `/chatPage/${userType}/${userId}`}
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <AnnouncementIcon style={{ color: 'white', fontSize: '28px' }} />  
@@ -819,7 +819,7 @@ const fetchImageUrl = async (photoId) => {
           </div>
         </div>
        )} */}
-      <div className="pt-1 mt-mob-100"> 
+      <div className="pt-1 mt-100"> 
     <div
       className={`container m-1`}
       style={{
@@ -914,7 +914,7 @@ const fetchImageUrl = async (photoId) => {
                     <div className="d-flex align-items-start" style={{ cursor: "pointer" }} onClick={() => document.getElementById('myTicketsSection')?.scrollIntoView({ behavior: 'smooth' })}>
                       <ConfirmationNumberIcon sx={{ fontSize: 24, marginRight: '8px' }} />
                       <small style={{ fontSize: "13px", fontFamily: "Poppins", lineHeight: "28px" }}>My Tickets</small>
-                    </div> 
+                    </div>
                     <hr style={{ margin: '8px 0' }} />
                   <div className="d-flex align-items-center logout-btn" style={{ cursor: 'pointer' }} onClick={() => window.location.href = "/loginnew"}>
                     <LogoutIcon className="me-2" />

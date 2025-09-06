@@ -838,7 +838,7 @@ useEffect(() => {
   return (
     <div>
    <Header />
-    <div className="d-flex flex-row justify-content-start align-items-start">
+    <div className="d-flex flex-row justify-content-start align-items-start mt-100" style={{ overflowY: "scroll", overflowX: "hidden" }}>
       {/* Sidebar menu for Larger Screens */}
       {!isMobile && (
         <div className=" ml-0 p-0 sde_mnu">
@@ -867,7 +867,7 @@ useEffect(() => {
 
       {/* Main Content */}
       <div className={`container ${isMobile ? 'w-100' : 'w-75'}`}>
-      <h3 className="mb-1 text-center mt-mob-100">Buy Products</h3>
+      <h3 className="mb-1 text-center">Buy Products</h3>
         <div className=" rounded-3 p-4 bx_sdw w-100">
           <form className="form" onSubmit={handleSubmit}>
 <div className="d-flex justify-content-between align-items-center">

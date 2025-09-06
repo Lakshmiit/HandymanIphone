@@ -447,7 +447,7 @@ const handleLikeClick = async (message) => {
   return (
     <>
      <Header style={{ position: 'fixed', top: 0, width: '100%', zIndex: 1000 }} />
-      <div className="d-flex flex-row justify-content-start align-items-start">
+      <div className="d-flex flex-row justify-content-start align-items-start mt-100">
         <div className={`container ${isMobile ? 'w-100' : 'w-100'}`} style={{ paddingTop: '140px' }}>
           {isMobile && (
             <div

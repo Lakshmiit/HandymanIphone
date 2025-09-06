@@ -102,7 +102,7 @@ const [error, setError] = useState('');
   return (
     <>
     <Header />
-    <div className="offer-banner text-center text-white py-3 mt-mob-50">
+    <div className="offer-banner text-center text-white py-3 mt-100">
         🎉 <b>Special Inaugural Offers!</b> Enjoy Free Delivery and Installation on all Products. 🛒
       </div>
     <div className=" d-flex">

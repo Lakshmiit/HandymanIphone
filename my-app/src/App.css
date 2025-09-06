@@ -468,10 +468,6 @@ footer.footer {
   background-color: #fff;
   box-shadow: var(--bxsdw);
 }
- .mt-mob-50{
-  margin-top:100px;
-  
-}
 
 .main_vw{
   width: 100%;
@@ -859,10 +855,6 @@ border: 1px solid #ccc;
   .srch_dv {
     display: none !important; 
   }
-  .mt-mob-50{
-    margin-top:80px;
-    
-  }
 }
 
 @media (max-width: 768px) {
@@ -887,10 +879,6 @@ border: 1px solid #ccc;
       width: 113px;
   }
 
-  .mt-mob-50{
-    margin-top:80px;
-
-  }
 
   .cust-fullname {
     padding-top: 2px;
@@ -2320,7 +2308,7 @@ max-width: none;
 .card {
   width: 320px;
   height: 200px;
-  background-color: #f1b61f30;
+  /* background-color: #f1b61f30; */
   border: none;
   display: flex;
   align-items: center;
@@ -3913,15 +3901,9 @@ word-break: break-word;
   left: 0px;           
 }
 
-@media (max-width: 768px) {
-  .mt-mob-100 {
-    margin-top: 100px !important;
-  }
-}
-
 .mt-100 {
-    margin-top: 100px !important;
-  }
+    margin-top: 85px !important;
+}
 
 .modal-overlay {
           position: fixed;
@@ -3935,3 +3917,11 @@ word-break: break-word;
           align-items: center;
           z-index: 1000;
         }
+
+.two-line-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;   
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

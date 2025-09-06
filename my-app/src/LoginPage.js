@@ -134,7 +134,7 @@ const handleOTP = async (e) => {
     }
   
     localStorage.setItem('mobile', mobile);
-    window.location.href = `/otpVerification`;
+    window.location.href = `/otpVerification?mobile=${mobile}`;
 
   } catch (error) {
     console.error("Error sending sms:", error);

@@ -493,7 +493,7 @@ const handleUpdateJobDescription = async (e) => {
   return (
     <div>
    <Header />
-    <div className="d-flex flex-row justify-content-start align-items-start">
+    <div className="d-flex flex-row justify-content-start align-items-start mt-100">
        {/* Sidebar for larger screens */}
        {!isMobile && (
         <div className=" ml-0 m-4 p-0 sde_mnu">

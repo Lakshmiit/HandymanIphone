@@ -459,7 +459,7 @@ if (loading) {
   return (
     <div>
   {isMobile && <Header />}
-    <div className="d-flex">
+    <div className="d-flex mt-100">
         {!isMobile && (
         <div className="ml-0 p-0 sde_mnu">
           <Sidebar />
@@ -486,7 +486,7 @@ if (loading) {
       )}
 
 <div className={`container ${isMobile ? "w-100" : "w-75"}`}>
-<h2 className="title mt-mob-100">BUY PRODUCT PAYMENT CONFIRMATION</h2>
+<h2 className="title">BUY PRODUCT PAYMENT CONFIRMATION</h2>
     <div className="booking-confirmation">
       <p className='text-center fs-4'><strong className='name'>{customerName}</strong> Thank you for Choosing the HandyMan Services</p>
 
