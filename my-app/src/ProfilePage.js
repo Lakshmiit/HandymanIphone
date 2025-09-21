@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useEffect, useRef } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
-import { Modal, Button, Carousel } from 'react-bootstrap';
+// import { Modal } from 'react-bootstrap';
 // import LocationOnIcon from '@mui/icons-material/LocationOn';
 // import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 // import NotificationBell from "./NotificationsBell";
 // import OrdersNotificationBell from "./OrdersBellNotifications";
 // import TrackStatusNotificationBell from "./TrackStatusBellNotifications";
-import axios from "axios";         
-import Footer from './Footer.js'; 
+import axios from "axios";    
+import Footer from './Footer.js';
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import RouteIcon from "@mui/icons-material/Route";
@@ -22,10 +22,10 @@ import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import TransferWithinAStationIcon from '@mui/icons-material/TransferWithinAStation';
 // import Banner1 from './img/Ads1.jpeg';
-// import BannerVideo from './img/TicketVideo.mp4';
+// import BannerVideo from './img/Dushera.mp4';
 // import BannerVideo from './img/AdsVideo.mp4';
-// import VolumeOffIcon from '@mui/icons-material/VolumeOff';
-// import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';    
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 // import Banner3 from './img/banner-4.jpg'; 
 // import Banner2 from './img/Ads2.jpeg';
 import { useParams } from "react-router-dom"; 
@@ -37,18 +37,33 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import ApartmentIcon from '@mui/icons-material/Apartment';
-import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
-import IronIcon from '@mui/icons-material/Iron';
-import PlumbingIcon from '@mui/icons-material/Plumbing';
-import HardwareIcon from '@mui/icons-material/Hardware';
+// import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
+// import IronIcon from '@mui/icons-material/Iron';
+// import PlumbingIcon from '@mui/icons-material/Plumbing';
+// import HardwareIcon from '@mui/icons-material/Hardware';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import MenuIcon from '@mui/icons-material/Menu';
 // import HomeIcon from '@mui/icons-material/Home';
-import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+// import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
+// import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 // import BuildIcon from '@mui/icons-material/Build';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+// import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+// import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import Electrical from './img/Electrical.jpeg';
+import Electronics from './img/Electronics.jpeg';
+import Plumbing from './img/Plumbing.jpeg';
+import Hardware from './img/Hardware.jpeg';
+import HomeDecor from './img/HomeDecor.jpeg';
+import BabyKidsImg from './img/BabyKids.jpeg';
+import FamilyPackImg from './img/FamilyPack.jpeg';
+import PersonalCareImg from './img/PersonalCare.jpeg';
+import SnacksImg from './img/Snacks.jpeg';
+import StaplesImg from './img/Staples.jpeg';
+import HouseHoldImg from './img/HouseHold.jpeg';
+import setkurti from './img/3pcsset.jpeg';
+import kurti from './img/2pcsset.jpeg';
+import { CartStorage } from "./CartStorage";
+
 // import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 // import TimelapseIcon from '@mui/icons-material/Timelapse';
 // import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
@@ -155,17 +170,45 @@ const getMenuList = (userType, userId, category, district ,ZipCode,technicianFul
   }
 };
 
+// const categories = [
+//     // { label: 'Blush & Beauty', value: 'Blush & Beauty', icon: <FaceRetouchingNaturalIcon sx={{ fontSize: 30, color: '#d81b60' }} /> },                              
+//     { label: 'Home Decors',value:'Home Decors', icon: <MapsHomeWorkIcon sx={{ fontSize: 30, color: '#fe6f5e' }} /> },
+//     { label: 'Electrical Items',value:'Electrical items', icon: <ElectricalServicesIcon sx={{ fontSize: 30, color: '#1976d2' }} /> },
+//     { label: 'Electronic Appliances', value:'Electronics appliances',icon: <IronIcon sx={{ fontSize: 30, color: '#f57c00' }} /> },
+//     { label: 'Plumbing & Sanitary',value: 'Sanitary items',  icon: <PlumbingIcon sx={{ fontSize: 30, color: '#388e3c' }} /> },
+//     { label: 'Hardware Items',value:'Hardware items', icon: <HardwareIcon sx={{ fontSize: 30, color: '#512da8' }} /> },
+//   ];
+
 const categories = [
-    // { label: 'Blush & Beauty', value: 'Blush & Beauty', icon: <FaceRetouchingNaturalIcon sx={{ fontSize: 30, color: '#d81b60' }} /> },                              
-    { label: 'Home Decors',value:'Home Decors', icon: <MapsHomeWorkIcon sx={{ fontSize: 30, color: '#fe6f5e' }} /> },
-    { label: 'Electrical Items',value:'Electrical items', icon: <ElectricalServicesIcon sx={{ fontSize: 30, color: '#1976d2' }} /> },
-    { label: 'Electronic Appliances', value:'Electronics appliances',icon: <IronIcon sx={{ fontSize: 30, color: '#f57c00' }} /> },
-    { label: 'Plumbing & Sanitary',value: 'Sanitary items',  icon: <PlumbingIcon sx={{ fontSize: 30, color: '#388e3c' }} /> },
-    { label: 'Hardware Items',value:'Hardware items', icon: <HardwareIcon sx={{ fontSize: 30, color: '#512da8' }} /> },
-  ];
+{ label: 'Home Decors', value: 'Home Decors', image: HomeDecor },          
+{ label: 'Electrical Items', value: 'Electrical items', image: Electrical }, 
+{ label: 'Electronics Appliances', value: 'Electronics appliances', image: Electronics },   
+{ label: 'Plumbing & Sanitary', value: 'Sanitary items', image: Plumbing },         
+{ label: 'Hardware Items', value: 'Hardware items', image: Hardware },      
+];
+
+const groceryCategories = [
+  { label: 'Family Pack', value: 'Beverages', image: FamilyPackImg },
+  { label: 'Staples & Grains', value: 'Staples & Grains', image: StaplesImg },
+  { label: 'Snacks & Foods', value: 'Snacks & Branded Foods', image: SnacksImg },
+  { label: 'Home Needs', value: 'Home Needs', image: HouseHoldImg },
+  { label: 'Personal Care', value: 'Personal Care', image: PersonalCareImg },
+  { label: 'Baby & Kids', value: 'Baby & Kids', image: BabyKidsImg },
+//   { label: 'Masalas & Cooking Essentials', value: 'Masalas & Cooking Essentials', image: MasalasImg },
+//   { label: 'Packaged & Gourmet', value: 'Packaged & Gourmet', image: GourmetImg },
+];
+
+const collectionsCategories = [
+  { label: 'Dupatta Sets', value: 'Dupatta Sets', image: setkurti },
+  { label: 'Kurta Sets', value: 'Kurta Sets', image: kurti},
+  // { label: 'Home Needs', value: 'Home Needs', image: HouseHoldImg },
+  // { label: 'Personal Care', value: 'Personal Care', image: PersonalCareImg },
+  // { label: 'Snacks & Foods', value: 'Snacks & Branded Foods', image: SnacksImg },
+  // { label: 'Staples & Grains', value: 'Staples & Grains', image: StaplesImg },
+];
 
 const ProfilePage = () => {
-//   const navigate = useNavigate();
+  // const navigate = useNavigate();
     const {userId} = useParams();
     const {userType} = useParams();
     const [category, setCategory] = useState('');
@@ -182,35 +225,34 @@ const ProfilePage = () => {
     const [showProfile, setShowProfile] = useState(false);
     const [allTickets, setAllTickets] = useState([]);
     const menuRef = useRef(null);
-    const productScrollRef = useRef(null); 
     const ticketScrollRef = useRef(null);  
-    const scrollRef = useRef(null);
-    const [productData, setProductData] = useState([]);
-    const [imageUrls, setImageUrls] = useState({});
-    const [searchQuery] = useState('');
+    // const scrollRef = useRef(null);
+    // const [productData, setProductData] = useState([]);
+    // const [imageUrls, setImageUrls] = useState({});
+    // const [searchQuery] = useState('');
     // searchQuery
-    const [showZoomModal, setShowZoomModal] = useState(false);
-    const [zoomImage, setZoomImage] = useState("");
-    const [loadingStatus, setLoadingStatus] = useState({}); 
+    // const [showZoomModal, setShowZoomModal] = useState(false);
+    // const [zoomImage, setZoomImage] = useState("");
+    // const [loadingStatus, setLoadingStatus] = useState({}); 
     const [error, setError] = useState('');
     const [products, setProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
-     const [selectedProduct, setSelectedProduct] = useState(null);
+    //  const [selectedProduct, setSelectedProduct] = useState(null);
     // const [showLocationModal, setShowLocationModal] = useState(false);
     //  const [showModal, setShowModal] = useState(false);
     // const [isEditing, setIsEditing] = useState(false);
     // const [newAddress, setNewAddress] = useState('');
     // const [mobileNumber, setMobileNumber] = useState('');
     // const [guestCustomerId, setGuestCustomerId] = useState('');
-    const [addresses, setAddresses] = useState([]);
+    // const [addresses, setAddresses] = useState([]);
     // const [editingAddressId, setEditingAddressId] = useState(null);
-    const [editingAddressId] = useState(null);
+    // const [editingAddressId] = useState(null);
     // const [state, setState] = useState('');
-    const [districtList, setDistrictList] = useState([]);  
-    const [stateList, setStateList] = useState([]);
+    // const [districtList, setDistrictList] = useState([]);  
+    // const [stateList, setStateList] = useState([]);
     const [district, setDistrict] = useState('');  
     // const [districtId, setDistrictId] = useState('');    
-    const [stateId, setStateId] = useState(null);   
+    // const [stateId, setStateId] = useState(null);   
     // const [addressData, setAddressData] = useState({
     // fullName  : '',
     // mobileNumber: '',
@@ -219,33 +261,80 @@ const ProfilePage = () => {
     // state: '',
     // district: '',
     // });
-     const [addressData] = useState({
-    fullName  : '',
-    mobileNumber: '',
-    address: '',
-    zipCode: '',
-    state: '',
-    district: '',
-    });
-//  const videoRef = useRef(null);
-// const [isMuted, setIsMuted] = useState(true);
-const [groupedProducts, setGroupedProducts] = useState({});
-const [expandedCategories, setExpandedCategories] = useState({});
+    //  const [addressData] = useState({
+    // fullName  : '',
+    // mobileNumber: '',
+    // address: '',
+    // zipCode: '',
+    // state: '',
+    // district: '',
+    // });
+ const videoRef = useRef(null);
+const [isMuted, setIsMuted] = useState(true);
+// const [groupedProducts, setGroupedProducts] = useState({});
+// const [expandedCategories, setExpandedCategories] = useState({});
  const [unreadCount, setUnreadCount] = useState(0);
 const [messageCounts, setMessageCounts] = useState({
   news:     0,
   buysell:  0,
   tolet:    0
 });    
-   
+const [grocery, setGrocery] = useState([]);
+const [cartSummary, setCartSummary] = useState({
+  items: 0,
+  total: 0,
+  products: [],
+});
+const [dress] = useState([]);
+// setDress
 useEffect(() => {
-  console.log( districtList, stateList, unreadCount, showMenu, productData, products, selectedCategory, addresses, editingAddressId, addressData);
-}, [ districtList, stateList,unreadCount, showMenu, productData, products, selectedCategory, addresses, editingAddressId, addressData]);
+  const summary = CartStorage.grandSummary();
+  setCartSummary(summary);
+}, []);
+
+useEffect(() => {
+  const updateCartSummary = () => {
+    const savedCategories = JSON.parse(localStorage.getItem("allCategories")) || [];
+    let items = 0, total = 0, products = [];
+
+    savedCategories.forEach((cat) => {
+      cat.products.forEach((p) => {
+        if (Number(p.qty) > 0) {
+          items += Number(p.qty);
+          const afterDiscountPrice = Number(
+            p.afterDiscountPrice || p.price || p.finalPrice || 0
+          );
+          total += afterDiscountPrice * Number(p.qty);
+
+          products.push({
+            id: p.productId || p.id, 
+            productName: p.productName || p.name || "", 
+            image: p.image || p.img || "", 
+            mrp: Number(p.mrp) || Number(p.mrpPrice) || 0,
+            discount: Number(p.discount) || Number(p.discountPercent) || 0,
+            afterDiscountPrice,
+            qty: Number(p.qty),
+            category: cat.categoryName,
+          });
+        }
+      });
+    });
+    setCartSummary({ items, total, products });
+    console.log("cartSummary:", { items, total, products });
+  };
+  updateCartSummary();
+  window.addEventListener("storage", updateCartSummary);
+  return () => window.removeEventListener("storage", updateCartSummary);
+}, []);
+
+useEffect(() => {
+  console.log(  grocery,error, unreadCount, showMenu, products, selectedCategory, dress);
+}, [ grocery, error,unreadCount, showMenu, products, selectedCategory, dress]);
  
-useEffect(() => {
+useEffect(() => {    
   const storedCounts = localStorage.getItem("chatCounts");
   if (storedCounts) {
-    try {
+    try { 
       const parsedCounts = JSON.parse(storedCounts);
       setMessageCounts(parsedCounts); 
     } catch (err) {
@@ -256,17 +345,17 @@ useEffect(() => {
 
 const totalUnreadMessages = messageCounts.news + messageCounts.buysell + messageCounts.tolet;
 
-  // const toggleMute = () => {
-  //   const video = videoRef.current;
-  //   if (video) {
-  //     video.muted = !isMuted; 
-  //     setIsMuted(!isMuted);
-  //   }
-  // };
+  const toggleMute = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.muted = !isMuted; 
+      setIsMuted(!isMuted);
+    }
+  };
 
-useEffect(() => {
-  console.log(unreadCount, showMenu, productData, products, selectedCategory, addresses, editingAddressId, addressData);
-}, [unreadCount, showMenu, productData, products, selectedCategory, addresses, editingAddressId, addressData]);
+// useEffect(() => {
+//   console.log(unreadCount, showMenu, products, selectedCategory, addresses, editingAddressId, addressData);
+// }, [unreadCount, showMenu, products, selectedCategory, addresses, editingAddressId, addressData]);
     // const bottomRefs = useRef({});
 // useEffect(() => {
 //   bottomRefs.current = {};
@@ -275,16 +364,16 @@ useEffect(() => {
 //   });
 // }, [productData]);
 
-   const scroll = (direction) => {
-    const { current } = scrollRef;
-    if (current) {
-      const scrollAmount = isMobile ? 100 : 160;
-      current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth',
-      });
-    }
-  };
+  //  const scroll = (direction) => {
+  //   const { current } = scrollRef;
+  //   if (current) {
+  //     const scrollAmount = isMobile ? 100 : 160;
+  //     current.scrollBy({
+  //       left: direction === 'left' ? -scrollAmount : scrollAmount,
+  //       behavior: 'smooth',
+  //     });
+  //   }
+  // };
 
   useEffect(() => {
   const fetchUnreadCount = async () => {
@@ -339,36 +428,122 @@ useEffect(() => {
 //         }
 //       };
 
+// const handleCategoryClick = async (category) => {
+//   const { value } = category; 
+//   try {
+//     setSelectedCategory(category);
+//     setProducts([]);
+//     setError("");
+
+//     const encodedCategory = encodeURIComponent(value);
+//     const url = `https://handymanapiv2.azurewebsites.net/api/Product/GetProductsByCategory?Category=${encodedCategory}`;
+//     const response = await axios.get(url);
+
+//     const productsData = response.data;
+//     if (!productsData || productsData.length === 0) {
+//       setError("Oops! No products found for this category.");
+//     } else {
+//       setProducts(productsData);
+//     }
+
+//     localStorage.setItem('encodedCategory', encodedCategory);
+//     navigate(`/offers/${userType}/${userId}`, {
+//       state: { encodedCategory }, 
+//     });
+
+//   } catch (error) {
+//     console.error('Error fetching products:', error);
+//     setProducts([]);
+//     setError(`Oops! No products found for ${value} category.`);
+//   }
+// };
+
 const handleCategoryClick = async (category) => {
   const { value } = category; 
   try {
     setSelectedCategory(category);
     setProducts([]);
     setError("");
-
     const encodedCategory = encodeURIComponent(value);
-    const url = `https://handymanapiv2.azurewebsites.net/api/Product/GetProductsByCategory?Category=${encodedCategory}`;
-    const response = await axios.get(url);
-
-    const productsData = response.data;
-    if (!productsData || productsData.length === 0) {
-      setError("Oops! No products found for this category.");
-    } else {
-      setProducts(productsData);
-    }
-
-    localStorage.setItem('encodedCategory', encodedCategory);
-    // navigate(`/offers/${userType}/${userId}`, {
-    //   state: { category: encodedCategory }, 
-    // });
-    window.location.href = `/offers/${userType}/${userId}`; 
-
+    localStorage.setItem("encodedCategory", encodedCategory);
+    window.location.href = `/offers/${userType}/${userId}`;
   } catch (error) {
-    console.error('Error fetching products:', error);
+    console.error("Error fetching products:", error);
     setProducts([]);
     setError(`Oops! No products found for ${value} category.`);
   }
 };
+
+//  const handleGroceryCategoryClick = async (category) => {
+//         const { value } = category; 
+//         try {
+//           setSelectedCategory(category);
+//           setGrocery([]);
+//           setError("");
+      
+//           const encodedCategory = encodeURIComponent(value);
+//           const url = `https://handymanapiv2.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodedCategory}`;
+//           const response = await axios.get(url);
+//           const groceryData = response.data;
+      
+//           if (groceryData.length === 0) {
+//             setError("Oops! No grocery items found for this category.");
+//             console.log("No grocery items found.");
+//           } else {
+//             setGrocery(groceryData);
+//           }
+      
+//           localStorage.setItem('encodedCategory', encodedCategory);
+//          navigate(`/grocery/${userType}/${userId}`, {
+//             state: { encodedCategory },  
+//         });
+
+      
+//           console.log('encodedCategory:', encodedCategory);
+//         } catch (error) {
+//           console.error('Error fetching products:', error);
+//           setGrocery([]);
+//           setError(`Oops! No grocery items found for ${value} category.`);
+//         }
+//       };
+
+const handleGroceryCategoryClick = async (category) => {
+  const { value } = category;
+  try {
+    setSelectedCategory(category);
+    setGrocery([]);
+    setError("");
+
+    const encodedCategory = encodeURIComponent(value);
+    localStorage.setItem("encodedCategory", encodedCategory);
+
+    window.location.href = `/grocery/${userType}/${userId}`;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    setGrocery([]);
+    setError(`Oops! No grocery items found for ${value} category.`);
+  }
+};
+
+// const handleDressCategoryClick = async (category) => {
+//   const { value } = category;
+//   try {
+//     setSelectedCategory(category);
+//     setDress([]);
+//     setError("");
+
+//     const encodedCategory = encodeURIComponent(value);
+//     localStorage.setItem("encodedCategory", encodedCategory);
+
+//     navigate(`/lakshmiCollections/${userType}/${userId}`, {
+//       state: { encodedCategory },  
+//     });
+//   } catch (error) {
+//     console.error("Error fetching collections:", error);
+//     setGrocery([]);
+//     setError(`Oops! No collections found for ${value} category.`);
+//   }
+// };    
 
         useEffect(() => {
           const fetchAllTickets = async () => {
@@ -404,70 +579,70 @@ const handleCategoryClick = async (category) => {
     setShowProfile(!showProfile);
   };
 
-  const handleImageClick = (imageSrc) => {
-    setZoomImage(imageSrc);
-    setShowZoomModal(true);
-  };
+  // const handleImageClick = (imageSrc) => {
+  //   setZoomImage(imageSrc);
+  //   setShowZoomModal(true);
+  // };
 
-   const fetchCustomerData = useCallback(async () => {
-        try {
-          const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Address/GetAddressById/${userId}`);
-          if (!response.ok) {
-            throw new Error('Failed to fetch customer profile data');
-          } 
-          const data = await response.json();
-          console.log(data);
-          const addresses = Array.isArray(data) ? data : [data];
-          const formattedAddresses = addresses.map((addr) => ({
-            id: addr.addressId, 
-            type: addr.isPrimaryAddress ? 'primary' : 'secondary',
-            address: addr.address,
-            state: addr.state,
-            district: addr.district,
-            zipCode: addr.zipCode, 
-            emailAddress: addr.emailAddress,
-            mobileNumber: addr.mobileNumber,
-            fullName: addr.fullName,
-          }));
-          console.log("address1", addresses);
-          setAddresses(formattedAddresses);
-          const customerName = Array.isArray(data) ? data[0]?.fullName || '' : data.fullName || '';
-          setFullName(customerName);
-        } catch (error) {
-          console.error('Error fetching customer data:', error);
-        }
-    }, [userId]);
+  //  const fetchCustomerData = useCallback(async () => {
+  //       try {
+  //         const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Address/GetAddressById/${userId}`);
+  //         if (!response.ok) {
+  //           throw new Error('Failed to fetch customer profile data');
+  //         } 
+  //         const data = await response.json();
+  //         console.log(data);
+  //         const addresses = Array.isArray(data) ? data : [data];
+  //         const formattedAddresses = addresses.map((addr) => ({
+  //           id: addr.addressId, 
+  //           type: addr.isPrimaryAddress ? 'primary' : 'secondary',
+  //           address: addr.address,
+  //           state: addr.state,
+  //           district: addr.district,
+  //           zipCode: addr.zipCode, 
+  //           emailAddress: addr.emailAddress,
+  //           mobileNumber: addr.mobileNumber,
+  //           fullName: addr.fullName,
+  //         }));
+  //         console.log("address1", addresses);
+  //         setAddresses(formattedAddresses);
+  //         const customerName = Array.isArray(data) ? data[0]?.fullName || '' : data.fullName || '';
+  //         setFullName(customerName);
+  //       } catch (error) {
+  //         console.error('Error fetching customer data:', error);
+  //       }
+  //   }, [userId]);
     
-  useEffect(() => {
-    fetchCustomerData();
-  }, [fetchCustomerData]);
+  // useEffect(() => {
+  //   fetchCustomerData();
+  // }, [fetchCustomerData]);
 
-  useEffect(() => {
-    axios.get('https://handymanapiv2.azurewebsites.net/api/MasterData/getStates')
-      .then(response => {
-        const data = response.data;
-        console.log("States API Response:", data); 
-        setStateList(data);
-        setStateId('');
-      })
-      .catch(error => {
-        console.error('Error fetching states:', error);
-      });
-  }, []);
+  // useEffect(() => {
+  //   axios.get('https://handymanapiv2.azurewebsites.net/api/MasterData/getStates')
+  //     .then(response => {
+  //       const data = response.data;
+  //       console.log("States API Response:", data); 
+  //       setStateList(data);
+  //       setStateId('');
+  //     })
+  //     .catch(error => {
+  //       console.error('Error fetching states:', error);
+  //     });
+  // }, []);
   
-   useEffect(() => {
-    if (stateId) {
-      axios.get(`https://handymanapiv2.azurewebsites.net/api/MasterData/getDistricts/${stateId}`)
-        .then(response => {
-          setDistrictList(response.data);
-        })
-        .catch(error => {
-          console.error('Error fetching districts:', error);
-        });
-    } else {
-      setDistrictList([]);
-    }
-  }, [stateId]);
+  //  useEffect(() => {
+  //   if (stateId) {
+  //     axios.get(`https://handymanapiv2.azurewebsites.net/api/MasterData/getDistricts/${stateId}`)
+  //       .then(response => {
+  //         setDistrictList(response.data);
+  //       })
+  //       .catch(error => {
+  //         console.error('Error fetching districts:', error);
+  //       });
+  //   } else {
+  //     setDistrictList([]);
+  //   }
+  // }, [stateId]);
   
   //  const resetAddressForm = () => {
   //   setFullName('');
@@ -547,57 +722,57 @@ const handleCategoryClick = async (category) => {
   //   }
   // };
 
-useEffect(() => {
-  const fetchProductsAndImages = async () => {
-    try {
-      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Product/GetAllProductList`);
-      const data = await response.json();
-      setProductData(data);
+// useEffect(() => {
+//   const fetchProductsAndImages = async () => {
+//     try {
+//       const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Product/GetAllProductList`);
+//       const data = await response.json();
+//       setProductData(data);
 
-      const groupProductsByCategory = (products) => {
-        return products.reduce((acc, product) => {
-          const category = product.category || "Uncategorized";
-          if (!acc[category]) {
-            acc[category] = [];
-          }
-          acc[category].push(product);
-          return acc;
-        }, {});
-      };
+//       const groupProductsByCategory = (products) => {
+//         return products.reduce((acc, product) => {
+//           const category = product.category || "Uncategorized";
+//           if (!acc[category]) {
+//             acc[category] = [];
+//           }
+//           acc[category].push(product);
+//           return acc;
+//         }, {});
+//       };
 
-      const grouped = groupProductsByCategory(data);  
-      setGroupedProducts(grouped); 
+//       const grouped = groupProductsByCategory(data);  
+//       setGroupedProducts(grouped); 
 
-      data.forEach((product) => {
-        if (product.productPhotos?.length) {
-          fetchImagesForProduct(product);
-        }
-      });
-    } catch (error) {
-      console.error('Error fetching product data:', error);
-    }
-  };
+//       data.forEach((product) => {
+//         if (product.productPhotos?.length) {
+//           fetchImagesForProduct(product);
+//         }
+//       });
+//     } catch (error) {
+//       console.error('Error fetching product data:', error);
+//     }
+//   };
 
-  const fetchImagesForProduct = async (product) => {
-    try {
-      setLoadingStatus((prev) => ({ ...prev, [product.id]: true }));
-      const photoPromises = product.productPhotos.map(async (photo) => {
-        const res = await fetch(
-          `https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${photo}`
-        );
-        const imgData = await res.json();
-        return { imageData: imgData.imageData };
-      });
-      const allImages = await Promise.all(photoPromises);
-      setImageUrls((prev) => ({ ...prev, [product.id]: allImages }));
-    } catch (err) {
-      console.error(`Failed to fetch images for product ${product.id}`, err);
-    } finally {
-      setLoadingStatus((prev) => ({ ...prev, [product.id]: false }));
-    }
-  };
-  fetchProductsAndImages();
-}, []);
+//   const fetchImagesForProduct = async (product) => {
+//     try {
+//       setLoadingStatus((prev) => ({ ...prev, [product.id]: true }));
+//       const photoPromises = product.productPhotos.map(async (photo) => {
+//         const res = await fetch(
+//           `https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${photo}`
+//         );
+//         const imgData = await res.json();
+//         return { imageData: imgData.imageData };
+//       });
+//       const allImages = await Promise.all(photoPromises);
+//       setImageUrls((prev) => ({ ...prev, [product.id]: allImages }));
+//     } catch (err) {
+//       console.error(`Failed to fetch images for product ${product.id}`, err);
+//     } finally {
+//       setLoadingStatus((prev) => ({ ...prev, [product.id]: false }));
+//     }
+//   };
+//   fetchProductsAndImages();
+// }, []);
 
       useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -723,8 +898,8 @@ const fetchImageUrl = async (photoId) => {
             cursor: 'pointer',
             boxShadow: '0 2px 10px rgba(0, 0, 0, 0.3)',
             position: 'relative', 
-          }} 
-        //   onClick={() => window.location.href = `/chatPage/${userType}/${userId}`}
+          }}
+          onClick={() => window.location.href = `/chatPage/${userType}/${userId}`}
         >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <AnnouncementIcon style={{ color: 'white', fontSize: '28px' }} />  
@@ -906,7 +1081,7 @@ const fetchImageUrl = async (photoId) => {
                       <small style={{ fontSize: "13px", fontFamily: "Poppins", lineHeight: "28px" }}>My Orders</small>
                     </div> */}
                     {/* <hr style={{ margin: '8px 0' }} /> */}
-                    {/* <div className="d-flex align-items-start" style={{ cursor: "pointer" }} onClick={() => window.location.href = `/trackStatusNotifications/${userType}/${userId}`}>
+                    {/* <div className="d-flex align-items-start" style={{ cursor: "pointer" }} onClick={() => navigate(`/trackStatusNotifications/${userType}/${userId}`)}>
                       <TrackStatusNotificationBell sx={{ fontSize: 24, marginRight: '8px' }} />
                       <small style={{ fontSize: "13px", fontFamily: "Poppins", lineHeight: "28px" }}>Track Ticket</small>
                     </div> */}
@@ -918,10 +1093,10 @@ const fetchImageUrl = async (photoId) => {
                     <hr style={{ margin: '8px 0' }} />
                   <div className="d-flex align-items-center logout-btn" style={{ cursor: 'pointer' }} onClick={() => window.location.href = "/loginnew"}>
                     <LogoutIcon className="me-2" />
-                    <span>Logout</span>        
+                    <span>Logout</span>
                   </div>
                 </div>
-              </div>         
+              </div>
             )}
          </div> 
     
@@ -1008,7 +1183,7 @@ const fetchImageUrl = async (photoId) => {
 )}
 
         {/* Address with Location */}
-        <div className="col-md-9 bg-white">
+        <div className="col-md-9">
         {/* {profile && profile.fullName && profile.address && profile.zipCode && (
   <div className="w-100 bg-dark text-white d-flex" style={{ backgroundColor: '#2d3e50', padding: "5px", borderRadius: '8px'}}
         onClick={() => setShowLocationModal(true)}>
@@ -1216,7 +1391,7 @@ const fetchImageUrl = async (photoId) => {
       </div> */}
 
        {/* Category Cards */}
-    <div className="position-relative w-100">
+    {/* <div className="position-relative w-100">
   <div
     ref={scrollRef}
     className="category-scroll d-flex flex-nowrap overflow-auto"
@@ -1252,7 +1427,7 @@ const fetchImageUrl = async (photoId) => {
 
   {error && <div className="text-danger mt-2">{error}</div>}
 
-  {/* Arrow Buttons */}
+  {/* Arrow Buttons 
   <div className="d-flex justify-content-between">
     <button
       className="bg-transparent border-0"
@@ -1269,7 +1444,7 @@ const fetchImageUrl = async (photoId) => {
       <ArrowForwardIcon fontSize="medium" />
     </button>
   </div>
-</div>
+</div> */}
 
       {/* Carousel */}
               {/* <div className="container">
@@ -1309,20 +1484,20 @@ const fetchImageUrl = async (photoId) => {
                     aria-label="Slide 4" 
                   ></button>
                 </div>
-                {/* Carousel items 
+                {/* Carousel items */}
                 <div className="carousel-inner">
                   <div className="carousel-item active">
-                    <video
+                    {/* <video
                       ref={videoRef}
                       className="d-block w-100 rounded"
-                      style={{ width: '100%', height: 'auto', objectFit: 'cover' }}
+                      style={{ width: '90%', height: 'auto', objectFit: 'cover' }}
                       autoPlay
                       loop
                       playsInline
                       muted={isMuted}
                     >
                       <source src={BannerVideo} type="video/mp4" />
-                    </video>
+                    </video> */}
                     <button
                       onClick={toggleMute}
                       style={{
@@ -1341,7 +1516,7 @@ const fetchImageUrl = async (photoId) => {
                       {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
                     </button>
                 </div>
-                  <div className="carousel-item active">
+                  {/* <div className="carousel-item active">
                   <img
                     src={Banner1}
                     className="d-block w-100 img-fluid rounded"
@@ -1364,7 +1539,7 @@ const fetchImageUrl = async (photoId) => {
                     style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
                     alt="Slide 3"
                   />
-                </div>
+                </div> */}
               </div>
                 {/* Controls 
                 <button
@@ -1385,14 +1560,267 @@ const fetchImageUrl = async (photoId) => {
                 </button>
               </div>
               </div>
-              </div> */}
+              </div> 
+    
+    {/* <div className="row row-cols-3 row-cols-md-5 g-2">
+    {categories.map((cat) => (
+  <div className="col" key={cat.label} onClick={() => handleCategoryClick(cat)}>
+    <div
+      className="card border-0 shadow-sm text-center"
+      style={{
+        height: isMobile ? '100px' : '120px',
+        width: isMobile ? '90px' : '120px',
+        cursor: 'pointer',
+         padding: '10px',
+         marginTop: '5px',
+      }}
+    >
+      <img
+        src={cat.image}
+        alt={cat.label}
+        style={{ height: '70px', width: '70px', borderRadius: '8px',  
+          // marginTop: '5px', objectFit: 'cover'
+         }}
+      />
+      <span style={{ fontSize: '11px', fontWeight: '600', marginTop: '0px' }}>{cat.label}</span>
+    </div>
+  </div>
+))}
+  </div>  
 
-<h4 style={{ color: '#ff5722', fontFamily: 'Poppins, sans-serif', fontWeight: 700,fontSize: '22px', textTransform: 'uppercase',
+<div className="row row-cols-3 row-cols-md-5 g-2">
+  {groceryCategories.map((cat) => (
+    <div className="col" key={cat.label}>
+    {/* onClick={() => handleCategoryClick(cat)} 
+      <div
+        className="groceryIcon-card border-0 shadow-sm mt-2"
+        style={{
+          height: isMobile ? '100px' : '120px',
+          width: isMobile ? '90px' : '120px',
+          cursor: 'pointer',
+          padding: '10px',
+          marginTop: '5px',
+        }}
+      >
+        <img
+          src={cat.image}
+          alt={cat.label}
+          style={{
+            height: '80px',
+            width: '80px',
+            borderRadius: '8px',
+            marginTop: '2px',
+            objectFit: 'cover' 
+          }}
+        />
+        <span style={{ fontSize: '12px', fontWeight: '400', marginBottom: '3px' }}>
+          {cat.label}
+        </span>
+      </div>
+    </div>
+  ))}
+</div> */}
+
+<div className="container my-3">
+  {/* Handyman Products Section */}
+  <div className="shadow-lg p-3 mb-1 rounded-5 bg-transparent border-0">
+    <h5 className="text-center fw-bold mb-3" style={{color: "#ff5722", fontSize: "18px"}}>Handyman Products</h5>
+    <div className="row row-cols-3 row-cols-md-5 g-2">
+      {categories.map((cat) => (
+        <div
+          className="col"
+          key={cat.label}
+          onClick={() => handleCategoryClick(cat)}
+        >
+          <div
+            className="card border-0 shadow-sm text-center"
+            style={{
+              height: isMobile ? "100px" : "120px",
+              width: isMobile ? "90px" : "120px",
+              cursor: "pointer",
+              padding: "10px",
+              marginTop: "5px",
+            }}
+          >
+            <img
+              src={cat.image}
+              alt={cat.label}
+              style={{
+                height: "70px",
+                width: "70px",
+                borderRadius: "8px",
+                objectFit: "cover",
+              }}
+            />
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: "500",
+                marginTop: "0px",
+              }}
+            >
+              {cat.label}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Grocery Categories Section */}
+  <div className="shadow-lg p-3 rounded-5 mb-1 text-center bg-transparent border-0">
+    <h5 className="fw-bold mb-3" style={{color: "#ff5722", fontSize: "18px"}}>
+      Lakshmi Mart Launching Soon ....
+    </h5>
+    <div className="row row-cols-3 row-cols-md-5 g-1">
+      {groceryCategories.map((cat) => (
+        <div className="col" key={cat.label} onClick={() => handleGroceryCategoryClick(cat)}>
+          <div
+            className="groceryIcon-card border-0 shadow-sm mt-2"
+            style={{
+              height: isMobile ? "100px" : "120px",
+              width: isMobile ? "90px" : "120px",
+              cursor: "pointer",
+              padding: "10px",
+              marginTop: "5px",
+            }}
+          >
+            <img
+              src={cat.image}
+              alt={cat.label}
+              style={{
+                height: "80px",
+                width: "80px",
+                borderRadius: "8px",
+                marginTop: "2px",
+                objectFit: "cover",
+              }}
+            />
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: "500",
+                marginBottom: "3px",
+              }}
+            >
+              {cat.label}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+
+{cartSummary.items > 0 && (
+  <div
+    style={{
+      position: "fixed",
+      bottom: "60px",
+      left: 0,
+      width: "100%",
+      backgroundColor: "green",
+      color: "white",
+      padding: "12px 16px",
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      fontWeight: "bold",
+      zIndex: 2000,
+      borderRadius: "20px",
+    }}
+  >
+    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      🛒
+      <div style={{ display: "flex", flexDirection: "column", lineHeight: "1.2" }}>
+        <span style={{ fontSize: "12px" }}>{cartSummary.items} items</span>
+      <span style={{ fontSize: "12px" }}>₹{Math.round(cartSummary.total)}</span>
+      </div>
+    </div>
+
+    <button
+     type="button"
+      className="text-white fw-bold d-flex align-items-center gap-1"
+      style={{
+        fontSize: "12px",
+        cursor: "pointer",
+        background: "transparent",
+        border: "none",
+      }}
+      onClick={() => window.location.href = `/groceryCart/${userType}/${userId}`}
+    >
+  View Cart →
+  {/* ({cartSummary.items}) – ₹{Math.round(cartSummary.total)} */}
+</button>
+  </div> 
+)}
+
+   {/* Collections Section */}
+  <div className="shadow-lg p-3 rounded-5 text-center bg-transparent border-0">
+   <span
+  // className="blinking-text"
+  style={{
+    background: "linear-gradient(45deg, #ff4081, #ff9800, #ff5722)",
+    backgroundClip: "text",             
+    WebkitBackgroundClip: "text",       
+    color: "transparent",              
+    WebkitTextFillColor: "transparent", 
+    fontSize: "18px",
+    fontWeight: "bold",
+    fontFamily: "'Poppins', sans-serif",
+    display: "inline-block",            
+  }}
+>
+  Lakshmi Collections Launching Soon....
+</span>
+    <div className="row row-cols-3 row-cols-md-5 g-2">
+      {collectionsCategories.map((cat) => (
+        <div className="col" key={cat.label} 
+        // onClick={() => handleDressCategoryClick(cat)}
+        //  onClick={() => navigate(`/lakshmiCollections/${userType}/${userId}`)}
+        >
+          <div
+            className="groceryIcon-card border-0 shadow-sm mt-2"
+            style={{
+              height: isMobile ? "100px" : "120px",
+              width: isMobile ? "90px" : "120px",
+              cursor: "pointer",
+              padding: "10px",
+              marginTop: "5px",
+            }}
+          >
+            <img
+              src={cat.image}
+              alt={cat.label}
+              style={{
+                height: "80px",
+                width: "80px",
+                borderRadius: "8px",
+                marginTop: "2px",
+                objectFit: "cover",
+              }}
+            />
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: "500",
+                marginBottom: "3px",
+              }}
+            >
+              {cat.label}
+            </span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+{/* <h4 style={{ color: '#ff5722', fontFamily: 'Poppins, sans-serif', fontWeight: 700,fontSize: '22px', textTransform: 'uppercase',
     letterSpacing: '1px', textAlign: 'center', marginBottom: '1px'}}>
    🎉 Top Deals For You! 🎉
-</h4>
+</h4> */}
 {/* Products Display */}
-<div className="product-scroll-wrapper " ref={productScrollRef}>
+{/* <div className="product-scroll-wrapper " ref={productScrollRef}>
   {Object.entries(groupedProducts)
     .sort(([a], [b]) => (a === "Home Decors" ? -1 : b === "Home Decors" ? 1 : 0)) 
     .map(([categoryName, products]) => {
@@ -1430,14 +1858,6 @@ const fetchImageUrl = async (photoId) => {
                   onClick={() => setSelectedProduct(product)}
                   style={{ cursor: 'pointer' }}
                 >
-                  {/* {product.discount && (
-                    <div className="discount-badge-wrapper">
-                      <span className="discount-badge">
-                        {Math.round(product.discount)}%
-                      </span>
-                    </div>
-                  )} */}
-
                  <div className="image-container">
                   {product.discount && (
                     <div className="discount-badge-wrapper">
@@ -1461,7 +1881,6 @@ const fetchImageUrl = async (photoId) => {
                     <h6 className="product-name">{product.productName.toUpperCase()}</h6>
                     <div className="product-price">Rs {discountedPrice} /-</div>                   
                     </div>
-                     {/* <p className="text-danger">Limited deal</p> */}
                 </div>
            </>
               );
@@ -1470,7 +1889,7 @@ const fetchImageUrl = async (photoId) => {
 
           {filteredProducts.length > 6 && (
   <div className="text-end">
-    <Button
+    <Button                          
       variant="outline-primary"
       size="sm"
       onClick={() =>
@@ -1487,10 +1906,10 @@ const fetchImageUrl = async (photoId) => {
         </div>
       );
     })}
-</div>
+</div> */}
 
- {/* Selected Product Display */}
-{selectedProduct && (
+ {/* Selected Product Display */} 
+{/* {selectedProduct && (
   <div className="custom-modal-backdrop" onClick={() => setSelectedProduct(null)}>
      <div className="custom-modal-content" onClick={(e) => e.stopPropagation()}>
        <button className="close-button" onClick={() => setSelectedProduct(null)}>&times;</button>
@@ -1561,7 +1980,7 @@ const fetchImageUrl = async (photoId) => {
     </div>
     <button
       className="buy-now-btn"
-      onClick={() => window.location.href = `/offersBuyProduct/${userType}/${userId}/${selectedProduct.id}`}
+      onClick={() => navigate(`/offersBuyProduct/${userType}/${userId}/${selectedProduct.id}`)}
     >
       Buy Now
     </button>
@@ -1569,7 +1988,8 @@ const fetchImageUrl = async (photoId) => {
 </div>
 </div>
 </div>
-)}
+)} */}
+
   {/* Dashboard Desktop */}
       {!isMobile ? (
         <>
@@ -1639,7 +2059,7 @@ const fetchImageUrl = async (photoId) => {
         </div>
         </div>
         {/* Zoom Modal */}
-        <Modal show={showZoomModal} onHide={() => setShowZoomModal(false)} centered>
+        {/* <Modal show={showZoomModal} onHide={() => setShowZoomModal(false)} centered>
           <button className="close-button text-end mt-0" onClick={() => setShowZoomModal(false)}>
               &times; </button>
                 <Modal.Body className="text-center position-relative">
@@ -1647,7 +2067,7 @@ const fetchImageUrl = async (photoId) => {
                     <img src={zoomImage} alt="Zoomed Product" className="zoom-image" />
                   </div>
                 </Modal.Body>
-              </Modal>
+              </Modal> */}
          <Footer />
         </>
   );

@@ -24,7 +24,12 @@ import BuyProductOnlinePaymentPage from './BuyProductOnlinePaymentPage.js';
 import BuyProductPaymentSuccess from './BuyProductPaymentSuccess.js';
 import BookTechnicianOnlinePayment from './BookTechnicianOnlinePayment.js'
 import BookTechnicianPaymentSuccess from './BookTechnicianPaymentSuccess.js';
-
+import GroceryItems from './GroceryItems.js';
+import GroceryCartPage from './GroceryCartPage.js';
+import GroceryPaymentmethod from './GroceryPaymentMethod.js';
+import GroceryOnlinePayment from './GroceryOnlinePayment.js';
+import GroceryPaymentSuccess from './GroceryPaymentSuccess.js';
+                       
 const PreventBackNavigation = () => {
 
 useEffect(() => {
@@ -74,9 +79,14 @@ function App() {
             <Route path="/BuyProductPaymentSuccess" element={<BuyProductPaymentSuccess />} />
             <Route path="/bookTechnicianOnlinePayment/:id" element={<BookTechnicianOnlinePayment />} />
             <Route path="/BookTechnicianPaymentSuccess" element={<BookTechnicianPaymentSuccess />} />
+            <Route path="/grocery/:userType/:userId" element={<GroceryItems />} />
+            <Route path="/groceryCart/:userType/:userId" element={<GroceryCartPage />} />
+            <Route path="/groceryOnlinePayment/:groceryItemId" element={<GroceryOnlinePayment />} />
+            <Route path="/groceryPaymentSuccess" element={<GroceryPaymentSuccess />} />
+            <Route path='/groceryPaymentMethod/:userType/:userId/:groceryItemId' element={<GroceryPaymentmethod />} />
             </Routes>
         </main>
-      </div>
+      </div> 
     </Router>
   ); 
 }    
