@@ -19,7 +19,7 @@ export const CartStorage = {
     try { return JSON.parse(localStorage.getItem(CART_KEY) || "[]"); }
     catch { return []; }
   },
-
+  
   save(all) {
     localStorage.setItem(CART_KEY, JSON.stringify(cleanedCategories(all)));
   },

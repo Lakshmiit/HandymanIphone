@@ -23,7 +23,7 @@ import ViewOffersBuyProductPage from './ViewOffersBuyProductPage.js';
 import BuyProductOnlinePaymentPage from './BuyProductOnlinePaymentPage.js';
 import BuyProductPaymentSuccess from './BuyProductPaymentSuccess.js';
 import BookTechnicianOnlinePayment from './BookTechnicianOnlinePayment.js'
-import BookTechnicianPaymentSuccess from './BookTechnicianPaymentSuccess.js';
+import BookTechnicianPaymentSuccess from './BookTechnicianPaymentSuccess.js';   
 import GroceryItems from './GroceryItems.js';  
 import GroceryCartPage from './GroceryCartPage.js';
 import GroceryPaymentmethod from './GroceryPaymentMethod.js';

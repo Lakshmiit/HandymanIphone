@@ -20,7 +20,7 @@ const GroceryPaymentSuccess = () => {
 useEffect(() => {
   console.log(loading, orderBooking); 
 }, [loading, orderBooking]);
-
+  
 useEffect(() => {
     fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/GetProductDetails?id=${id}`)
       .then((res) => res.json())

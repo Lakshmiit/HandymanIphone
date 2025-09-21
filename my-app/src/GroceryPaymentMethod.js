@@ -340,7 +340,7 @@ const handleUpdatePaymentMethod = async () => {
   } else if (selectedPayment === 'cash') {
     response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/UpdateProductDetails/${groceryItemId}`, {
       method: 'PUT',
-      headers: {
+      headers: {  
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),

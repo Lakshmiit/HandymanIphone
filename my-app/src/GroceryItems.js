@@ -493,7 +493,7 @@ useEffect(() => {
                   objectFit: "contain",
                   cursor: isOutOfStock ? "not-allowed" : "pointer",
                   borderRadius: "6px",
-                }} 
+                }}   
                 onClick={() =>
                   !isOutOfStock && handleImageClick(imageUrls[product.id][0])
                 }

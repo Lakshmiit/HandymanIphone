@@ -73,7 +73,7 @@ const GroceryOnlinePayment = () => {
         <div className="rgt_cnt text-center">
           <img
             src={HandymanLogo}
-            alt="Handy Man Logo"
+            alt="Handy Man Logo"  
             className="d-block mx-auto"
             style={{ maxWidth: "150px" }}
           />
