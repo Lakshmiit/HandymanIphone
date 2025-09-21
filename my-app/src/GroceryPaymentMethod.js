@@ -333,7 +333,7 @@ const handleUpdatePaymentMethod = async () => {
       throw new Error('Failed to Update Technician.');
     }
     // const data = await response.json();
-
+  
     // Store confirmation code in state
     window.alert(`We are Redirecting to the Payment Page! Your reference number is ${martId}.`);
     window.location.href = `/groceryOnlinePayment/${groceryItemId}`;

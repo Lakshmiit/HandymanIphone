@@ -66,7 +66,7 @@ const GroceryOnlinePayment = () => {
 
   if (loading) return <p>Loading booking details...</p>;
   if (!orderBooking) return <p style={{ color: "red" }}>Error loading booking details.</p>;
-
+ 
   return (
     <div className="mt-5 h-100 d-flex align-items-center py-2 flex-column">
       <div className="login_section rounded-3 p-4">

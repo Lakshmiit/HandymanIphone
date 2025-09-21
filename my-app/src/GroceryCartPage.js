@@ -436,7 +436,7 @@ const roundedGrandTotal = Math.round(grandTotal);
           onClick={() => window.location.href = `/profilePage/${userType}/${userId}`}
         >
           Back
-        </button>
+        </button> 
       </div>
     {/* Zoom Modal */}
     <Modal show={showZoomModal} onHide={() => setShowZoomModal(false)} centered>

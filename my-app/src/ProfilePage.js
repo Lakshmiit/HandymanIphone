@@ -1751,7 +1751,7 @@ const fetchImageUrl = async (photoId) => {
   View Cart →
   {/* ({cartSummary.items}) – ₹{Math.round(cartSummary.total)} */}
 </button>
-  </div> 
+  </div>  
 )}
 
    {/* Collections Section */}
