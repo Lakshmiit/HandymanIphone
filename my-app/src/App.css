@@ -318,7 +318,7 @@ a{
   object-fit: contain;
 }
 
-.cust_reg {
+/* .cust_reg {
   background-image: url(./img/customer_reg.jpeg);
 }
 
@@ -328,7 +328,7 @@ a{
 
 .tech_reg {
   background-image: url(./img/tech_reg.jpeg);
-}
+} */
 
 .pos_rel {
   position: relative;
@@ -346,13 +346,13 @@ a{
   font-size: 1.5rem;
 }
 
-.builder_reg {
+/* .builder_reg {
   background-image: url(./img/builder_reg.jpeg);
 }
 
 .estimtr_reg {
   background-image: url(./img/estimtr_reg.jpeg);
-}
+} */
 
 .form-check-input {
   border: 5px solid #000;

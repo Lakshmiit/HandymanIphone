@@ -490,7 +490,7 @@ useEffect(() => {
                 style={{
                   maxHeight: "80px",
                   maxWidth: "100%",
-                  objectFit: "contain",
+                  objectFit: "contain", 
                   cursor: isOutOfStock ? "not-allowed" : "pointer",
                   borderRadius: "6px",
                 }}   
