@@ -29,7 +29,8 @@ import GroceryCartPage from './GroceryCartPage.js';
 import GroceryPaymentmethod from './GroceryPaymentMethod.js';
 import GroceryOnlinePayment from './GroceryOnlinePayment.js';
 import GroceryPaymentSuccess from './GroceryPaymentSuccess.js';
-                       
+import DeliveryTracking from './DeliveryTracking.js'
+                      
 const PreventBackNavigation = () => {
 
 useEffect(() => {
@@ -57,6 +58,7 @@ function App() {
         <main>
           <Routes>
             <Route path="/" element={<HandyManLogo />} /> 
+            <Route path="/deliveryTracking" element={<DeliveryTracking />} />
             <Route path="/loginnew" element={<LoginPage />} />
             <Route path="/otpVerification" element={<OTPVerificationPage />} /> 
             <Route path="/profilePage/:userType/:userId" element={<ProfilePage />} />
