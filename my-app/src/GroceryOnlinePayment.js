@@ -11,7 +11,7 @@ const GroceryOnlinePayment = () => {
   const [grandTotal,setGrandTotal] =useState('');
   const [martId,setMartId] =useState('');
    
-  useEffect(() => {
+  useEffect(() => {       
     console.log(userId);
   }, [userId]);    
 
@@ -66,14 +66,14 @@ const GroceryOnlinePayment = () => {
 
   if (loading) return <p>Loading booking details...</p>;
   if (!orderBooking) return <p style={{ color: "red" }}>Error loading booking details.</p>;
- 
+
   return (
     <div className="mt-5 h-100 d-flex align-items-center py-2 flex-column">
       <div className="login_section rounded-3 p-4">
         <div className="rgt_cnt text-center">
           <img
             src={HandymanLogo}
-            alt="Handy Man Logo"  
+            alt="Handy Man Logo"
             className="d-block mx-auto"
             style={{ maxWidth: "150px" }}
           />

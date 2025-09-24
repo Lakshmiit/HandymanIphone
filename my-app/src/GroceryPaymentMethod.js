@@ -49,7 +49,7 @@ const [mobileNumber, setMobileNumber] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [shouldBlink,setShouldBlink] = useState(false);
- const [location, setLocation] = useState(null);
+ const [location, setLocation] = useState({latitude: '', longitude: ''});
   const [locationError, setLocationError] = useState(null);
 
 useEffect(() => {
@@ -57,22 +57,28 @@ useEffect(() => {
 }, [isChecked, editingAddressId]);
 
 const getLocation = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-          });
-        },
-        (err) => {
-          setLocationError(err.message);
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-      ); 
-    } else {
-      setLocationError("Geolocation not supported in this browser.");
-    }
+    return new Promise((resolve) => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const coords = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+            };
+            setLocation(coords);
+            resolve(coords);
+          },
+          (err) => {
+            setLocationError(err.message);
+            resolve({ latitude: null, longitude: null });
+          },
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      } else {
+        setLocationError("Geolocation not supported in this browser.");
+        resolve({ latitude: null, longitude: null });
+      }
+    });
   };
 
  useEffect(() => {
@@ -99,6 +105,7 @@ const getLocation = () => {
     }
   };
   fetchCart();
+  getLocation(); 
 }, [groceryItemId]);
 
  const fetchCustomerData = useCallback(async () => {
@@ -282,21 +289,23 @@ const getLocation = () => {
 
 const handleUpdatePaymentMethod = async () => {
   // e.preventDefault();
-  const primaryAddress = addresses.find((addr) => addr.type === "primary");
-    const state = primaryAddress?.state;
-    const district = primaryAddress?.district || "";
-    const pincode = primaryAddress?.zipCode || primaryAddress?.pincode;
-    const mobileNumber = primaryAddress?.mobileNumber || primaryAddress?.mobileNumber; 
   if (!selectedPayment) {
     setError("Please select at least one payment method.");
     return;
   }
-
   if (!isChecked) {
       alert("You must accept the terms and conditions.");
       return; 
     }  
 
+    try {
+      const {latitude, longitude} = await getLocation();
+      const primaryAddress = addresses.find((addr) => addr.type === "primary");
+    const state = primaryAddress?.state;
+    const district = primaryAddress?.district || "";
+    const pincode = primaryAddress?.zipCode || primaryAddress?.pincode;
+    const mobileNumber = primaryAddress?.mobileNumber || primaryAddress?.mobileNumber; 
+    
   const payload = {
     ...cartData,
     customerName: addressData.fullName || fullName,
@@ -317,8 +326,14 @@ const handleUpdatePaymentMethod = async () => {
     transactionNumber: "",
     transactionStatus: "",
     paidAmount: "",
+    AssignedTo: "",
+    DeliveryPartnerUserId: "",
+    latitude: latitude !== null ? Number(latitude) : null,
+    longitude: longitude !== null ? Number(longitude) : null,
+    isPickUp: false,
+    isDelivered: false,
   };
-  try {
+
     let response;
     if (selectedPayment === 'online') {
      response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/UpdateProductDetails/${groceryItemId}`, {
@@ -333,14 +348,14 @@ const handleUpdatePaymentMethod = async () => {
       throw new Error('Failed to Update Technician.');
     }
     // const data = await response.json();
-  
+
     // Store confirmation code in state
     window.alert(`We are Redirecting to the Payment Page! Your reference number is ${martId}.`);
     window.location.href = `/groceryOnlinePayment/${groceryItemId}`;
   } else if (selectedPayment === 'cash') {
     response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/UpdateProductDetails/${groceryItemId}`, {
       method: 'PUT',
-      headers: {  
+      headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
@@ -351,7 +366,7 @@ const handleUpdatePaymentMethod = async () => {
     // const data = await response.json();
 
     window.alert(`Thank You for choosing the HandyMan Services! Your reference number is ${martId}.`);
-    window.location.href = `/profilePage/${userType}/${userId}`;
+   window.location.href = `/profilePage/${userType}/${userId}`;
    }
   } catch (error) {
     console.error('Error:', error);
@@ -359,63 +374,59 @@ const handleUpdatePaymentMethod = async () => {
   }
 };
 
-const handleLocationMethod = async () => {
-  if (!navigator.geolocation) {
-    setLocationError("Geolocation not supported in this browser.");
-    return;
-  }
+// const handleLocationMethod = async () => {
+//   if (!navigator.geolocation) {
+//     setLocationError("Geolocation not supported in this browser.");
+//     return;
+//   }
 
-  navigator.geolocation.getCurrentPosition(
-    async (position) => {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
+//   navigator.geolocation.getCurrentPosition(
+//     async (position) => {
+//       const latitude = position.coords.latitude;
+//       const longitude = position.coords.longitude;
 
-      setLocation({ latitude, longitude }); 
-      const payload = {
-        id: "string",
-        date: new Date().toISOString(), 
-        latitude,
-        longitude,
-      };
-
-      try {
-        const response = await fetch(
-          `https://handymanapiv2.azurewebsites.net/api/Location/UploadLocation`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          }
-        );
-
-        if (!response.ok) throw new Error("Failed to update location details");
-
-        const result = await response.json();
-        console.log("Update success:", result);
-        alert("Location updated successfully!");
-      } catch (error) {
-        console.error("Error updating location:", error);
-        alert("Update failed!");
-      }
-    },
-    (err) => {
-      setLocationError(err.message);
-      alert("Failed to get location: " + err.message);
-    },
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-  );
-};
+//       setLocation({ latitude, longitude }); 
+//       const payload = {
+//         id: "string",
+//         date: new Date().toISOString(), 
+//         latitude,
+//         longitude,
+//       };
+//       try {
+//         const response = await fetch(
+//           `https://handymanapiv2.azurewebsites.net/api/Location/UploadLocation`,
+//           {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify(payload),
+//           }
+//         );
+//         if (!response.ok) throw new Error("Failed to update location details");
+//         const result = await response.json();
+//         console.log("Update success:", result);
+//         // alert("Location updated successfully!");
+//       } catch (error) {
+//         console.error("Error updating location:", error);
+//         alert("Update failed!");
+//       }
+//     },
+//     (err) => {
+//       setLocationError(err.message);
+//       alert("Failed to get location: " + err.message);
+//     },
+//     { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+//   );
+// };
   
-  const BothHandlePaymentandLocation = async (e) => {
-      e.preventDefault();
-      try {
-        await handleLocationMethod();
-        await handleUpdatePaymentMethod();
-      } catch (error) {
-        console.log("error:", error);
-        // window.alert("failed during Pay Now. Please try again.");
-      }
-        };
+  // const BothHandlePaymentandLocation = async (e) => {
+  //     e.preventDefault();
+  //     try {
+  //       // await handleLocationMethod();
+  //       await handleUpdatePaymentMethod();
+  //     } catch (error) {
+  //       console.log("error:", error);
+  //     }
+  //   };
 
 const handleCheckboxChange = (value) => {
   const newValue = selectedPayment === value ? null : value;
@@ -461,7 +472,7 @@ const handleCheckboxChange = (value) => {
             style={{
               background: "#008000",
               color: "white",
-              fontFamily: "'Baloo 2', cursive",
+              fontFamily: "'Baloo 2'",
               fontSize: "25px",
               padding: "12px",
               fontWeight: "bold",
@@ -1062,7 +1073,7 @@ const handleCheckboxChange = (value) => {
       )}
       {locationError && <p style={{ color: "red" }}>{locationError}</p>}
     {/* <button className="btn-back m-2">Back</button> */}
-    <button className="btn-grocery m-2" onClick={BothHandlePaymentandLocation} >Pay Now</button> 
+    <button className="btn-grocery m-2" onClick={handleUpdatePaymentMethod} >Pay Now</button> 
     {/* onClick={handleUpdateJobDescription} */}
 </div>
      
@@ -1075,7 +1086,7 @@ const handleCheckboxChange = (value) => {
         .modal-overlay {
           position: fixed;
           top: 0;
-          left: 0;
+          left: 0; 
           width: 110%;
           height: 110%;
           background: rgba(0, 0, 0, 0.5);
@@ -1096,7 +1107,7 @@ const handleCheckboxChange = (value) => {
           text-align: left;
         }
       `}</style>
-    </div>
+    </div>       
   );
 };
 

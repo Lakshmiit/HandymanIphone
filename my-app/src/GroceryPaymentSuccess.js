@@ -18,9 +18,9 @@ const GroceryPaymentSuccess = () => {
  const [statusMessage, setStatusMessage] = useState("Updating payment status...");
     
 useEffect(() => {
-  console.log(loading, orderBooking); 
+  console.log(loading, orderBooking);
 }, [loading, orderBooking]);
-  
+
 useEffect(() => {
     fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/GetProductDetails?id=${id}`)
       .then((res) => res.json())
@@ -70,7 +70,6 @@ useEffect(() => {
     updatePayment();
   }, [paymentId, totalAmount, id]);
 
-  // ✅ Step 2: Render UI
   return (
     <div className="mt-5 h-100 d-flex align-items-center py-2 flex-column">
       <div className="login_section rounded-3 p-4">
@@ -92,14 +91,6 @@ useEffect(() => {
 
           <table className="table mt-3 text-start">
             <tbody>
-              {/* <tr>
-                <th>Order ID</th>
-                <td>{orderId}</td>
-              </tr> */}
-              {/* <tr>
-                <th>Job Description</th>
-                <td>{orderBooking.jobDescription}</td>
-              </tr> */}
               <tr>
                 <th>Payment ID</th>
                 <td>{paymentId}</td>
@@ -122,7 +113,6 @@ useEffect(() => {
                   <Link to={`/profilePage/customer/${customerId}`} className="btn btn-primary">
                     Back
                   </Link>
-                  {/* to={`/profilePage/${userType}/${userId}`} */}
                 </td>
               </tr>
             </tbody>

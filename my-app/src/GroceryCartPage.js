@@ -14,7 +14,7 @@ import "./App.css";
 import CartImg from './img/Cart.jpeg';
 import {  useParams } from "react-router-dom";
 
-const GroceryCartPage = () => {     
+const GroceryCartPage = () => {    
   // const navigate = useNavigate();
   const {userId} = useParams();
   const {userType} = useParams();
@@ -186,6 +186,12 @@ const handleGroceryProceed = async (event) => {
     district: "",
     zipCode: "",
     customerPhoneNumber: "",
+    AssignedTo: "",
+    DeliveryPartnerUserId: "",
+    latitude:78.852,
+    longitude: 84.852,
+    isPickUp: false,
+    isDelivered: false,
     GrandTotal: (roundedGrandTotal).toString(),
     TotalItemsSelected: (grandSummary.items).toString(),
     categories: allCategories.map((cat) => {
@@ -230,7 +236,7 @@ if (response.ok) {
     localStorage.setItem("orderId", extractedId);
     console.log("extractedId:", extractedId);
     localStorage.removeItem("allCategories");
-    alert("Items Updated Successfully! You can see selected items in View Cart!");
+    // alert("Items Updated Successfully! You can see selected items in View Cart!");
     window.location.href = `/groceryPaymentMethod/${userType}/${userId}/${extractedId}`;
   }
     } else {
@@ -254,9 +260,9 @@ const handleRestore = (id) => {
   setCartItems((prev) =>
     prev.map((item) =>
       item.id === id ? { ...item, qty: 1, removing: false } : item
-    )
+    )   
   );
-};
+};   
 
   const itemsTotal = Math.round(cartItems.reduce((s, it) => s + it.mrp   * it.qty, 0));
 const grandTotal = Math.round(cartItems.reduce((s, it) => s + it.price * it.qty, 0));
@@ -433,10 +439,10 @@ const roundedGrandTotal = Math.round(grandTotal);
     <div className="text-start">
         <button
           className="btn btn-warning mt-1 mb-5"
-          onClick={() => window.location.href = `/profilePage/${userType}/${userId}`}
+          onClick={() => window.location.href =  `/profilePage/${userType}/${userId}`}
         >
-          Back  
-        </button> 
+          Back
+        </button>
       </div>
     {/* Zoom Modal */}
     <Modal show={showZoomModal} onHide={() => setShowZoomModal(false)} centered>

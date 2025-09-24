@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
-// import { Modal } from 'react-bootstrap';
+import { Modal, Button} from 'react-bootstrap';
 // import LocationOnIcon from '@mui/icons-material/LocationOn';
 // import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 // import NotificationBell from "./NotificationsBell";
 // import OrdersNotificationBell from "./OrdersBellNotifications";
-// import TrackStatusNotificationBell from "./TrackStatusBellNotifications";
+ // import TrackStatusNotificationBell from "./TrackStatusBellNotifications";
 import axios from "axios";    
 import Footer from './Footer.js';
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
@@ -14,6 +14,7 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import RouteIcon from "@mui/icons-material/Route";
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import StorefrontIcon from '@mui/icons-material/Storefront'; 
+import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
 // import AddToCartCount from "./AddToCartCount.js";
 // import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
@@ -24,11 +25,11 @@ import TransferWithinAStationIcon from '@mui/icons-material/TransferWithinAStati
 // import Banner1 from './img/Ads1.jpeg';
 // import BannerVideo from './img/Dushera.mp4';
 // import BannerVideo from './img/AdsVideo.mp4';
-import VolumeOffIcon from '@mui/icons-material/VolumeOff';    
-import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+// import VolumeOffIcon from '@mui/icons-material/VolumeOff';    
+// import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 // import Banner3 from './img/banner-4.jpg'; 
 // import Banner2 from './img/Ads2.jpeg';
-import { useParams } from "react-router-dom"; 
+import {  useParams } from "react-router-dom"; 
 import Logo from "./img/Hm_Logo 1.png";
 // import SearchIcon from "@mui/icons-material/Search";
 // import ArticleIcon from '@mui/icons-material/Article';
@@ -37,18 +38,8 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import ApartmentIcon from '@mui/icons-material/Apartment';
-// import ElectricalServicesIcon from '@mui/icons-material/ElectricalServices';
-// import IronIcon from '@mui/icons-material/Iron';
-// import PlumbingIcon from '@mui/icons-material/Plumbing';
-// import HardwareIcon from '@mui/icons-material/Hardware';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import MenuIcon from '@mui/icons-material/Menu';
-// import HomeIcon from '@mui/icons-material/Home';
-// import MapsHomeWorkIcon from '@mui/icons-material/MapsHomeWork';
-// import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-// import BuildIcon from '@mui/icons-material/Build';
-// import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-// import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Electrical from './img/Electrical.jpeg';
 import Electronics from './img/Electronics.jpeg';
 import Plumbing from './img/Plumbing.jpeg';
@@ -63,16 +54,9 @@ import HouseHoldImg from './img/HouseHold.jpeg';
 import setkurti from './img/3pcsset.jpeg';
 import kurti from './img/2pcsset.jpeg';
 import { CartStorage } from "./CartStorage";
-
-// import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-// import TimelapseIcon from '@mui/icons-material/Timelapse';
-// import FaceRetouchingNaturalIcon from '@mui/icons-material/FaceRetouchingNatural';
-// import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-
 const getMenuList = (userType, userId, category, district ,ZipCode,technicianFullName, isMobile) => {
   const iconSize = isMobile ? 20  : 40;
   const customer = [
-      // { MenuIcon: <ShoppingCartIcon sx={{ fontSize: 40, color: "white" }}/>, MenuTitle: "Lakshmi Mart", TargetUrl: `/groceryIcons/${userType}/${userId}`},
       { MenuIcon: <SupportAgentIcon sx={{ fontSize: 40 }}/>, MenuTitle: "Raise Ticket", TargetUrl: `/raiseTicket/${userType}/${userId}` },
       { MenuIcon: <PersonOutlineIcon sx={{ fontSize: 40 }}/>, MenuTitle: "Book Technician", TargetUrl: `/bookTechnician/${userType}/${userId}` },
       { MenuIcon: <StorefrontIcon sx={{ fontSize: 40 }}/>, MenuTitle: "Buy Products", TargetUrl: `/buyProducts/${userType}/${userId}` },
@@ -86,6 +70,8 @@ const getMenuList = (userType, userId, category, district ,ZipCode,technicianFul
     //  ...(!isMobile ? [{MenuIcon: <OrdersNotificationBell sx={{ fontSize: iconSize }} />, MenuTitle: "Orders", TargetUrl: `/customerOrders/${userType}/${userId}`
     // }] : []),
     ...(!isMobile ? [{MenuIcon: <PermIdentityIcon sx={{ fontSize: iconSize }} />, MenuTitle: "Accounts"
+    }] : []),
+    ...(!isMobile ? [{MenuIcon: <DeliveryDiningIcon sx={{ fontSize: iconSize }} />, MenuTitle: "Delivery Partner", TargetUrl: `/deliveryPartner/${userType}/${userId}`
     }] : []),
       ];
 
@@ -103,8 +89,9 @@ const getMenuList = (userType, userId, category, district ,ZipCode,technicianFul
     // }] : []),
     //  ...(!isMobile ? [{MenuIcon: <OrdersNotificationBell sx={{ fontSize: iconSize }} />, MenuTitle: "Orders", TargetUrl: `/customerOrders/${userType}/${userId}`
     // }] : []),
-    // { MenuIcon: <ChatIcon sx={{ fontSize: 40 }}/>, MenuTitle: "Chat",  TargetUrl: `/chatPage/${userType}/${userId}`},
     ...(!isMobile ? [{MenuIcon: <PermIdentityIcon sx={{ fontSize: iconSize }} />, MenuTitle: "Accounts"
+    }] : []),
+    ...(!isMobile ? [{MenuIcon: <DeliveryDiningIcon sx={{ fontSize: iconSize }} />, MenuTitle: "Delivery Partner", TargetUrl: `/deliveryPartner/${userType}/${userId}`
     }] : []),
       ];
 
@@ -169,16 +156,6 @@ const getMenuList = (userType, userId, category, district ,ZipCode,technicianFul
           return []; 
   }
 };
-
-// const categories = [
-//     // { label: 'Blush & Beauty', value: 'Blush & Beauty', icon: <FaceRetouchingNaturalIcon sx={{ fontSize: 30, color: '#d81b60' }} /> },                              
-//     { label: 'Home Decors',value:'Home Decors', icon: <MapsHomeWorkIcon sx={{ fontSize: 30, color: '#fe6f5e' }} /> },
-//     { label: 'Electrical Items',value:'Electrical items', icon: <ElectricalServicesIcon sx={{ fontSize: 30, color: '#1976d2' }} /> },
-//     { label: 'Electronic Appliances', value:'Electronics appliances',icon: <IronIcon sx={{ fontSize: 30, color: '#f57c00' }} /> },
-//     { label: 'Plumbing & Sanitary',value: 'Sanitary items',  icon: <PlumbingIcon sx={{ fontSize: 30, color: '#388e3c' }} /> },
-//     { label: 'Hardware Items',value:'Hardware items', icon: <HardwareIcon sx={{ fontSize: 30, color: '#512da8' }} /> },
-//   ];
-
 const categories = [
 { label: 'Home Decors', value: 'Home Decors', image: HomeDecor },          
 { label: 'Electrical Items', value: 'Electrical items', image: Electrical }, 
@@ -194,25 +171,18 @@ const groceryCategories = [
   { label: 'Home Needs', value: 'Home Needs', image: HouseHoldImg },
   { label: 'Personal Care', value: 'Personal Care', image: PersonalCareImg },
   { label: 'Baby & Kids', value: 'Baby & Kids', image: BabyKidsImg },
-//   { label: 'Masalas & Cooking Essentials', value: 'Masalas & Cooking Essentials', image: MasalasImg },
-//   { label: 'Packaged & Gourmet', value: 'Packaged & Gourmet', image: GourmetImg },
 ];
 
 const collectionsCategories = [
   { label: 'Dupatta Sets', value: 'Dupatta Sets', image: setkurti },
   { label: 'Kurta Sets', value: 'Kurta Sets', image: kurti},
-  // { label: 'Home Needs', value: 'Home Needs', image: HouseHoldImg },
-  // { label: 'Personal Care', value: 'Personal Care', image: PersonalCareImg },
-  // { label: 'Snacks & Foods', value: 'Snacks & Branded Foods', image: SnacksImg },
-  // { label: 'Staples & Grains', value: 'Staples & Grains', image: StaplesImg },
-];
+  ];
 
 const ProfilePage = () => {
   // const navigate = useNavigate();
-    const {userId} = useParams();
+  const {userId} = useParams();
     const {userType} = useParams();
     const [category, setCategory] = useState('');
-    const [zipCode, setZipCode] = useState('');
     const [fullName, setFullName] = useState('');
     const [menuList, setMenuList] = useState([]);
     const [profile, setProfile] = useState({});
@@ -220,60 +190,17 @@ const ProfilePage = () => {
     const [profileImage, setProfileImage] = useState(null);
     const fileInputRef = useRef(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-    // const [showDropdown, setShowDropdown] = useState(false);
     const [showMenu, setShowMenu] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
     const [allTickets, setAllTickets] = useState([]);
     const menuRef = useRef(null);
     const ticketScrollRef = useRef(null);  
-    // const scrollRef = useRef(null);
-    // const [productData, setProductData] = useState([]);
-    // const [imageUrls, setImageUrls] = useState({});
-    // const [searchQuery] = useState('');
-    // searchQuery
-    // const [showZoomModal, setShowZoomModal] = useState(false);
-    // const [zoomImage, setZoomImage] = useState("");
-    // const [loadingStatus, setLoadingStatus] = useState({}); 
-    const [error, setError] = useState('');
+   const [error, setError] = useState('');
     const [products, setProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    //  const [selectedProduct, setSelectedProduct] = useState(null);
-    // const [showLocationModal, setShowLocationModal] = useState(false);
-    //  const [showModal, setShowModal] = useState(false);
-    // const [isEditing, setIsEditing] = useState(false);
-    // const [newAddress, setNewAddress] = useState('');
-    // const [mobileNumber, setMobileNumber] = useState('');
-    // const [guestCustomerId, setGuestCustomerId] = useState('');
-    // const [addresses, setAddresses] = useState([]);
-    // const [editingAddressId, setEditingAddressId] = useState(null);
-    // const [editingAddressId] = useState(null);
-    // const [state, setState] = useState('');
-    // const [districtList, setDistrictList] = useState([]);  
-    // const [stateList, setStateList] = useState([]);
-    const [district, setDistrict] = useState('');  
-    // const [districtId, setDistrictId] = useState('');    
-    // const [stateId, setStateId] = useState(null);   
-    // const [addressData, setAddressData] = useState({
-    // fullName  : '',
-    // mobileNumber: '',
-    // address: '',
-    // zipCode: '',
-    // state: '',
-    // district: '',
-    // });
-    //  const [addressData] = useState({
-    // fullName  : '',
-    // mobileNumber: '',
-    // address: '',
-    // zipCode: '',
-    // state: '',
-    // district: '',
-    // });
- const videoRef = useRef(null);
-const [isMuted, setIsMuted] = useState(true);
-// const [groupedProducts, setGroupedProducts] = useState({});
-// const [expandedCategories, setExpandedCategories] = useState({});
- const [unreadCount, setUnreadCount] = useState(0);
+//      const videoRef = useRef(null);
+// const [isMuted, setIsMuted] = useState(true);
+const [unreadCount, setUnreadCount] = useState(0);
 const [messageCounts, setMessageCounts] = useState({
   news:     0,
   buysell:  0,
@@ -284,9 +211,199 @@ const [cartSummary, setCartSummary] = useState({
   items: 0,
   total: 0,
   products: [],
-});
-const [dress] = useState([]);
-// setDress
+}); 
+const [dress, setDress] = useState([]);
+  const [deliveryProfile, setDeliveryProfile] = useState(null);
+const [showInterestModal, setShowInterestModal] = useState(false);
+const [showNotificationModal, setShowNotificationModal] = useState(false);
+const [selectedOption, setSelectedOption] = useState("");
+const [groceryData, setGroceryData] = useState([]);
+const [state, setState] = useState("");
+const [address, setAddress] = useState("");
+const [district, setDistrict] = useState("");
+const [zipCode, setZipCode] = useState("");
+const [mobileNumber, setMobileNumber] = useState('');
+const [status, setStatus] = useState('');
+const [id, setId] = useState('');
+const [pinCode, setPinCode] = useState("");
+const [martId, setMartId] = useState('');
+const [paymentMode, setPaymentMode] = useState('');
+const clickLock = useRef(false);
+const [isRegistered, setIsRegistered] = useState(false);
+const [partnerStatus, setPartnerStatus] = useState("");
+const [isPickup, setIsPickup] = useState(false);
+const [cartData, setCartData] = useState(null);
+const [transactionDetails, setTransactionDetails] = useState('');
+const [transactionStatus, setTransactionStatus] = useState('');
+const [longitude, setLongitude] = useState('');
+const [latitude, setLatitude] = useState('');
+const [paidAmount, setPaidAmount] = useState('');
+const [date, setDate] = useState('');
+// const [customerId, setCustomerId] = useState('');
+const [grandTotal, setGrandTotal] = useState('');
+const [items, setItems] = useState('');
+const [assignedTo, setAssignedTo] = useState('');
+const [deliveryPartnerUserId, setDeliveryPartnerUserId] = useState('');
+// const [customerName, setCustomerName] = useState('');
+const [totalItemsSelected, setTotalItemsSelected] = useState('');
+const [transactionNumber, setTransactionNumber] = useState('');
+const [city, setCity] = useState('');
+
+useEffect(() => {
+  console.log( items, grocery,error, unreadCount, showMenu, products, selectedCategory, dress);
+}, [ items, grocery, error,unreadCount, showMenu, products, selectedCategory, dress]);
+ 
+// useEffect(() => {
+//   console.log(address, state, district, mobileNumber, pinCode, martId, paymentMode, status)
+// })
+
+useEffect(() => {
+  const fetchDeliveryData = async () => {
+    try { 
+      const response = await fetch(
+        `https://handymanapiv2.azurewebsites.net/api/Mart/GetProductDetails?id=${id}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch grocery product data");
+      }
+      const data = await response.json();
+      console.log("Fetched Grocery Data:", data);
+      setCartData(data);
+      // setCustomerId(data.userId);
+      setId(data.id);
+      setMartId(data.martId);
+      setDate(data.date);
+      // setCustomerName(data.customerName);
+      setMobileNumber(data.customerPhoneNumber);
+      setAddress(data.address);
+      setState(data.state);
+      setCity(data.district);
+      // console.log(district);
+      setPinCode(data.zipCode);
+      setPaymentMode(data.paymentMode);
+      setTransactionDetails(data.utrTransactionNumber);
+      setLongitude(data.longitude);
+      setLatitude(data.latitude);
+      setGrandTotal(data.grandTotal);
+      setPaymentMode(data.paymentMode);
+      setTotalItemsSelected(data.totalItemsSelected);
+      setTransactionStatus(data.transactionStatus);
+      // setTransactionType(data.transactionType);
+      setPaidAmount(data.paidAmount);
+      setTransactionNumber(data.transactionNumber);
+      setLatitude(data.latitude);
+      setLongitude(data.longitude);
+      setTotalItemsSelected(data.totalItemsSelected);
+      setDeliveryPartnerUserId(data.deliveryPartnerUserId);
+      setAssignedTo(data.assignedTo);
+
+      if (data.categories && Array.isArray(data.categories)) {
+        let allProducts = [];
+        data.categories.forEach((cat) => {
+          cat.products.forEach((p, idx) => {
+            allProducts.push({
+              serial: allProducts.length + 1,
+              name: p.productName,
+              category: cat.categoryName,
+              mrp: p.mrp,
+              discount: p.discount,
+              afterDiscountPrice: p.afterDiscountPrice,
+              quantity: p.noOfQuantity,
+              total: p.afterDiscountPrice * p.noOfQuantity,
+            });
+          });
+        });
+        setItems(allProducts);
+      }
+    } catch (error) {
+      console.error("Error fetching grocery product data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (id) {
+    fetchDeliveryData();
+  }
+}, [id]);
+ useEffect(() => {
+  const fetchGroceryData = async () => {
+    try {
+      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/GetMartTicketsByUserId?userId=${userId}`);
+      if (!response.ok) throw new Error('Failed to fetch ticket data');
+      const data = await response.json();
+      const tickets = Array.isArray(data) ? data
+                    : (data && typeof data === "object" ? [data] : []);
+      setGroceryData(tickets);
+      const first = tickets[0] || {};
+      setMartId(first.martId || "");
+      setState(first.state || "");
+      setDistrict(first.district);
+      setPinCode(first.zipCode || first.pinCode || "");
+      setAddress(first.address || "");
+      setId(first.id || "");
+      setPaymentMode(first.paymentMode || "");
+      setStatus(first.status || "");
+      setFullName(first.customerName || "");
+      setMobileNumber(first.customerPhoneNumber || "");
+    } catch (error) {
+      console.error('Error fetching ticket data:', error);
+      setGroceryData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchGroceryData();
+}, [userId]);
+
+  useEffect(() => {            
+    console.log(deliveryProfile);
+  }, [deliveryProfile]);
+
+
+const handleDeliveryPartnerClick = async () => {
+  if (clickLock.current) return;
+  clickLock.current = true;
+  try {
+    const res = await axios.get(
+      `https://handymanapiv2.azurewebsites.net/api/DeliveryPartner/GetDeliveryPartnerDetailsByUserId?userId=${userId}`
+    );
+    const raw = res?.data ?? null;
+
+    const profile = Array.isArray(raw)
+      ? (raw.length > 0 ? raw[0] : null)
+      : (raw && typeof raw === "object" && Object.keys(raw).length > 0 ? raw : null);
+
+    setDeliveryProfile(profile);
+
+    const reg = profile?.isRegistered === true;
+    const st = (profile?.status || "").toLowerCase();
+
+    setIsRegistered(reg);
+    setPartnerStatus(st);
+
+    if (reg) {
+      setShowNotificationModal(true); // modal opens
+    } else {
+      setShowInterestModal(true);
+    }
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    setShowInterestModal(true);
+  } finally {
+    setTimeout(() => { clickLock.current = false; }, 200);
+  }
+};
+
+const handleConfirmInterest = () => {
+  if (selectedOption === "yes") {
+    setShowInterestModal(false);
+    window.location.href = `/deliveryPartner/${userType}/${userId}`;
+  } else {
+    setShowInterestModal(false);
+  }
+};
+
 useEffect(() => {
   const summary = CartStorage.grandSummary();
   setCartSummary(summary);
@@ -327,10 +444,54 @@ useEffect(() => {
   return () => window.removeEventListener("storage", updateCartSummary);
 }, []);
 
-useEffect(() => {
-  console.log(  grocery,error, unreadCount, showMenu, products, selectedCategory, dress);
-}, [ grocery, error,unreadCount, showMenu, products, selectedCategory, dress]);
- 
+const handleUpdatePaymentMethod = async () => {
+    try {
+  const payload = {
+    ...cartData,
+    customerName: fullName,
+    address: address, 
+    state: state,
+    district: city,
+    zipCode: pinCode,
+    customerPhoneNumber: mobileNumber,
+    id: id,
+    userId: userId, 
+    martId: martId,
+    date: date,
+    grandTotal: grandTotal,
+    totalItemsSelected: totalItemsSelected,
+    status: status,
+    paymentMode: paymentMode,
+    utrTransactionNumber: transactionDetails,
+    transactionNumber: transactionNumber,
+    transactionStatus: transactionStatus,
+    paidAmount: paidAmount,
+    AssignedTo: assignedTo,
+    DeliveryPartnerUserId: deliveryPartnerUserId,
+    latitude: latitude,
+    longitude: longitude,
+    isPickUp: isPickup,
+    isDelivered: false,    
+  };
+
+    let response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/UpdateProductDetails/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to Update Technician.');
+    }
+    window.location.href = `/deliveryTracking/${id}`;
+  } catch (error) {
+    console.error('Error:', error);
+    window.alert('Failed to Update Technician. Please try again later.');
+  }
+};
+
 useEffect(() => {    
   const storedCounts = localStorage.getItem("chatCounts");
   if (storedCounts) {
@@ -345,33 +506,11 @@ useEffect(() => {
 
 const totalUnreadMessages = messageCounts.news + messageCounts.buysell + messageCounts.tolet;
 
-  const toggleMute = () => {
-    const video = videoRef.current;
-    if (video) {
-      video.muted = !isMuted; 
-      setIsMuted(!isMuted);
-    }
-  };
-
-// useEffect(() => {
-//   console.log(unreadCount, showMenu, products, selectedCategory, addresses, editingAddressId, addressData);
-// }, [unreadCount, showMenu, products, selectedCategory, addresses, editingAddressId, addressData]);
-    // const bottomRefs = useRef({});
-// useEffect(() => {
-//   bottomRefs.current = {};
-//   productData?.forEach(product => {
-//     bottomRefs.current[product.id] = React.createRef();
-//   });
-// }, [productData]);
-
-  //  const scroll = (direction) => {
-  //   const { current } = scrollRef;
-  //   if (current) {
-  //     const scrollAmount = isMobile ? 100 : 160;
-  //     current.scrollBy({
-  //       left: direction === 'left' ? -scrollAmount : scrollAmount,
-  //       behavior: 'smooth',
-  //     });
+  // const toggleMute = () => {
+  //   const video = videoRef.current;
+  //   if (video) {
+  //     video.muted = !isMuted; 
+  //     setIsMuted(!isMuted);
   //   }
   // };
 
@@ -396,68 +535,6 @@ const totalUnreadMessages = messageCounts.news + messageCounts.buysell + message
   }
 }, [userId, userType]);
 
-//  const handleCategoryClick = async (category) => {
-//         const { value } = category; 
-//         //  if (value === 'Blush & Beauty') {
-//         //   navigate(`/beautyIcons/${userType}/${userId}`);
-//         //   return; 
-//         // }
-//         try {
-//           setSelectedCategory(category);
-//           setProducts([]);
-//           setError("");
-//           const encodedCategory = encodeURIComponent(value);
-//           const url = `https://handymanapiv2.azurewebsites.net/api/Product/GetProductsByCategory?Category=${encodedCategory}`;
-//           const response = await axios.get(url);
-//           const productsData = response.data;
-//           if (productsData.length === 0) {
-//             setError("Oops! No products found for this category.");
-//             console.log("No products found.");
-//           } else {
-//             setProducts(productsData);
-//           }
-//           localStorage.setItem('encodedCategory', encodedCategory);
-//           navigate(`/offers/${userType}/${userId}`, {
-//             state: encodedCategory,
-//           });
-//           console.log('encodedCategory:', encodedCategory);
-//         } catch (error) {
-//           console.error('Error fetching products:', error);
-//           setProducts([]);
-//           setError(`Oops! No products found for ${value} category.`);
-//         }
-//       };
-
-// const handleCategoryClick = async (category) => {
-//   const { value } = category; 
-//   try {
-//     setSelectedCategory(category);
-//     setProducts([]);
-//     setError("");
-
-//     const encodedCategory = encodeURIComponent(value);
-//     const url = `https://handymanapiv2.azurewebsites.net/api/Product/GetProductsByCategory?Category=${encodedCategory}`;
-//     const response = await axios.get(url);
-
-//     const productsData = response.data;
-//     if (!productsData || productsData.length === 0) {
-//       setError("Oops! No products found for this category.");
-//     } else {
-//       setProducts(productsData);
-//     }
-
-//     localStorage.setItem('encodedCategory', encodedCategory);
-//     navigate(`/offers/${userType}/${userId}`, {
-//       state: { encodedCategory }, 
-//     });
-
-//   } catch (error) {
-//     console.error('Error fetching products:', error);
-//     setProducts([]);
-//     setError(`Oops! No products found for ${value} category.`);
-//   }
-// };
-
 const handleCategoryClick = async (category) => {
   const { value } = category; 
   try {
@@ -474,49 +551,14 @@ const handleCategoryClick = async (category) => {
   }
 };
 
-//  const handleGroceryCategoryClick = async (category) => {
-//         const { value } = category; 
-//         try {
-//           setSelectedCategory(category);
-//           setGrocery([]);
-//           setError("");
-      
-//           const encodedCategory = encodeURIComponent(value);
-//           const url = `https://handymanapiv2.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodedCategory}`;
-//           const response = await axios.get(url);
-//           const groceryData = response.data;
-      
-//           if (groceryData.length === 0) {
-//             setError("Oops! No grocery items found for this category.");
-//             console.log("No grocery items found.");
-//           } else {
-//             setGrocery(groceryData);
-//           }
-      
-//           localStorage.setItem('encodedCategory', encodedCategory);
-//          navigate(`/grocery/${userType}/${userId}`, {
-//             state: { encodedCategory },  
-//         });
-
-      
-//           console.log('encodedCategory:', encodedCategory);
-//         } catch (error) {
-//           console.error('Error fetching products:', error);
-//           setGrocery([]);
-//           setError(`Oops! No grocery items found for ${value} category.`);
-//         }
-//       };
-
 const handleGroceryCategoryClick = async (category) => {
   const { value } = category;
   try {
     setSelectedCategory(category);
     setGrocery([]);
     setError("");
-
     const encodedCategory = encodeURIComponent(value);
     localStorage.setItem("encodedCategory", encodedCategory);
-
     window.location.href = `/grocery/${userType}/${userId}`;
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -525,26 +567,21 @@ const handleGroceryCategoryClick = async (category) => {
   }
 };
 
-// const handleDressCategoryClick = async (category) => {
-//   const { value } = category;
-//   try {
-//     setSelectedCategory(category);
-//     setDress([]);
-//     setError("");
-
-//     const encodedCategory = encodeURIComponent(value);
-//     localStorage.setItem("encodedCategory", encodedCategory);
-
-//     navigate(`/lakshmiCollections/${userType}/${userId}`, {
-//       state: { encodedCategory },  
-//     });
-//   } catch (error) {
-//     console.error("Error fetching collections:", error);
-//     setGrocery([]);
-//     setError(`Oops! No collections found for ${value} category.`);
-//   }
-// };    
-
+const handleDressCategoryClick = async (category) => {
+  const { value } = category;
+  try {
+    setSelectedCategory(category);
+    setDress([]);
+    setError("");
+    const encodedCategory = encodeURIComponent(value);
+    localStorage.setItem("encodedCategory", encodedCategory);
+    window.location.href = `/lakshmiCollections/${userType}/${userId}` ;
+  } catch (error) {
+    console.error("Error fetching collections:", error);
+    setGrocery([]);
+    setError(`Oops! No collections found for ${value} category.`);
+  }
+};    
         useEffect(() => {
           const fetchAllTickets = async () => {
             try { 
@@ -578,201 +615,6 @@ const handleGroceryCategoryClick = async (category) => {
   const handleMoreIconClick = () => {
     setShowProfile(!showProfile);
   };
-
-  // const handleImageClick = (imageSrc) => {
-  //   setZoomImage(imageSrc);
-  //   setShowZoomModal(true);
-  // };
-
-  //  const fetchCustomerData = useCallback(async () => {
-  //       try {
-  //         const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Address/GetAddressById/${userId}`);
-  //         if (!response.ok) {
-  //           throw new Error('Failed to fetch customer profile data');
-  //         } 
-  //         const data = await response.json();
-  //         console.log(data);
-  //         const addresses = Array.isArray(data) ? data : [data];
-  //         const formattedAddresses = addresses.map((addr) => ({
-  //           id: addr.addressId, 
-  //           type: addr.isPrimaryAddress ? 'primary' : 'secondary',
-  //           address: addr.address,
-  //           state: addr.state,
-  //           district: addr.district,
-  //           zipCode: addr.zipCode, 
-  //           emailAddress: addr.emailAddress,
-  //           mobileNumber: addr.mobileNumber,
-  //           fullName: addr.fullName,
-  //         }));
-  //         console.log("address1", addresses);
-  //         setAddresses(formattedAddresses);
-  //         const customerName = Array.isArray(data) ? data[0]?.fullName || '' : data.fullName || '';
-  //         setFullName(customerName);
-  //       } catch (error) {
-  //         console.error('Error fetching customer data:', error);
-  //       }
-  //   }, [userId]);
-    
-  // useEffect(() => {
-  //   fetchCustomerData();
-  // }, [fetchCustomerData]);
-
-  // useEffect(() => {
-  //   axios.get('https://handymanapiv2.azurewebsites.net/api/MasterData/getStates')
-  //     .then(response => {
-  //       const data = response.data;
-  //       console.log("States API Response:", data); 
-  //       setStateList(data);
-  //       setStateId('');
-  //     })
-  //     .catch(error => {
-  //       console.error('Error fetching states:', error);
-  //     });
-  // }, []);
-  
-  //  useEffect(() => {
-  //   if (stateId) {
-  //     axios.get(`https://handymanapiv2.azurewebsites.net/api/MasterData/getDistricts/${stateId}`)
-  //       .then(response => {
-  //         setDistrictList(response.data);
-  //       })
-  //       .catch(error => {
-  //         console.error('Error fetching districts:', error);
-  //       });
-  //   } else {
-  //     setDistrictList([]);
-  //   }
-  // }, [stateId]);
-  
-  //  const resetAddressForm = () => {
-  //   setFullName('');
-  //   setMobileNumber('');
-  //   setNewAddress(''); 
-  //   setState('');
-  //   setDistrict('');
-  //   setZipCode('');
-  // };
-  
-  //  const handleAddressEdit = async () => {
-  // if (!newAddress || !zipCode || !mobileNumber || !state || !district) {
-  //   alert("Please fill in all required fields.");
-  //   return; 
-  // }
-  // if (fullName.trim().toLowerCase() === 'guest') {
-  //   alert("Please Change Your Full Name.");
-  //   return;
-  // }  
-  // if (!/^\d{6}$/.test(zipCode)) {
-  //   alert("Pincode must be exactly 6 digits.");
-  //   return;
-  // }
-  //   const updatedAddress = {
-  //     id: guestCustomerId,
-  //     fullName,
-  //     mobileNumber,
-  //     address: newAddress,
-  //     state,
-  //     district,
-  //     zipCode,
-  //   };
-  //   const payload3 = {
-  //     id: guestCustomerId,
-  //     profileType: "profileType",
-  //     addressId: guestCustomerId,
-  //     isPrimaryAddress: true,
-  //     address: newAddress,
-  //     state: state,
-  //     district: district,
-  //     StateId: "1",
-  //     DistrictId: districtId,
-  //     zipCode: zipCode,
-  //     mobileNumber: mobileNumber,
-  //     emailAddress: "emailAddress",
-  //     userId: userId,
-  //     firstName: fullName,
-  //     lastName: "lastName",
-  //     fullName: fullName,
-  //   };
-  //   try {
-  //     const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Customer/CustomerAddressEdit`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(payload3),
-  //     });
-  //     if (!response.ok) {
-  //       const errorText = await response.text();
-  //       console.error("Error Response:", errorText);
-  //       throw new Error("Failed to edit address.");
-  //     }
-  //     setAddresses(prev =>
-  //       prev.map(addr => addr.id === guestCustomerId ? updatedAddress : addr)
-  //     );
-  //     setAddressData(updatedAddress);
-  //     await fetchCustomerData();
-  //     alert("Address Updated Successfully!");
-  //     setShowModal(false);
-  //     resetAddressForm();
-  //     setIsEditing(false);
-  //     setEditingAddressId(null);
-  //   } catch (error) {
-  //     console.error("Error editing address:", error);
-  //     alert("Failed to edit address. Please try again later.");
-  //   }
-  // };
-
-// useEffect(() => {
-//   const fetchProductsAndImages = async () => {
-//     try {
-//       const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Product/GetAllProductList`);
-//       const data = await response.json();
-//       setProductData(data);
-
-//       const groupProductsByCategory = (products) => {
-//         return products.reduce((acc, product) => {
-//           const category = product.category || "Uncategorized";
-//           if (!acc[category]) {
-//             acc[category] = [];
-//           }
-//           acc[category].push(product);
-//           return acc;
-//         }, {});
-//       };
-
-//       const grouped = groupProductsByCategory(data);  
-//       setGroupedProducts(grouped); 
-
-//       data.forEach((product) => {
-//         if (product.productPhotos?.length) {
-//           fetchImagesForProduct(product);
-//         }
-//       });
-//     } catch (error) {
-//       console.error('Error fetching product data:', error);
-//     }
-//   };
-
-//   const fetchImagesForProduct = async (product) => {
-//     try {
-//       setLoadingStatus((prev) => ({ ...prev, [product.id]: true }));
-//       const photoPromises = product.productPhotos.map(async (photo) => {
-//         const res = await fetch(
-//           `https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${photo}`
-//         );
-//         const imgData = await res.json();
-//         return { imageData: imgData.imageData };
-//       });
-//       const allImages = await Promise.all(photoPromises);
-//       setImageUrls((prev) => ({ ...prev, [product.id]: allImages }));
-//     } catch (err) {
-//       console.error(`Failed to fetch images for product ${product.id}`, err);
-//     } finally {
-//       setLoadingStatus((prev) => ({ ...prev, [product.id]: false }));
-//     }
-//   };
-//   fetchProductsAndImages();
-// }, []);
 
       useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -842,9 +684,9 @@ const handleGroceryCategoryClick = async (category) => {
           setMenuList(getMenuList(userType, userId, category, district, zipCode, fullName, isMobile));
         }
       }, [category, district, userType, userId, zipCode, fullName, isMobile]);
-      
+
 const fetchImageUrl = async (photoId) => {
-  try {
+  try { 
     if (!photoId) return;
     const response = await axios.get(
       `https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${photoId}`
@@ -857,7 +699,6 @@ const fetchImageUrl = async (photoId) => {
     console.error("Error fetching image:", error);
   }
 };
-  
   
   if (loading) {
     return 
@@ -1016,7 +857,7 @@ const fetchImageUrl = async (photoId) => {
                <div className="webprofile-section">
                <div className="text-primary fw-bold cust-name">Welcome  <small className="text-dark" style={{fontFamily: "Poppins, sans-serif"}}>{profile.fullName}{" "}</small></div>
                    <div className="fw-bold fs-4">Lakshmi Sai Service Providers</div>
-                   <div className="text-warning fs-3 mt-0">{profile.userProfileType}</div>
+                   {/* <div className="text-warning fs-3 mt-0">{profile.userProfileType}</div> */}
                    <div className="webprofile-img-wrapper">
                      <img src={profileImage} alt="Profile" 
                      className="webprofile-img" 
@@ -1051,7 +892,7 @@ const fetchImageUrl = async (photoId) => {
       ) : null}
             </div> 
           {/* Mobile Profile Details */}
-           {showProfile && (
+           {showProfile && !showInterestModal && !showNotificationModal && (
               <div
                 className="floating-profile-menu"
                 style={{
@@ -1076,19 +917,26 @@ const fetchImageUrl = async (photoId) => {
                   <div className="fw-bold">Address</div>
                   <p className="mb-2">{profile.address}</p>
                   <hr style={{ margin: '8px 0' }} />
-                  {/* <div className="d-flex align-items-start" style={{ cursor: "pointer" }} onClick={() => navigate(`/customerOrders/${userType}/${userId}`)}>
-                      <OrdersNotificationBell sx={{ fontSize: 24, marginRight: '8px' }} />
-                      <small style={{ fontSize: "13px", fontFamily: "Poppins", lineHeight: "28px" }}>My Orders</small>
-                    </div> */}
-                    {/* <hr style={{ margin: '8px 0' }} /> */}
-                    {/* <div className="d-flex align-items-start" style={{ cursor: "pointer" }} onClick={() => navigate(`/trackStatusNotifications/${userType}/${userId}`)}>
-                      <TrackStatusNotificationBell sx={{ fontSize: 24, marginRight: '8px' }} />
-                      <small style={{ fontSize: "13px", fontFamily: "Poppins", lineHeight: "28px" }}>Track Ticket</small>
-                    </div> */}
+                     <div
+                      className="d-flex align-items-start"
+                      style={{ cursor: "pointer" }}
+                      onClick={handleDeliveryPartnerClick}
+                    >
+                      <DeliveryDiningIcon sx={{ fontSize: 24, marginRight: "4px" }} />
+                      <small
+                        style={{
+                          fontSize: "12px",
+                          fontFamily: "Poppins",
+                          lineHeight: "28px",
+                        }}
+                      >
+                        Delivery Partner
+                      </small>
+                    </div>
                     <hr style={{ margin: '8px 0' }} />
                     <div className="d-flex align-items-start" style={{ cursor: "pointer" }} onClick={() => document.getElementById('myTicketsSection')?.scrollIntoView({ behavior: 'smooth' })}>
                       <ConfirmationNumberIcon sx={{ fontSize: 24, marginRight: '8px' }} />
-                      <small style={{ fontSize: "13px", fontFamily: "Poppins", lineHeight: "28px" }}>My Tickets</small>
+                      <small style={{ fontSize: "12px", fontFamily: "Poppins", lineHeight: "28px" }}>My Tickets</small>
                     </div>
                     <hr style={{ margin: '8px 0' }} />
                   <div className="d-flex align-items-center logout-btn" style={{ cursor: 'pointer' }} onClick={() => window.location.href = "/loginnew"}>
@@ -1099,7 +947,129 @@ const fetchImageUrl = async (photoId) => {
               </div>
             )}
          </div> 
-    
+       {/* Interest Modal */}
+<Modal show={showInterestModal} onHide={() => setShowInterestModal(false)} centered>
+  <Modal.Header closeButton>
+    <Modal.Title>Are you interested in joining as a delivery partner?</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <div className="d-flex flex-column">
+      <label>
+        <input
+          type="radio"
+          name="interest"
+          value="yes"
+          checked={selectedOption === "yes"}
+          onChange={(e) => setSelectedOption(e.target.value)}
+        />{" "}
+        Yes
+      </label>
+      <label>
+        <input
+          type="radio"
+          name="interest"
+          value="no"
+          checked={selectedOption === "no"}
+          onChange={(e) => setSelectedOption(e.target.value)}
+        />{" "}
+        No
+      </label>
+    </div>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowInterestModal(false)}>
+      Cancel
+    </Button>
+    <Button
+      variant="primary"
+      onClick={handleConfirmInterest}
+      disabled={!selectedOption}
+    >
+      Continue
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+{/* Notification Modal */}
+<Modal
+  show={showNotificationModal}
+  onHide={() => setShowNotificationModal(false)}
+  centered
+>
+  <Modal.Header closeButton>
+    <Modal.Title>Notification</Modal.Title>
+  </Modal.Header>
+
+  <Modal.Body>
+    {isRegistered && partnerStatus === "open" ? (
+      loading ? (
+        <p>Loading tickets…</p>
+      ) : groceryData.length === 0 ? (
+        <p>No tickets found.</p>
+      ) : (
+        <>
+          <div className="notification-list">
+            {groceryData.map((t) => (
+              <div key={t.id || t.martId} className="notification-item">
+                <div className="notification-header">
+                  <strong>Grocery ID: </strong> {t.martId}
+                </div>
+                <div>
+                  <strong>Customer Name:</strong> {t.customerName}
+                </div>
+                <div>
+                  <strong>Address:</strong>{" "}
+                  {[t.address, t.district, t.state, (t.zipCode || t.pinCode), t.customerPhoneNumber]
+                    .filter(Boolean)
+                    .join(", ")}
+                </div>
+                <div className="notification-date">
+                  <strong>Payment Mode:</strong> {t.paymentMode}
+                </div>
+                {t.status && (
+                  <div>
+                    <strong>Status:</strong> {t.status}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* ✅ Is Pickup checkbox */}
+          <div className="form-check mt-3">
+            <input
+              id="isPickup"
+              className="form-check-input border-dark"
+              type="checkbox"
+              checked={isPickup}
+              onChange={(e) => setIsPickup(e.target.checked)}
+            />
+            <label className="form-check-label" htmlFor="isPickup">
+              Is Pickup
+            </label>
+          </div>
+        </>
+      )
+    ) : (
+      <p>You are already registered, pending for admin approval.</p>
+    )}
+  </Modal.Body>
+
+  <Modal.Footer>
+    {isRegistered && partnerStatus === "open" && isPickup && (
+      <a
+        href={`/deliveryTracking/${id}?isPickup=true`}
+        className="link-primary"
+        style={{ textDecoration: "underline" }}
+        onClick={() => {setShowNotificationModal(false); handleUpdatePaymentMethod()}}
+      >
+        Go to Maps
+      </a>
+    )}
+  </Modal.Footer>
+</Modal>
+
+
           {isMobile && (
             <div
               className="d-flex justify-content-between align-items-center px-2"
@@ -1184,267 +1154,6 @@ const fetchImageUrl = async (photoId) => {
 
         {/* Address with Location */}
         <div className="col-md-9">
-        {/* {profile && profile.fullName && profile.address && profile.zipCode && (
-  <div className="w-100 bg-dark text-white d-flex" style={{ backgroundColor: '#2d3e50', padding: "5px", borderRadius: '8px'}}
-        onClick={() => setShowLocationModal(true)}>
-    <LocationOnIcon
-      className="me-2"
-      style={{ cursor: 'pointer' }}
-      // onClick={() => {
-      //   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(profile.address + ', ' + profile.zipCode)}`;
-      //   window.open(mapsUrl, '_blank');
-      // }}
-    />
-    <p className="mb-0 text-truncate" style={{ fontSize: '14px', fontFamily: 'Poppins, sans-serif'}}>
-      Deliver to <span className="fw-bold">{profile.fullName?.charAt(0)}</span> - {profile.address}, {profile.zipCode}
-    </p>
-      <KeyboardArrowDownIcon
-        className="me-2"
-        style={{ cursor: 'pointer' }}
-      />
-  </div>
-)} */}
-      {/* Modal */}
-          {/* <Modal show={showModal} onHide={() => setShowModal(false)}>
-          <Modal.Header closeButton>
-              <Modal.Title>{isEditing ? 'Edit Address' : 'Add Address'}</Modal.Title>
-            </Modal.Header>
-          <Modal.Body>
-            <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Full Name <span className="req_star">*</span></Form.Label>
-                <Form.Control
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Enter Full name"
-                  required
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Mobile Number <span className="req_star">*</span></Form.Label>
-                <Form.Control
-                  name="MobileNumber"
-                  className="form-control"
-                  placeholder="Enter Mobile Number"
-                  maxLength="10"
-                  value={mobileNumber}
-                  // onChange={(e) => setMobileNumber(e.target.value)}
-                />
-                </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Control
-                  type="hidden"
-                  name="UserId"
-                  className="form-control"
-                  placeholder="UserId"
-                  value={guestCustomerId}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Address <span className="req_star">*</span></Form.Label>
-                <Form.Control
-                  type="text"
-                  value={newAddress}
-                  onChange={(e) => setNewAddress(e.target.value)}
-                  placeholder="Enter address"
-                  required
-                />
-              </Form.Group>
-             <Form.Group className="mb-3">
-                <Form.Label>State <span className="req_star">*</span></Form.Label>
-                <Form.Select
-                  value={stateId || ''}
-                  onChange={(e) => {
-                    const selectedId = e.target.value;
-                    setStateId(selectedId);
-                    const selectedState = stateList.find(
-                      (s) => s?.StateId?.toString() === selectedId
-                    );
-                    if (selectedState) {
-                      setState(selectedState.StateName);
-                    }
-                  }}
-                  required
-                >
-                  <option value="">Select State</option>
-                  {Array.isArray(stateList) &&
-                    stateList
-                      .filter((s) => s && s.StateId && s.StateName)
-                      .map((s) => (
-                        <option key={s.StateId} value={s.StateId.toString()}>
-                          {s.StateName}
-                        </option>
-                      ))}
-                </Form.Select>
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>District <span className="req_star">*</span></Form.Label>
-              <Form.Select
-                  value={districtId || ''}
-                  onChange={(e) => {
-                    const selectedId = e.target.value;
-                    setDistrictId(selectedId);
-                    const selectedDistrict = districtList.find(d => d.districtId.toString() === selectedId);
-                    if (selectedDistrict) {
-                      setDistrict(selectedDistrict.districtName);
-                    }
-                  }}
-                  required
-                >
-                  <option value="">Select District</option>
-                  {districtList.map((d) => (
-                    <option key={d.districtId} value={d.districtId.toString()}>
-                      {d.districtName}
-                    </option>
-                  ))}
-                </Form.Select>
-                </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Pincode <span className="req_star">*</span></Form.Label>
-                <Form.Control
-                  type="text"
-                  value={zipCode}
-                  onChange={(e) => {
-                    const numericValue = e.target.value.replace(/\D/g, ""); 
-                    if (numericValue.length <= 6) {
-                      setZipCode(numericValue);
-                    }
-                  }}              
-                    placeholder="Enter pincode"
-                    required
-                />
-              </Form.Group>
-              <Button type="button" variant="primary" onClick={handleAddressEdit}>
-                {isEditing ? 'Edit Address' : 'Add Address'}
-              </Button>
-            </Form>
-          </Modal.Body>
-        </Modal> */}
-{/* Location Arrow OnClick */}
-{/* {showLocationModal && (
-  <div className="modal-overlay" onClick={() => setShowLocationModal(false)}>
-    <div
-      className="location-modal bg-white"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="modal-content p-4">
-        <button
-          className="close-button"
-          onClick={() => setShowLocationModal(false)}
-        >
-          &times;
-        </button>
-        <h4>Confirm Your Location</h4>
-        <div className="address-list">
-          {addresses.map((address) => (
-            <div
-              key={address.id}
-              className="address-card border rounded bg-light p-3 mb-3 d-flex justify-content-between align-items-start"
-            >
-              <div className="address-details">
-                <p><strong>{address.fullName}</strong></p>
-                <p>{address.mobileNumber}</p>
-                <p>{address.address}</p>
-                <p>{address.state}</p>
-                <p>{address.district}</p>
-                <p>{address.zipCode}</p>
-              </div>
-              <Button
-                variant="primary"
-                className="text-white"
-                onClick={() => {
-                  setGuestCustomerId(address.id);
-                  setFullName(address.fullName);
-                  setMobileNumber(address.mobileNumber);
-                  setNewAddress(address.address);
-                  setState(address.state);
-                  setDistrict(address.district);
-                  setZipCode(address.zipCode);
-                  setIsEditing(true);
-                  setShowModal(true);
-                }}
-              >
-                {address.address === "" ? "Add Address" : "Edit Address"}
-              </Button>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  </div>
-)} */}
-
-      {/* Search Icon */}
-          {/* <div className="position-relative flex-grow-1">
-        <input
-          type="text"
-          className="form-control w-100 m-2 ps-5"
-          placeholder="Search Products"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value.trimStart())}
-        />
-        <SearchIcon
-          className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"
-          style={{ pointerEvents: 'none' }}
-        />
-      </div> */}
-
-       {/* Category Cards */}
-    {/* <div className="position-relative w-100">
-  <div
-    ref={scrollRef}
-    className="category-scroll d-flex flex-nowrap overflow-auto"
-    style={{ WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' }}
-  >
-    {categories.map((cat) => (
-      <div
-        key={cat.label}
-        onClick={() => handleCategoryClick(cat)}
-        className="d-flex flex-row align-items-center justify-content-center me-3"
-        style={{
-          width: isMobile ? '100px' : '130px',
-          cursor: 'pointer',
-          userSelect: 'none',
-        }}
-      >
-        <div>{cat.icon}</div>
-        <div
-          style={{
-            fontSize: '10px',
-            fontWeight: '600',
-            fontFamily: 'Poppins, sans-serif',
-            textAlign: 'center',
-            marginTop: '4px',
-            color: '#000',
-          }}
-        >
-          {cat.label.toUpperCase()}
-        </div>
-      </div>
-    ))}
-  </div>
-
-  {error && <div className="text-danger mt-2">{error}</div>}
-
-  {/* Arrow Buttons 
-  <div className="d-flex justify-content-between">
-    <button
-      className="bg-transparent border-0"
-      style={{ color: '#000000' }}
-      onClick={() => scroll('left')}
-    >
-      <ArrowBackIcon fontSize="medium" />
-    </button>
-    <button
-      className="bg-transparent border-0 my-1 me-2"
-      style={{ color: '#000000' }}
-      onClick={() => scroll('right')}
-    >
-      <ArrowForwardIcon fontSize="medium" />
-    </button>
-  </div>
-</div> */}
 
       {/* Carousel */}
               {/* <div className="container">
@@ -1498,7 +1207,7 @@ const fetchImageUrl = async (photoId) => {
                     >
                       <source src={BannerVideo} type="video/mp4" />
                     </video> */}
-                    <button
+                    {/* <button
                       onClick={toggleMute}
                       style={{
                         position: 'absolute',
@@ -1514,7 +1223,7 @@ const fetchImageUrl = async (photoId) => {
                       aria-label="Toggle Mute"
                     >
                       {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
-                    </button>
+                    </button> */}
                 </div>
                   {/* <div className="carousel-item active">
                   <img
@@ -1560,67 +1269,8 @@ const fetchImageUrl = async (photoId) => {
                 </button>
               </div>
               </div>
-              </div> 
+              </div> */}
     
-    {/* <div className="row row-cols-3 row-cols-md-5 g-2">
-    {categories.map((cat) => (
-  <div className="col" key={cat.label} onClick={() => handleCategoryClick(cat)}>
-    <div
-      className="card border-0 shadow-sm text-center"
-      style={{
-        height: isMobile ? '100px' : '120px',
-        width: isMobile ? '90px' : '120px',
-        cursor: 'pointer',
-         padding: '10px',
-         marginTop: '5px',
-      }}
-    >
-      <img
-        src={cat.image}
-        alt={cat.label}
-        style={{ height: '70px', width: '70px', borderRadius: '8px',  
-          // marginTop: '5px', objectFit: 'cover'
-         }}
-      />
-      <span style={{ fontSize: '11px', fontWeight: '600', marginTop: '0px' }}>{cat.label}</span>
-    </div>
-  </div>
-))}
-  </div>  
-
-<div className="row row-cols-3 row-cols-md-5 g-2">
-  {groceryCategories.map((cat) => (
-    <div className="col" key={cat.label}>
-    {/* onClick={() => handleCategoryClick(cat)} 
-      <div
-        className="groceryIcon-card border-0 shadow-sm mt-2"
-        style={{
-          height: isMobile ? '100px' : '120px',
-          width: isMobile ? '90px' : '120px',
-          cursor: 'pointer',
-          padding: '10px',
-          marginTop: '5px',
-        }}
-      >
-        <img
-          src={cat.image}
-          alt={cat.label}
-          style={{
-            height: '80px',
-            width: '80px',
-            borderRadius: '8px',
-            marginTop: '2px',
-            objectFit: 'cover' 
-          }}
-        />
-        <span style={{ fontSize: '12px', fontWeight: '400', marginBottom: '3px' }}>
-          {cat.label}
-        </span>
-      </div>
-    </div>
-  ))}
-</div> */}
-
 <div className="container my-3">
   {/* Handyman Products Section */}
   <div className="shadow-lg p-3 mb-1 rounded-5 bg-transparent border-0">
@@ -1746,12 +1396,12 @@ const fetchImageUrl = async (photoId) => {
         background: "transparent",
         border: "none",
       }}
-      onClick={() => window.location.href = `/groceryCart/${userType}/${userId}`}
+      onClick={() =>window.location.href = `/groceryCart/${userType}/${userId}`}
     >
   View Cart →
   {/* ({cartSummary.items}) – ₹{Math.round(cartSummary.total)} */}
 </button>
-  </div>  
+  </div> 
 )}
 
    {/* Collections Section */}
@@ -1774,8 +1424,7 @@ const fetchImageUrl = async (photoId) => {
 </span>
     <div className="row row-cols-3 row-cols-md-5 g-2">
       {collectionsCategories.map((cat) => (
-        <div className="col" key={cat.label} 
-        // onClick={() => handleDressCategoryClick(cat)}
+        <div className="col" key={cat.label} onClick={() => handleDressCategoryClick(cat)}
         //  onClick={() => navigate(`/lakshmiCollections/${userType}/${userId}`)}
         >
           <div
@@ -1991,25 +1640,45 @@ const fetchImageUrl = async (photoId) => {
 )} */}
 
   {/* Dashboard Desktop */}
-      {!isMobile ? (
-        <>
-<h5 className="mb-2 fs-4">Dashboard</h5>
-          <div className="row g-2">
-            {menuList.map((menu, index) => (
-              <div className="col-4" key={index}>
-                <a href={menu.TargetUrl} className="text-decoration-none" style={{ color: "inherit" }}>
-                  <div className="mnu_mn text-center d-flex flex-column justify-content-center align-items-center" style={{ cursor: "pointer" }}>
-                    <span className="material-symbols-outlined custom-icon" style={{fontSize: '40px'}}>
-                      {menu.MenuIcon}
-                    </span>
-                    <span className="fs-6">{menu.MenuTitle}</span>
-                  </div>
-                </a>
+     {!isMobile ? (
+  <>
+    <h5 className="mb-2 fs-4">Dashboard</h5>
+    <div className="row g-2">
+      {menuList.map((menu, index) => (
+        <div className="col-4" key={index}>
+          {menu.MenuTitle === "Delivery Partner" ? (
+            <div
+              className="text-decoration-none"
+              style={{ color: "inherit", cursor: "pointer" }}
+              onClick={handleDeliveryPartnerClick}
+            >
+              <div className="mnu_mn text-center d-flex flex-column justify-content-center align-items-center">
+                <span className="material-symbols-outlined custom-icon" style={{ fontSize: "40px" }}>
+                  {menu.MenuIcon}
+                </span>
+                <span className="fs-6">{menu.MenuTitle}</span>
               </div>
-            ))}
-          </div>
-          </>
-      ) : null}
+            </div>
+          ) : (
+            <a
+              href={menu.TargetUrl}
+              className="text-decoration-none"
+              style={{ color: "inherit" }}
+            >
+              <div className="mnu_mn text-center d-flex flex-column justify-content-center align-items-center" style={{ cursor: "pointer" }}>
+                <span className="material-symbols-outlined custom-icon" style={{ fontSize: "40px" }}>
+                  {menu.MenuIcon}
+                </span>
+                <span className="fs-6">{menu.MenuTitle}</span>
+              </div>
+            </a>
+          )}
+        </div>
+      ))}
+    </div>
+  </>
+) : null}
+
               {/* Tickets Section */}
               <div id="myTicketsSection" className="ticket-container">
                 <div className="ticket-header">
