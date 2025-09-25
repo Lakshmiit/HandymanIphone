@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback} from 'react';
-
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import './App.css';
@@ -10,7 +10,8 @@ import axios from 'axios';
 import { Modal, Button, Form} from 'react-bootstrap';
 
 const GroceryPaymentmethod = () => {
- const {userType} = useParams();
+  // const navigate = useNavigate(); 
+ const {userType} = useParams(); 
   const {userId} = useParams();
   const {groceryItemId} = useParams();
    const [isMobile, setIsMobile] = useState(false);
@@ -81,32 +82,90 @@ const getLocation = () => {
     });
   };
 
- useEffect(() => {
+  useEffect(() => {
   const fetchCart = async () => {
     try {
-      if (!groceryItemId) {
-        console.error("No id found in localStorage or location state");
-        return;
+      if (!groceryItemId) return;
+      const existingSnap = localStorage.getItem(`cartSnapshot_${groceryItemId}`);
+      if (existingSnap) {
+        if (!localStorage.getItem("allCategories")) {
+          localStorage.setItem("allCategories", existingSnap);
+        }
       }
       const response = await fetch(
         `https://handymanapiv2.azurewebsites.net/api/Mart/GetProductDetails?id=${groceryItemId}`
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch product details");
-      }
+      if (!response.ok) throw new Error("Failed to fetch product details");
       const data = await response.json();
-      setCartData(data); 
+      setCartData(data);
       setMartId(data.martId);
       setGrandTotal(data.grandTotal);
       setTotalItemsSelected(data.totalItemsSelected);
       setCustomerName(data.customerName);
+      if (!existingSnap && Array.isArray(data.categories)) {
+        const allCategories = data.categories.map(cat => ({
+          categoryName: cat.categoryName,
+          products: (cat.products || []).map(p => ({
+            productId: p.productId || p.id,
+            productName: p.productName || p.name || "",
+            qty: Number(p.noOfQuantity || p.qty || 0),
+            mrp: Number(p.mrp || 0),
+            discount: Number(p.discount || 0),
+            afterDiscountPrice: Number(p.afterDiscountPrice || p.price || 0),
+            stockLeft: Number(p.stockLeft || 0),
+            image: p.productImage || p.image || p.productImageFilename || "",
+          })),
+        }));
+
+        const json = JSON.stringify(allCategories);
+        localStorage.setItem(`cartSnapshot_${groceryItemId}`, json);
+        if (!localStorage.getItem("allCategories")) {
+          localStorage.setItem("allCategories", json);
+        }
+        localStorage.setItem("activeOrderId", groceryItemId);
+        localStorage.setItem(
+          `cartMeta_${groceryItemId}`,
+          JSON.stringify({
+            items: data.totalItemsSelected,
+            total: data.grandTotal
+          })
+        );
+      }
     } catch (error) {
       console.error("Error fetching cart:", error);
     }
   };
+
   fetchCart();
-  getLocation(); 
+  getLocation();
 }, [groceryItemId]);
+
+//  useEffect(() => {
+//   const fetchCart = async () => {
+//     try {
+//       if (!groceryItemId) {
+//         console.error("No id found in localStorage or location state");
+//         return;
+//       }
+//       const response = await fetch(
+//         `https://handymanapiv2.azurewebsites.net/api/Mart/GetProductDetails?id=${groceryItemId}`
+//       );
+//       if (!response.ok) {
+//         throw new Error("Failed to fetch product details");
+//       }
+//       const data = await response.json();
+//       setCartData(data); 
+//       setMartId(data.martId);
+//       setGrandTotal(data.grandTotal);
+//       setTotalItemsSelected(data.totalItemsSelected);
+//       setCustomerName(data.customerName);
+//     } catch (error) {
+//       console.error("Error fetching cart:", error);
+//     }
+//   };
+//   fetchCart();
+//   getLocation(); 
+// }, [groceryItemId]);
 
  const fetchCustomerData = useCallback(async () => {
       try {
@@ -348,6 +407,10 @@ const handleUpdatePaymentMethod = async () => {
       throw new Error('Failed to Update Technician.');
     }
     // const data = await response.json();
+localStorage.removeItem(`cartSnapshot_${groceryItemId}`);
+  localStorage.removeItem("activeOrderId");
+  localStorage.removeItem("allCategories");
+  localStorage.removeItem(`cartMeta_${groceryItemId}`);
 
     // Store confirmation code in state
     window.alert(`We are Redirecting to the Payment Page! Your reference number is ${martId}.`);
@@ -364,8 +427,11 @@ const handleUpdatePaymentMethod = async () => {
     if (!response.ok) {
     }
     // const data = await response.json();
-
-    window.alert(`Thank You for choosing the HandyMan Services! Your reference number is ${martId}.`);
+    localStorage.removeItem(`cartSnapshot_${groceryItemId}`);
+  localStorage.removeItem("activeOrderId");
+  localStorage.removeItem("allCategories");
+  localStorage.removeItem(`cartMeta_${groceryItemId}`);
+    window.alert(`Thank You for choosing the Lakshmi Mart Services! Your reference order number is ${martId}. Delivery in 45 minutes`);
    window.location.href = `/profilePage/${userType}/${userId}`;
    }
   } catch (error) {
@@ -492,8 +558,19 @@ const handleCheckboxChange = (value) => {
         </div>
 
 <div className={`container ${isMobile ? "w-100" : "w-75"}`}>
-<h2 className="title text-success">PAYMENT CONFIRMATION</h2>
-  <div className="d-flex justify-content-between align-items-center">
+<div className="d-flex align-items-center">
+  <span 
+    className="me-2 text-success" 
+    role="button" 
+    style={{ cursor: "pointer" }}
+    onClick={() => window.location.href = `/groceryCart/${userType}/${userId}`}
+  >
+    <ArrowBackIcon />
+  </span>
+  <h2 className="title text-success mb-0">PAYMENT CONFIRMATION</h2>
+</div>
+
+<div className="d-flex justify-content-between align-items-center">
                                 <label className='mt-2 fs-6'>Address <span className="req_star">*</span></label>
                       {/* Modal */}
                             <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -1073,10 +1150,9 @@ const handleCheckboxChange = (value) => {
       )}
       {locationError && <p style={{ color: "red" }}>{locationError}</p>}
     {/* <button className="btn-back m-2">Back</button> */}
-    <button className="btn-grocery m-2" onClick={handleUpdatePaymentMethod} >Pay Now</button> 
+    <button className="btn-grocery" onClick={handleUpdatePaymentMethod} >Order Now</button> 
     {/* onClick={handleUpdateJobDescription} */}
 </div>
-     
     </div>
     </div>
     </div>
@@ -1107,7 +1183,7 @@ const handleCheckboxChange = (value) => {
           text-align: left;
         }
       `}</style>
-    </div>       
+    </div>
   );
 };
 

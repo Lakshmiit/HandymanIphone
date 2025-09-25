@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams,  useLocation } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import "./App.css";
 import Sidebar from "./Sidebar.js";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -10,7 +10,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import FavoriteIcon from "@mui/icons-material/Favorite"; 
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder"; 
 import { CartStorage } from "./CartStorage";
-
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 // import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 // import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 const GroceryCard = () => {
@@ -95,94 +95,6 @@ useEffect(() => {
   localStorage.setItem("cartData", JSON.stringify(cart));
 }, [cart]);
 
-
-
-// useEffect(() => {
-//   const savedCategories = JSON.parse(localStorage.getItem("allCategories")) || [];
-//   let items = 0, total = 0, products = [];
-//   savedCategories.forEach((cat) => {
-//     cat.products.forEach((p) => {
-//       console.log("Product object:", p);
-
-//       if (Number(p.qty) > 0) {
-//         items += Number(p.qty);
-//         const afterDiscountPrice = Number(p.afterDiscountPrice || p.price || p.finalPrice || 0);
-//         total += afterDiscountPrice * Number(p.qty);
-
-//         products.push({
-//           id: p.productId || p.id,
-//           productName: p.productName || p.name || "",
-//           image: p.image || p.img || "",
-//           mrp: Number(p.mrp) || Number(p.mrpPrice) || 0,
-//           discount: Number(p.discount) || Number(p.discountPercent) || 0,
-//           afterDiscountPrice,   
-//           qty: Number(p.qty),
-//           category: cat.categoryName,
-//         });
-//       }
-//     });
-//   });
-
-//   setCartSummary({ items, total, products });
-//   console.log("cartSummary:", { items, total, products });
-// }, []);
-
-// useEffect(() => {
-//   if (!selectedCategory) return;
-//   const savedCategories = JSON.parse(localStorage.getItem("allCategories")) || [];
-//   const updatedCategories = savedCategories.filter(
-//     (cat) => cat.categoryName !== selectedCategory
-//   );
-//   if (Object.keys(cart).length > 0) {
-//     updatedCategories.push({
-//       categoryName: selectedCategory,
-//       products: Object.entries(cart).map(([productId, qty]) => {
-//         const product = products.find((p) => String(p.id) === String(productId));
-//         return {
-//           productId,
-//           productName: product?.name || "",
-//           qty,
-//           mrp: product?.mrp || 0,
-//           discount: product?.discount || 0,
-//           afterDiscountPrice: product?.afterDiscount || 0,
-//           stockLeft: product?.stockLeft || 0,
-//           image: product?.images?.[0] || "",
-//           category: selectedCategory,
-//         };
-//       }),
-//     });
-//   }
-
-//   localStorage.setItem("allCategories", JSON.stringify(updatedCategories));
-//    let totalItems = 0;
-//   let totalAmount = 0;
-
-//   updatedCategories.forEach((cat) => {
-//     cat.products.forEach((p) => {
-//       totalItems += Number(p.qty);
-//       totalAmount += Number(p.afterDiscountPrice) * Number(p.qty);
-//     });
-//   });
-
-//   setGrandSummary({ items: totalItems, total: totalAmount });
-// }, [cart, selectedCategory, products]);
-
-
-// useEffect(() => {
-//   const savedCategories = JSON.parse(localStorage.getItem("allCategories")) || [];
-//   const currentCategory = decodeURIComponent(encodedCategory);
-
-//   const existingCategory = savedCategories.find(c => c.categoryName === currentCategory);
-//   if (existingCategory) {
-//     const restoredCart = {};
-//     existingCategory.products.forEach(p => {
-//       restoredCart[p.productId] = p.qty;
-//     });
-//     setCart(restoredCart);
-//   }
-//   setSelectedCategory(currentCategory);
-// }, [encodedCategory]);
-
 const toggleLike = (productId) => {
   setLikedProducts((prev) => ({
     ...prev,
@@ -195,49 +107,10 @@ const toggleLike = (productId) => {
     setShowZoomModal(true);
   };
   
-//   const handleAdd = (productId) => {
-//   setCart((prev) => ({
-//     ...prev,
-//     [productId]: 1,
-//   }));
-// };
-
-  // const handleCheckboxChange = (e) => {
-  //   setChecked(e.target.checked); 
-  // };
-
 const handleAddClick = (id) => {
     handleAdd(id);
     setChecked(true);
   };
-// const handleIncrement = (productId) => {
-//   setCart((prev) => ({
-//     ...prev,
-//     [productId]: (prev[productId] || 0) + 1,
-//   }));
-// };
-
-// const handleDecrement = (productId) => {
-//   setCart((prev) => {
-//     const newQty = (prev[productId] || 0) - 1;
-//     if (newQty <= 0) {
-//       const updated = { ...prev };
-//       delete updated[productId]; 
-//       return updated;
-//     }
-//     return {
-//       ...prev,
-//       [productId]: newQty,
-//     };
-//   });
-// };
-
-//  const handleDecrementClick = (id) => {
-//     handleDecrement(id);
-//     if (cart[id] - 1 <= 0) {
-//       setChecked(false); 
-//     }
-//   };
 
 useEffect(() => {
   const fetchGroceryProducts = async () => {
@@ -303,7 +176,6 @@ useEffect(() => {
   }
 }, [encodedCategory]);
 
-
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize();
@@ -324,191 +196,6 @@ useEffect(() => {
     setCart(restoredCart);
   }
 }, [encodedCategory]);
-
-
-// const handleGroceryProceed = async (event) => {
-//   event.preventDefault();
-
-//   const payload = {
-//     id: "string",              
-//     martId: "string",       
-//     date: "string",    
-//     userId: userId,    
-//     categories: [
-//       {
-//         categoryName: selectedCategory,
-//         numberOfItemsSelected: Object.values(cart).reduce((sum, qty) => sum + qty, 0),
-//         totalAmount: Object.entries(cart).reduce((sum, [productId, qty]) => {
-//           const product = products.find((p) => String(p.id) === String(productId));
-//           return sum + (product ? Number(product.afterDiscount) * qty : 0);
-//         }, 0),
-//         products: Object.entries(cart).map(([productId, qty]) => {
-//           const product = products.find((p) => String(p.id) === String(productId));
-//           return {
-//             productName: product?.name || "",
-//             noOfQuantity: qty,
-//             productImage: product?.images?.[0] || "",
-//             mrp: product?.mrp || 0,
-//             discount: product?.discount || 0,
-//             afterDiscountPrice: product?.afterDiscount || 0,
-//             stockLeft: product?.stockLeft,
-//           };
-//         })
-//       }
-//     ]
-//   };
-     
-//   try {
-//     const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/UploadProductDetails`, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       body: JSON.stringify(payload)
-//     });
-
-//     if (response.ok) {
-//       alert("Items Updated Successfully You can see selected items in View Cart!");
-//       navigate(`/groceryCart/${userType}/${userId}`);
-//     } else {
-//       // const errorText = await response.text();
-//       // alert("Failed to upload order: " + errorText);
-//     }
-//   } catch (error) {
-//     console.error("API Error:", error);
-//     // alert("An error occurred while uploading the order.");
-//   }
-// };
-// const handleGroceryProceed = async (event) => {
-//   event.preventDefault();
-//   const payload = {
-//     id: "string",              
-//     martId: "string",       
-//     date: "string",    
-//     userId: userId,    
-//     categories: [
-//       {
-//         categoryName: selectedCategory,
-//         numberOfItemsSelected: Object.values(cart).reduce((sum, qty) => sum + qty, 0),
-//         totalAmount: Object.entries(cart).reduce((sum, [productId, qty]) => {
-//           const product = products.find((p) => String(p.id) === String(productId));
-//           return sum + (product ? Number(product.afterDiscount) * qty : 0);
-//         }, 0),
-//         products: Object.entries(cart).map(([productId, qty]) => {
-//           const product = products.find((p) => String(p.id) === String(productId));
-//           return {
-//             productName: product?.name || "",
-//             noOfQuantity: qty,
-//             productImage: product?.images?.[0] || "",
-//             mrp: product?.mrp || 0,
-//             discount: product?.discount || 0,
-//             afterDiscountPrice: product?.afterDiscount || 0,
-//             StockLeft: product?.stockLeft,
-//           };
-//         })
-//       }
-//     ]
-//   };
-//   try {
-//     const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/UploadProductDetails`, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       body: JSON.stringify(payload)
-//     });
-//     if (response.ok) {
-//       const data = await response.json();
-//       let extractedId = null;
-//       if (data?.message) {
-//         const match = data.message.match(/id([a-f0-9-]+)successfully/);
-//         if (match && match[1]) {
-//           extractedId = match[1];
-//           console.log("Extracted ID:", extractedId);
-//           localStorage.setItem("orderId", extractedId);
-//         }
-//       }
-//       alert("Items Updated Successfully! You can see selected items in View Cart!");
-//       navigate(`/groceryCart/${userType}/${userId}`);
-//     } else {
-//       const errorText = await response.text();
-//       alert("Failed to upload order: " + errorText);
-//     }
-//   } catch (error) {
-//     console.error("API Error:", error);
-//     alert("An error occurred while uploading the order.");
-//   }
-// };
-
-
-// const handleGroceryProceed = async (event) => {
-//   event.preventDefault();
-//   const allCategories = JSON.parse(localStorage.getItem("allCategories")) || [];
-//   const payload = {
-//     id: "string",
-//     martId: "string",
-//     date: new Date().toISOString(),
-//     userId: userId,
-//     categories: allCategories.map((cat) => {
-//       const products = cat.products.map((p) => ({
-//         productName: p.productName || p.name || "",
-//         noOfQuantity: String(p.qty), 
-//         productImage: p.image || "",
-//         mrp: String(p.mrp || 0),
-//         discount: String(p.discount || 0),
-//         afterDiscountPrice: String(p.afterDiscountPrice || p.price || 0),
-//         stockLeft: String(p.stockLeft || 0), 
-//       }));
-
-//       return {
-//         categoryName: cat.categoryName,
-//         numberOfItemsSelected: products.reduce(
-//           (sum, p) => sum + Number(p.noOfQuantity),
-//           0
-//         ),
-//         totalAmount: products.reduce(
-//           (sum, p) => sum + Number(p.afterDiscountPrice) * Number(p.noOfQuantity),
-//           0
-//         ),
-//         products,
-//       };
-//     }),
-//   };
-
-//   try {
-//     const response = await fetch(
-//       `https://handymanapiv2.azurewebsites.net/api/Mart/UploadProductDetails`,
-//       {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(payload),
-//       }
-//     );
-
-//     if (response.ok) {
-//       const data = await response.json();
-
-//       let extractedId = null;
-//       if (data?.message) {
-//         const match = data.message.match(/id([a-f0-9-]+)successfully/);
-//         if (match && match[1]) {
-//           extractedId = match[1];
-//           localStorage.setItem("orderId", extractedId);
-//         }
-//       }
-//          localStorage.removeItem("allCategories");
-//       alert("Items Updated Successfully! You can see selected items in View Cart!");
-//       navigate(`/groceryCart/${userType}/${userId}`);
-//     } else {
-//       const errorText = await response.text();
-//       alert("Failed to upload order: " + errorText);
-//     }
-//   } catch (error) {
-//     console.error("API Error:", error);
-//     alert("An error occurred while uploading the order.");
-//   }
-// };
-
 
   return (
     <>
@@ -575,7 +262,18 @@ useEffect(() => {
           )}
 
          <div className={`container ${isMobile ? "w-100" : "w-75"} `}>
-          <div className="position-relative flex-grow-1 ms-5">
+          <div
+                  style={{
+                    position: "fixed",
+                    top: "65px",     left: 0,
+                    width: "100%",
+                    background: "white",
+                    zIndex: 999,
+                    padding: "8px 12px",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+                  }}
+                >
+                  <div className="position-relative flex-grow-1 ms-5">
                     <input
                       type="text"
                       className="form-control w-60 mt-2 ps-5 "
@@ -588,10 +286,40 @@ useEffect(() => {
                         style={{ pointerEvents: 'none' }}
                       />
                     </div>
+
+          {selectedCategory && (
+            <div className="d-flex align-items-center">
+              <ArrowBackIcon
+                className="me-2"
+                style={{ color: "green", cursor: "pointer" }}
+                onClick={() => window.location.href =`/profilePage/${userType}/${userId}`}
+              />
+              <h4 className="fw-bold mb-0">{selectedCategory}</h4>
+            </div>
+          )}
+        </div>
+
+          {/* <div className="position-relative flex-grow-1 ms-5">
+                    <input
+                      type="text"
+                      className="form-control w-60 mt-2 ps-5 "
+                      placeholder="Search Products"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value.trimStart())}
+                      />
+                      <SearchIcon
+                        className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"
+                        style={{ pointerEvents: 'none' }}
+                      />
+                    </div> */}
   {selectedCategory && (
     <>
-      <h4 className="font-bold ">{selectedCategory}</h4>
-  <div className="d-flex justify-content-end">
+    {/* <div className="d-flex align-items-center">
+    <ArrowBackIcon className="me-2" style={{ color: "green", cursor: "pointer" }}
+        onClick={() => navigate(`/profilePage/${userType}/${userId}`)}/>      
+        <h4 className="font-bold ">{selectedCategory}</h4>
+      </div> */} 
+  <div className="d-flex justify-content-end" style={{marginTop: "90px"}}>
   <span className="text-success text-xs">
     Selected Qty:{" "}
     <span className="text-danger fw-bold">
@@ -617,17 +345,7 @@ useEffect(() => {
 </span>
 </div>
 
-    {/* Total Items in category
-    <span className="text-primary">
-      Total Items:{" "}
-      {products.filter(
-        (p) =>
-          p.category?.toLowerCase() === selectedCategory.toLowerCase() &&
-          p.status === "Approved"
-      ).length}
-    </span> */}
-    
-      <div className="grocery-row flex flex-wrap gap-1">
+      <div className="grocery-row flex flex-wrap gap-1" style={{marginBottom: "60px"}}>
         {products
   .filter(
     (p) =>
@@ -864,293 +582,17 @@ useEffect(() => {
           background: "transparent",
           border: "none",
         }}
-        onClick={() => window.location.href = `/groceryCart/${userType}/${userId}`}
+        onClick={() => window.location.href =`/groceryCart/${userType}/${userId}`}
       >
   View Cart →
-  {/* ({grandSummary.items}) – ₹{Math.round(grandSummary.total)} */}
 </button>
-
-
-      {/* <button
-        type="button"
-        className="text-white fw-bold d-flex align-items-center gap-1"
-        style={{
-          fontSize: "12px",
-          cursor: "pointer",
-          background: "transparent",
-          border: "none",
-        }}
-        onClick={() => navigate(`/groceryCart/${userType}/${userId}`)}
-      >
-        View Cart →
-      </button> */}
-    </div>
+</div>
   ) : null;
 })()}
-
-{/* Cart Bar
-{grandSummary.items > 0 && (
-  <div
-    style={{
-      position: "fixed",
-      bottom: "0px",
-      left: 0,
-      width: "100%",
-      backgroundColor: "green",
-      color: "white",
-      padding: "12px",
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      fontWeight: "bold",
-      zIndex: 2000,
-      borderRadius: "20px",
-      marginTop: "10px",
-    }}
-  >
-    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-      🛒
-      <div style={{ display: "flex", flexDirection: "column", lineHeight: "1.2" }}>
-        <span style={{ fontSize: "12px" }}>{grandSummary.items} items</span>
-        <span style={{ fontSize: "12px" }}>₹{Math.round(grandSummary.total)}</span>
-      </div>
-    </div>
-
-    <button
-      type="button"
-      className="text-white fw-bold d-flex align-items-center gap-1"
-      style={{
-        fontSize: "12px",
-        cursor: "pointer",
-        background: "transparent",
-        border: "none",
-      }}
-      onClick={handleGroceryProceed}
-    >
-      View Cart →
-    </button>
-  </div>
-)} */}
-
-{/* {Object.keys(cart).length > 0 && (
-  <>
-    <div style={{ marginBottom: "70px" }}></div>
-    <div
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        width: "100%",
-        backgroundColor: "green",
-        color: "white",
-        padding: "12px 16px",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        fontWeight: "bold",
-        zIndex: 2000,
-        borderRadius: "20px",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-        }}
-      >
-        <ShoppingCartIcon style={{ fontSize: "28px", color: "white" }} />
-
-        {/* Items & Price *
-        <div style={{ display: "flex", flexDirection: "column", lineHeight: "1.2" }}>
-          <span style={{ fontSize: "12px" }}>{totalItemsCount} items
-            {/* {Object.values(cart).reduce((sum, qty) => sum + qty, 0)} items *
-          </span>
-          <span style={{ fontSize: "12px" }}>
-            ₹
-            {Math.round(
-              Object.entries(cart).reduce((sum, [productId, qty]) => {
-                const product = products.find(
-                  (p) => String(p.id) === String(productId)
-                );
-                return sum + (product ? Number(product.afterDiscount) * qty : 0);
-              }, 0)
-            )}
-          </span>
-        </div>
-      </div>
-
-      {/* View Cart button 
-      <button
-  type="button"
-  className="text-white fw-bold d-flex align-items-center gap-1"
-  style={{
-    fontSize: "12px",
-    cursor: "pointer",
-    background: "transparent",
-    border: "none",
-  }}
-  onClick={handleGroceryProceed}
-//   onClick={() => {
-//   const savedCategories = JSON.parse(localStorage.getItem("allCategories")) || [];
-// const updatedCategories = savedCategories.filter(
-//   (cat) => cat.categoryName !== selectedCategory
-// );
-
-// if (Object.keys(cart).length > 0) {
-//   updatedCategories.push({
-//     categoryName: selectedCategory,
-//     products: Object.entries(cart).map(([productId, qty]) => {
-//       const product = products.find((p) => String(p.id) === String(productId));
-//       return {
-//         productId,
-//         productName: product?.name || "",
-//         qty,
-//         price: product?.afterDiscount || 0,
-//         mrp: product?.mrp || 0,
-//         discount: product?.discount || 0,
-//         image: product?.images?.[0] || "",
-//       };
-//     }),
-//   });
-// }
-
-// localStorage.setItem("allCategories", JSON.stringify(updatedCategories));
-// console.log("Updated Categories:", updatedCategories);
-// navigate(`/groceryCart/${userType}/${userId}`);
-// }}
-// //   onClick={() => {
-//   console.log("Navigating to:", `/groceryCart/${userType}/${userId}`);
-//   navigate(`/groceryCart/${userType}/${userId}`);
-// }}               
->
-  View Cart <ArrowRightIcon fontSize="small" />
-</button>
-
-    </div>
-  </>
-)}
- */}
-
-        {/* {products
-  .filter(
-    (p) =>
-      p.category?.toLowerCase() === selectedCategory.toLowerCase() &&
-      p.status === "Approved" &&
-      (searchQuery === "" ||
-        p.name?.toLowerCase().includes(searchQuery.toLowerCase()))
-  )
-  .map((product) => (
-            <div
-  key={product.id}
-  className="w-[200px] flex flex-col p-2 bg-white rounded shadow-sm border"
-  style={{ position: "relative", minHeight: "188px" }} 
->
-   <div className="d-flex flex-row justify-content-between absolute top-0 left-0 w-full">
-      {product.discount && (
-        <span className="discount-badge">
-          {Math.round(Number(product.discount))}%
-        </span>
-      )}
-      <input
-        type="checkbox"
-        className="border-dark"
-        checked={cart[product.id] > 0}
-        readOnly
-      />
-    </div>
-  {/* Product Image 
-<div
-  className="d-flex justify-content-center align-items-center"
-  style={{ height: "70px" }}
->
-  {imageUrls[product.id]?.[0] ? (
-    <img
-      src={imageUrls[product.id][0]}
-      alt={product.name}
-      style={{ maxHeight: "60px", maxWidth: "100%", objectFit: "contain" }}
-      className="cursor-pointer"
-      onClick={() => handleImageClick(imageUrls[product.id][0])}
-    />
-  ) : (
-    <span className="text-muted small">Loading Image</span>
-  )}
-</div>
-
-  {/* Product Info 
-<h6 className="text-start fw-bold m-0" style={{ fontSize: "12px" }}>
-  {product.name?.split(" ").slice(0, 2).join(" ")}
-  {product.name?.split(" ").length > 2 ? "..." : ""}
-</h6>
-
-  <div className="text-start m-0" style={{ fontSize: "12px" }}>
-  <b className="text-success me-2">₹{product.afterDiscount}</b>
-  <s className="text-muted">₹{product.mrp}</s>
-</div>
-
-
-  {/* ✅ Add / Counter Button — always bottom right 
-  <div style={{ position: "absolute", bottom: "8px", right: "8px" }}>
-    {cart[product.id] ? (
-      <div
-        className="d-flex align-items-center justify-content-between"
-        style={{
-          backgroundColor: "green",
-          color: "white",
-          borderRadius: "8px",
-          padding: "2px 8px",
-          minWidth: "70px",
-        }}
-      >
-        <button
-          className="btn btn-sm p-0 text-white"
-          style={{ fontWeight: "bold", width: "24px", height: "24px" }}
-          onClick={() => handleDecrementClick(product.id)}
-        >
-          –
-        </button>
-
-        <span className="fw-bold">{cart[product.id]}</span>
-
-        <button
-          className="btn btn-sm p-0 text-white"
-          style={{ fontWeight: "bold", width: "24px", height: "24px" }}
-          onClick={() => handleIncrement(product.id)}
-        >
-          +
-        </button>
-      </div>
-    ) : (
-      <button
-        className="btn fw-bold"
-        style={{
-          border: "1px solid green",
-          color: "green",
-          backgroundColor: "#f6fff6",
-          borderRadius: "8px",
-          padding: "2px 12px",
-          fontSize: "13px",
-        }}
-        onClick={() => handleAddClick(product.id)}
-      >
-        ADD
-      </button>
-    )}
-  </div>
-</div>
-          ))} */}
       </div>
       </>
-  )}
-   {/* Back Button */}
-      <div className="text-start">
-        <button
-          className="mt-1 mb-5" style={{background: "green", borderRadius: "15px", padding: "6px"}}
-          onClick={() => window.location.href = `/profilePage/${userType}/${userId}`}
-        >
-          Back
-        </button>
-      </div>
+  )}  
+  
 </div>
     </div>     
       </div>

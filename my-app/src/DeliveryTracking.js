@@ -8,12 +8,13 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import Header from "./Header";
 import Footer from "./Footer";
+import CloseIcon from '@mui/icons-material/Close'; 
 
 export default function HandymanTrackingMap() {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: "AIzaSyBzi82we6uzhXFjsiJ6hXVJhhx9wg_qykc", // 🔑 Replace with your real key
   });
-
+// const navigate = useNavigate();
   const { id } = useParams();
   const [position, setPosition] = useState({ lat: 0, lng: 0 });
   const [distance, setDistance] = useState(null);
@@ -23,13 +24,32 @@ export default function HandymanTrackingMap() {
   const [longitude, setLongitude] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Directions API state
-  const [directions, setDirections] = useState(null);
-  const [routeStarted, setRouteStarted] = useState(false);
+const [directions, setDirections] = useState(null);
+const [routeStarted, setRouteStarted] = useState(false);
+const [routePath, setRoutePath] = useState([]);
+const [bikeIndex, setBikeIndex] = useState(0);
+const [bikePosition, setBikePosition] = useState(position);
+const [bikeHeading, setBikeHeading] = useState(0); 
+const [customerPhoneNumber, setCustomerPhoneNumber] = useState('');
+const [deliveryPartnerUserId, setDeliveryPartnerUserId] = useState('');
+const getBearing = (start, end) => {
+  const lat1 = (start.lat * Math.PI) / 180;
+  const lon1 = (start.lng * Math.PI) / 180;
+  const lat2 = (end.lat * Math.PI) / 180;
+  const lon2 = (end.lng * Math.PI) / 180;
+  const dLon = lon2 - lon1;
+
+  const y = Math.sin(dLon) * Math.cos(lat2);
+  const x =
+    Math.cos(lat1) * Math.sin(lat2) -
+    Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+  const brng = Math.atan2(y, x);
+  return ((brng * 180) / Math.PI + 360) % 360;
+};
 
  useEffect(() => {
-    console.log(loading, groceryData);
-  }, [loading, groceryData]);
+    console.log(loading, groceryData, setRoutePath, bikeIndex);
+  }, [loading, groceryData, setRoutePath, bikeIndex]); 
 
 
   // 🔹 Fetch destination data
@@ -53,6 +73,11 @@ export default function HandymanTrackingMap() {
         const first = tickets[0] || {};
         setLatitude(first.latitude ? parseFloat(first.latitude) : null);
         setLongitude(first.longitude ? parseFloat(first.longitude) : null);
+          const phone = first.customerPhoneNumber || first.customer?.phoneNumber || "N/A";
+          setCustomerPhoneNumber(phone);
+          console.log("Phone from API:", phone);       
+          setDeliveryPartnerUserId(first.deliveryPartnerUserId || "N/A");
+          // console.log("Phone: ", customerPhoneNumber);
       } catch (error) {
         console.error("Error fetching ticket data:", error);
         setGroceryData([]);
@@ -73,6 +98,28 @@ export default function HandymanTrackingMap() {
     }
     return null;
   }, [latitude, longitude]);
+
+  useEffect(() => {
+  if (!routeStarted || routePath.length === 0) return;
+
+  const interval = setInterval(() => {
+    setBikeIndex((prev) => {
+      if (prev < routePath.length - 1) {
+        const next = prev + 1;
+        setBikePosition(routePath[next]);
+        const heading = getBearing(routePath[prev], routePath[next]);
+        setBikeHeading(heading);
+
+        return next;
+      } else {
+        clearInterval(interval);
+        return prev;
+      }
+    });
+  }, 1000); 
+
+  return () => clearInterval(interval);
+}, [routeStarted, routePath]);
 
   const calculateDistance = (pos1, pos2) => {
     if (
@@ -115,7 +162,6 @@ export default function HandymanTrackingMap() {
           if (d !== null) setDistance(d);
         }
 
-        // Auto-center map
         if (mapRef.current) {
           mapRef.current.panTo(newPosition);
         }
@@ -135,7 +181,6 @@ export default function HandymanTrackingMap() {
     };
   }, [destination]);
 
-  // ✅ Start Route Function
   const startRoute = () => {
     if (!destination || !position.lat || !position.lng) return;
 
@@ -163,11 +208,29 @@ export default function HandymanTrackingMap() {
   return (
     <>
       <Header />
+ <div
+  className="d-flex align-items-center gap-2"
+  style={{
+    position: "fixed",
+    top: "90px",
+    right: "20px", 
+    zIndex: 1000,
+    cursor: "pointer",
+  }}
+  onClick={() =>
+    window.location.href =`/profilePage/customer/${deliveryPartnerUserId}`
+  }
+>
+  <p className="text-dark mb-0">
+    Customer Phone Number: {customerPhoneNumber || "N/A"}
+  </p>
+  <CloseIcon style={{ fontSize: "28px", color: "red" }} />
+</div>
       <div className="container m-1">
-        <div style={{ position: "relative", marginTop: "130px" }}>
+        <div style={{ position: "relative", marginTop: "120px" }}>
           {/* ✅ Distance Display */}
           {distance && (
-            <div
+            <div 
               style={{
                 position: "absolute",
                 top: 10,
@@ -192,6 +255,15 @@ export default function HandymanTrackingMap() {
           >
             {/* ✅ Handyman live location */}
             <Marker
+              position={bikePosition}
+              icon={{
+                url: "https://res.cloudinary.com/du4y50nvl/image/upload/v1758803979/greenbike_anlntu.png",
+                scaledSize: new window.google.maps.Size(40, 40),
+                rotation: bikeHeading, 
+                anchor: new window.google.maps.Point(20, 20), 
+              }}
+            />
+            {/* <Marker
               position={position}
               icon={{
                 url: "https://static.thenounproject.com/png/motorcycle-icon-4303177-512.png",
@@ -199,7 +271,7 @@ export default function HandymanTrackingMap() {
                   ? new window.google.maps.Size(40, 40)
                   : null,
               }}
-            />
+            /> */}
 
             {/* ✅ Destination marker (before starting route) */}
             {destination && !routeStarted && (

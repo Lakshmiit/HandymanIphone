@@ -9,10 +9,10 @@ import {
   Add as AddIcon,
   Remove as RemoveIcon,
   Info as InfoIcon,
-} from "@mui/icons-material";
+} from "@mui/icons-material"; 
 import "./App.css"; 
 import CartImg from './img/Cart.jpeg';
-import {  useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
 const GroceryCartPage = () => {    
   // const navigate = useNavigate();
@@ -47,6 +47,54 @@ const fileToUrl = (filenameOrUrl) => {
   if (/^https?:\/\//i.test(String(filenameOrUrl))) return filenameOrUrl;  
   return `${IMAGE_DOWNLOAD}${encodeURIComponent(String(filenameOrUrl))}`;  
 };
+
+useEffect(() => {
+  const safeParse = (key) => {
+    try { return JSON.parse(localStorage.getItem(key) || "[]"); }
+    catch { return []; }
+  };
+
+  const saved0 = safeParse("allCategories");
+  if (!saved0.length) {
+    const activeOrderId = localStorage.getItem("activeOrderId");
+    const snap = activeOrderId && localStorage.getItem(`cartSnapshot_${activeOrderId}`);
+    if (snap) {
+      localStorage.setItem("allCategories", snap);
+    }
+  }  
+
+  const saved = safeParse("allCategories");
+  const allItems = saved.flatMap((cat) =>
+    (cat.products || []).map((p, idx) => {
+      const persisted = p.image ?? p.productImage ?? "";
+      const imageFilename = getFilenameFromValue(persisted);
+      const imageUrl = imageFilename
+        ? fileToUrl(imageFilename)
+        : (typeof persisted === "string" ? persisted : "");
+
+      return {
+        id: `${cat.categoryName}-${p.productId ?? p.id ?? idx}`,
+        productId: p.productId ?? p.id ?? idx,
+        name: p.productName ?? p.name ?? "",
+        category: cat.categoryName,
+        qty: Number(p.qty || 0),
+        mrp: Number(p.mrp || 0),
+        discount: Number(p.discount || 0),
+        price: Number(p.afterDiscountPrice || p.price || 0),
+        stockLeft: Number(p.stockLeft || 0),
+        imageFilename,
+        imageUrl,
+      };
+    })
+  );
+
+  const filtered = allItems.filter((it) => it.qty > 0);
+  setCartItems(filtered);
+  setGrandSummary({
+    items: filtered.reduce((s, it) => s + Number(it.qty || 0), 0),
+    total: Math.round(filtered.reduce((s, it) => s + Number(it.price || 0) * Number(it.qty || 0), 0)),
+  });
+}, []);
 
 useEffect(() => {
   const saved = JSON.parse(localStorage.getItem("allCategories") || "[]");
@@ -188,8 +236,8 @@ const handleGroceryProceed = async (event) => {
     customerPhoneNumber: "",
     AssignedTo: "",
     DeliveryPartnerUserId: "",
-    latitude:78.852,
-    longitude: 84.852,
+    latitude: 0,
+    longitude: 0,
     isPickUp: false,
     isDelivered: false,
     GrandTotal: (roundedGrandTotal).toString(),
@@ -233,11 +281,15 @@ if (response.ok) {
   const data = await response.json();
   const extractedId = data.id;
   if (extractedId) {
-    localStorage.setItem("orderId", extractedId);
-    console.log("extractedId:", extractedId);
-    localStorage.removeItem("allCategories");
-    // alert("Items Updated Successfully! You can see selected items in View Cart!");
-    window.location.href = `/groceryPaymentMethod/${userType}/${userId}/${extractedId}`;
+    // localStorage.setItem("orderId", extractedId);
+    // console.log("extractedId:", extractedId);
+    // localStorage.removeItem("allCategories");
+const currentCart = localStorage.getItem("allCategories") || "[]";
+localStorage.setItem(`cartSnapshot_${extractedId}`, currentCart);
+localStorage.setItem("activeOrderId", extractedId);
+localStorage.setItem(`cartMeta_${extractedId}`,JSON.stringify({ items: grandSummary.items, total: roundedGrandTotal }));
+   // alert("Items Updated Successfully! You can see selected items in View Cart!");
+    window.location.href =`/groceryPaymentMethod/${userType}/${userId}/${extractedId}`;
   }
     } else {
       const errorText = await response.text();
@@ -260,9 +312,9 @@ const handleRestore = (id) => {
   setCartItems((prev) =>
     prev.map((item) =>
       item.id === id ? { ...item, qty: 1, removing: false } : item
-    )   
+    )
   );
-};   
+};
 
   const itemsTotal = Math.round(cartItems.reduce((s, it) => s + it.mrp   * it.qty, 0));
 const grandTotal = Math.round(cartItems.reduce((s, it) => s + it.price * it.qty, 0));
@@ -290,7 +342,7 @@ const roundedGrandTotal = Math.round(grandTotal);
       </div>
       <IconButton>
         <CloseIcon
-        onClick={() => window.location.href = `/profilePage/${userType}/${userId}`}
+        onClick={() => window.location.href =`/profilePage/${userType}/${userId}`}
         style={{
           cursor: "pointer",
           fontSize: "30px",
@@ -439,7 +491,7 @@ const roundedGrandTotal = Math.round(grandTotal);
     <div className="text-start">
         <button
           className="btn btn-warning mt-1 mb-5"
-          onClick={() => window.location.href =  `/profilePage/${userType}/${userId}`}
+          onClick={() => window.location.href =`/profilePage/${userType}/${userId}`}
         >
           Back
         </button>
