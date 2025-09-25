@@ -6,7 +6,7 @@ import { Modal, Button} from 'react-bootstrap';
 // import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 // import NotificationBell from "./NotificationsBell";
 // import OrdersNotificationBell from "./OrdersBellNotifications";
- // import TrackStatusNotificationBell from "./TrackStatusBellNotifications";
+// import TrackStatusNotificationBell from "./TrackStatusBellNotifications";
 import axios from "axios";    
 import Footer from './Footer.js';
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
@@ -25,11 +25,11 @@ import TransferWithinAStationIcon from '@mui/icons-material/TransferWithinAStati
 // import Banner1 from './img/Ads1.jpeg';
 // import BannerVideo from './img/Dushera.mp4';
 // import BannerVideo from './img/AdsVideo.mp4';
-// import VolumeOffIcon from '@mui/icons-material/VolumeOff';    
-// import VolumeUpIcon from '@mui/icons-material/VolumeUp';
+import VolumeOffIcon from '@mui/icons-material/VolumeOff';    
+import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 // import Banner3 from './img/banner-4.jpg'; 
 // import Banner2 from './img/Ads2.jpeg';
-import {  useParams } from "react-router-dom"; 
+import { useParams } from "react-router-dom"; 
 import Logo from "./img/Hm_Logo 1.png";
 // import SearchIcon from "@mui/icons-material/Search";
 // import ArticleIcon from '@mui/icons-material/Article';
@@ -198,8 +198,8 @@ const ProfilePage = () => {
    const [error, setError] = useState('');
     const [products, setProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
-//      const videoRef = useRef(null);
-// const [isMuted, setIsMuted] = useState(true);
+     const videoRef = useRef(null);
+const [isMuted, setIsMuted] = useState(true);
 const [unreadCount, setUnreadCount] = useState(0);
 const [messageCounts, setMessageCounts] = useState({
   news:     0,
@@ -231,7 +231,8 @@ const [paymentMode, setPaymentMode] = useState('');
 const clickLock = useRef(false);
 const [isRegistered, setIsRegistered] = useState(false);
 const [partnerStatus, setPartnerStatus] = useState("");
-const [isPickup, setIsPickup] = useState(false);
+const [isPickup] = useState(false);
+// const [isPickup, setIsPickup] = useState(false);
 const [cartData, setCartData] = useState(null);
 const [transactionDetails, setTransactionDetails] = useState('');
 const [transactionStatus, setTransactionStatus] = useState('');
@@ -261,7 +262,7 @@ useEffect(() => {
   const fetchDeliveryData = async () => {
     try { 
       const response = await fetch(
-        `https://handymanapiv2.azurewebsites.net/api/Mart/GetProductDetails?id=${id}`
+        `https://localhost:7091/api/Mart/GetProductDetails?id=${id}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch grocery product data");
@@ -328,7 +329,7 @@ useEffect(() => {
  useEffect(() => {
   const fetchGroceryData = async () => {
     try {
-      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/GetMartTicketsByUserId?userId=${userId}`);
+      const response = await fetch(`https://localhost:7091/api/Mart/GetMartTicketsByUserId?userId=${userId}`);
       if (!response.ok) throw new Error('Failed to fetch ticket data');
       const data = await response.json();
       const tickets = Array.isArray(data) ? data
@@ -366,7 +367,7 @@ const handleDeliveryPartnerClick = async () => {
   clickLock.current = true;
   try {
     const res = await axios.get(
-      `https://handymanapiv2.azurewebsites.net/api/DeliveryPartner/GetDeliveryPartnerDetailsByUserId?userId=${userId}`
+      `https://localhost:7091/api/DeliveryPartner/GetDeliveryPartnerDetailsByUserId?userId=${userId}`
     );
     const raw = res?.data ?? null;
 
@@ -474,7 +475,7 @@ const handleUpdatePaymentMethod = async () => {
     isDelivered: false,    
   };
 
-    let response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/UpdateProductDetails/${id}`, {
+    let response = await fetch(`https://localhost:7091/api/Mart/UpdateProductDetails/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -506,13 +507,13 @@ useEffect(() => {
 
 const totalUnreadMessages = messageCounts.news + messageCounts.buysell + messageCounts.tolet;
 
-  // const toggleMute = () => {
-  //   const video = videoRef.current;
-  //   if (video) {
-  //     video.muted = !isMuted; 
-  //     setIsMuted(!isMuted);
-  //   }
-  // };
+  const toggleMute = () => {
+    const video = videoRef.current;
+    if (video) {
+      video.muted = !isMuted; 
+      setIsMuted(!isMuted);
+    }
+  };
 
   useEffect(() => {
   const fetchUnreadCount = async () => {
@@ -575,7 +576,7 @@ const handleDressCategoryClick = async (category) => {
     setError("");
     const encodedCategory = encodeURIComponent(value);
     localStorage.setItem("encodedCategory", encodedCategory);
-    window.location.href = `/lakshmiCollections/${userType}/${userId}` ;
+    window.location.href = `/lakshmiCollections/${userType}/${userId}`;
   } catch (error) {
     console.error("Error fetching collections:", error);
     setGrocery([]);
@@ -1007,68 +1008,78 @@ const fetchImageUrl = async (photoId) => {
       ) : groceryData.length === 0 ? (
         <p>No tickets found.</p>
       ) : (
-        <>
-          <div className="notification-list">
-            {groceryData.map((t) => (
-              <div key={t.id || t.martId} className="notification-item">
-                <div className="notification-header">
-                  <strong>Grocery ID: </strong> {t.martId}
-                </div>
-                <div>
-                  <strong>Customer Name:</strong> {t.customerName}
-                </div>
-                <div>
-                  <strong>Address:</strong>{" "}
-                  {[t.address, t.district, t.state, (t.zipCode || t.pinCode), t.customerPhoneNumber]
-                    .filter(Boolean)
-                    .join(", ")}
-                </div>
-                <div className="notification-date">
-                  <strong>Payment Mode:</strong> {t.paymentMode}
-                </div>
-                {t.status && (
-                  <div>
-                    <strong>Status:</strong> {t.status}
-                  </div>
-                )}
+        <div className="notification-list">
+          {groceryData.map((t) => (
+            <div key={t.id || t.martId} className="notification-item mb-3 p-2 border rounded">
+              <div className="notification-header">
+                <strong>Grocery ID: </strong> {t.martId}
               </div>
-            ))}
-          </div>
+              <div>
+                <strong>Customer Name:</strong> {t.customerName}
+              </div>
+              <div>
+                <strong>Address:</strong>{" "}
+                {[t.address, t.district, t.state, (t.zipCode || t.pinCode), t.customerPhoneNumber]
+                  .filter(Boolean)
+                  .join(", ")}
+              </div>
+              <div className="notification-date">
+                <strong>Payment Mode:</strong> {t.paymentMode}
+              </div>
+              {t.status && (
+                <div>
+                  <strong>Status:</strong> {t.status}
+                </div>
+              )}
 
-          {/* ✅ Is Pickup checkbox */}
-          <div className="form-check mt-3">
-            <input
-              id="isPickup"
-              className="form-check-input border-dark"
-              type="checkbox"
-              checked={isPickup}
-              onChange={(e) => setIsPickup(e.target.checked)}
-            />
-            <label className="form-check-label" htmlFor="isPickup">
-              Is Pickup
-            </label>
-          </div>
-        </>
+              {/* ✅ IsPickup checkbox for this ticket */}
+              <div className="form-check mt-2">
+                <input
+                  id={`isPickup-${t.id || t.martId}`}
+                  className="form-check-input border-dark"
+                  type="checkbox"
+                  checked={!!t.isPickup}
+                  onChange={(e) => {
+                    const updated = groceryData.map((g) =>
+                      g.id === t.id || g.martId === t.martId
+                        ? { ...g, isPickup: e.target.checked }
+                        : g
+                    );
+                    setGroceryData(updated);
+                  }}
+                />
+                <label
+                  className="form-check-label"
+                  htmlFor={`isPickup-${t.id || t.martId}`}
+                >
+                  Is Pickup
+                </label>
+              </div>
+
+              {/* Go to Maps */}
+              {t.isPickup && t.latitude && t.longitude && (
+                <div className="mt-1 text-end">
+                  <a
+                    href={`/deliveryTracking/${t.id}?lat=${t.latitude}&lng=${t.longitude}&isPickup=true`}
+                    className="link-primary"
+                    onClick={() => {
+                      setShowNotificationModal(false);
+                      handleUpdatePaymentMethod(t); 
+                    }}
+                  >
+                    Go to Maps
+                  </a>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       )
     ) : (
       <p>You are already registered, pending for admin approval.</p>
     )}
   </Modal.Body>
-
-  <Modal.Footer>
-    {isRegistered && partnerStatus === "open" && isPickup && (
-      <a
-        href={`/deliveryTracking/${id}?isPickup=true`}
-        className="link-primary"
-        style={{ textDecoration: "underline" }}
-        onClick={() => {setShowNotificationModal(false); handleUpdatePaymentMethod()}}
-      >
-        Go to Maps
-      </a>
-    )}
-  </Modal.Footer>
 </Modal>
-
 
           {isMobile && (
             <div
@@ -1207,7 +1218,7 @@ const fetchImageUrl = async (photoId) => {
                     >
                       <source src={BannerVideo} type="video/mp4" />
                     </video> */}
-                    {/* <button
+                    <button
                       onClick={toggleMute}
                       style={{
                         position: 'absolute',
@@ -1223,7 +1234,7 @@ const fetchImageUrl = async (photoId) => {
                       aria-label="Toggle Mute"
                     >
                       {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
-                    </button> */}
+                    </button>
                 </div>
                   {/* <div className="carousel-item active">
                   <img
@@ -1396,7 +1407,7 @@ const fetchImageUrl = async (photoId) => {
         background: "transparent",
         border: "none",
       }}
-      onClick={() =>window.location.href = `/groceryCart/${userType}/${userId}`}
+      onClick={() => window.location.href = `/groceryCart/${userType}/${userId}`}
     >
   View Cart →
   {/* ({cartSummary.items}) – ₹{Math.round(cartSummary.total)} */}
