@@ -1,7 +1,7 @@
 import {
   GoogleMap,
   Marker,
-  Polyline,
+  DirectionsRenderer,
   useJsApiLoader,
 } from "@react-google-maps/api";
 import { useState, useEffect, useRef, useMemo } from "react";
@@ -11,7 +11,7 @@ import Footer from "./Footer";
 
 export default function HandymanTrackingMap() {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyBzi82we6uzhXFjsiJ6hXVJhhx9wg_qykc", // Replace with your actual key
+    googleMapsApiKey: "AIzaSyBzi82we6uzhXFjsiJ6hXVJhhx9wg_qykc", // 🔑 Replace with your real key
   });
 
   const { id } = useParams();
@@ -23,6 +23,16 @@ export default function HandymanTrackingMap() {
   const [longitude, setLongitude] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Directions API state
+  const [directions, setDirections] = useState(null);
+  const [routeStarted, setRouteStarted] = useState(false);
+
+ useEffect(() => {
+    console.log(loading, groceryData);
+  }, [loading, groceryData]);
+
+
+  // 🔹 Fetch destination data
   useEffect(() => {
     const fetchGroceryData = async () => {
       try {
@@ -53,10 +63,6 @@ export default function HandymanTrackingMap() {
     fetchGroceryData();
   }, [id]);
 
-   useEffect(() => {
-    console.log(loading, groceryData);
-  }, [loading, groceryData]);
-
   const destination = useMemo(() => {
     const lat =
       typeof latitude === "number" ? latitude : parseFloat(latitude);
@@ -65,7 +71,7 @@ export default function HandymanTrackingMap() {
     if (Number.isFinite(lat) && Number.isFinite(lng)) {
       return { lat, lng };
     }
-    return null; // not ready yet
+    return null;
   }, [latitude, longitude]);
 
   const calculateDistance = (pos1, pos2) => {
@@ -92,7 +98,7 @@ export default function HandymanTrackingMap() {
     return (R * c).toFixed(2);
   };
 
-  // ✅ Real-time location tracking with watchPosition
+  // ✅ Track handyman live location
   useEffect(() => {
     if (!navigator.geolocation) return;
 
@@ -109,7 +115,7 @@ export default function HandymanTrackingMap() {
           if (d !== null) setDistance(d);
         }
 
-        // ✅ Optional: Auto center map on current position
+        // Auto-center map
         if (mapRef.current) {
           mapRef.current.panTo(newPosition);
         }
@@ -128,6 +134,29 @@ export default function HandymanTrackingMap() {
       navigator.geolocation.clearWatch(watchId);
     };
   }, [destination]);
+
+  // ✅ Start Route Function
+  const startRoute = () => {
+    if (!destination || !position.lat || !position.lng) return;
+
+    const directionsService = new window.google.maps.DirectionsService();
+
+    directionsService.route(
+      {
+        origin: position,
+        destination: destination,
+        travelMode: window.google.maps.TravelMode.DRIVING,
+      },
+      (result, status) => {
+        if (status === "OK") {
+          setDirections(result);
+          setRouteStarted(true);
+        } else {
+          console.error("Directions request failed due to " + status);
+        }
+      }
+    );
+  };
 
   if (!isLoaded) return <p>Loading map...</p>;
 
@@ -154,6 +183,7 @@ export default function HandymanTrackingMap() {
               Distance to destination: {distance} km
             </div>
           )}
+
           <GoogleMap
             center={position}
             zoom={15}
@@ -171,21 +201,36 @@ export default function HandymanTrackingMap() {
               }}
             />
 
-            {/* ✅ Destination marker & polyline */}
-            {destination && (
-              <>
-                <Marker position={destination} label="🏠" />
-                <Polyline
-                  path={[position, destination]}
-                  options={{
-                    strokeColor: "#FF0000",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 4,
-                  }}
-                />
-              </>
+            {/* ✅ Destination marker (before starting route) */}
+            {destination && !routeStarted && (
+              <Marker position={destination} label="🏠" />
             )}
+
+            {/* ✅ Driving route when started */}
+            {directions && <DirectionsRenderer directions={directions} />}
           </GoogleMap>
+
+          {/* ✅ Start Button */}
+          {destination && (
+            <button
+              onClick={startRoute}
+              style={{
+                position: "absolute",
+                bottom: "20px",
+                left: "50%",
+                transform: "translateX(-50%)",
+                padding: "10px 20px",
+                background: "blue",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                zIndex: 999,
+              }}
+            >
+              Start
+            </button>
+          )}
         </div>
       </div>
       <Footer />
