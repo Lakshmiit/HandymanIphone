@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import HandymanLogo from './img/Hm_Logo 1.png'; 
 
 const GroceryOnlinePayment = () => {
   const { groceryItemId } = useParams(); 
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const [orderBooking, setOrderBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState('');
   const [grandTotal,setGrandTotal] =useState('');
   const [martId,setMartId] =useState('');
    
-  useEffect(() => {       
-    console.log(userId);
+  useEffect(() => {
+    console.log(userId);     
   }, [userId]);    
 
   // ✅ Step 1: Fetch booking details from your API
@@ -49,8 +49,9 @@ const GroceryOnlinePayment = () => {
         // alert(JSON.stringify(response));
 
         // ✅ Step 3: Redirect after payment
-            window.location.href = 
-      `/groceryPaymentSuccess?paymentId=${response.razorpay_payment_id}&amount=${grandTotal}&id=${orderBooking.id}&address=${orderBooking.address}&BookingId=${martId}`;
+            navigate(
+      `/groceryPaymentSuccess?paymentId=${response.razorpay_payment_id}&amount=${grandTotal}&id=${orderBooking.id}&address=${orderBooking.address}&BookingId=${martId}`
+    );
       },
       prefill: {
         name: orderBooking.customerName,

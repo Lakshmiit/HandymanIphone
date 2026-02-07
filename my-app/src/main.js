@@ -6,7 +6,7 @@ const OTPInput = () => {
 
   const handleKeyUp = (index, event) => {
     const { keyCode, target } = event;
-   
+
     if (keyCode === 13 || target.value.length === 1) {
       if (otpInputs.current[index + 1]) {
         otpInputs.current[index + 1].focus();

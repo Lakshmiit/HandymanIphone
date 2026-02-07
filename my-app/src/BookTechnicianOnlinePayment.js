@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import HandymanLogo from './img/Hm_Logo 1.png'; 
 
 const BookTechnicianOnlinePayment = () => {
   const { id } = useParams(); // product id from URL
-//   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [orderBooking, setOrderBooking] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState('');
@@ -50,8 +50,9 @@ const BookTechnicianOnlinePayment = () => {
         // alert(JSON.stringify(response));
 
         // ✅ Step 3: Redirect after payment
-           window.location.href =
-      `/BookTechnicianPaymentSuccess?paymentId=${response.razorpay_payment_id}&orderId=${response.razorpay_order_id}&amount=${totalAmount}&id=${orderBooking.id}&address=${orderBooking.address}&BookTechnicianId=${bookTechnicianId}&JobDescription=${jobDescription}`;
+            navigate(
+      `/BookTechnicianPaymentSuccess?paymentId=${response.razorpay_payment_id}&orderId=${response.razorpay_order_id}&amount=${totalAmount}&id=${orderBooking.id}&address=${orderBooking.address}&BookTechnicianId=${bookTechnicianId}&JobDescription=${jobDescription}`
+    );
       },
       prefill: {
         name: orderBooking.customerName,
@@ -69,7 +70,7 @@ const BookTechnicianOnlinePayment = () => {
   if (!orderBooking) return <p style={{ color: "red" }}>Error loading booking details.</p>;
 
   return (
-    <div className="h-100 d-flex align-items-center py-2 flex-column mt-100">
+    <div className="mt-5 h-100 d-flex align-items-center py-2 flex-column">
       <div className="login_section rounded-3 p-4">
         <div className="rgt_cnt text-center">
           <img

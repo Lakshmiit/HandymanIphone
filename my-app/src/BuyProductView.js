@@ -167,7 +167,7 @@ const ProductViewModal = ({ show, handleClose, productId }) => {
             style={{ maxWidth: '100%', margin: '10px 0' }}
           />
         ))} */}
-      </Modal.Body> 
+      </Modal.Body>
     </Modal>
     </>
   );

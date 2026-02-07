@@ -7,9 +7,9 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import Header from './Header.js';
 import Footer from './Footer.js';
 import Sidebar from './Sidebar';
-import {  useParams} from 'react-router-dom';
+import {  useParams, useNavigate} from 'react-router-dom';
 const AddressManager = () => { 
-//   const navigate = useNavigate();
+  const navigate = useNavigate();
   const {selectedUserType} = useParams();
   const {userType} = useParams();
   const [isMobile, setIsMobile] = useState(false);
@@ -56,10 +56,11 @@ district: '',
 // const [selectedFiles, setSelectedFiles] = useState([]);
 const [shouldBlink,setShouldBlink] = useState(false);
 const [serviceUnavailable, setServiceUnavailable] = useState(false);
-
+const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
+ 
   useEffect(() => {
-    console.log(ticketId, response, editingAddressId);
-  }, [ticketId, response, editingAddressId]);
+    console.log(ticketId, response, editingAddressId, isEditing);
+  }, [ticketId, response, editingAddressId, isEditing]);
 
   // const API_URL = 'https://handymanapiv2.azurewebsites.net/api/Address/GetAddressById/';
   // Fetch customer profile data
@@ -104,7 +105,48 @@ const [serviceUnavailable, setServiceUnavailable] = useState(false);
   }
 }, [addresses]);
 
+// const fetchCustomerData = useCallback(async () => {
+//   try {
+//     const res = await fetch(
+//       `https://handymanapiv2.azurewebsites.net/api/Address/GetAddressById/${userId}`
+//     );
+//     if (!res.ok) throw new Error("Failed to fetch customer profile data");
+//     const raw = await res.json();
+//     const list = Array.isArray(raw) ? raw : [raw];
+//     const score = (a) =>
+//       [a?.address, a?.zipCode, a?.mobileNumber, a?.fullName]
+//         .filter((v) => (v ?? "").toString().trim() !== "").length;
+//     const nonEmpty = list.filter(
+//       (a) => (a?.address ?? "").trim() !== "" || (a?.zipCode ?? "").trim() !== ""
+//     );
+//     const keep = nonEmpty.length > 0
+//       ? nonEmpty
+//       : [list.reduce((best, a) => (score(a) > score(best) ? a : best), list[0])]; 
+//     const formatted = keep.map((addr) => ({
+//       id: addr.addressId,
+//       isPrimary: !!addr.isPrimaryAddress,
+//       address: addr.address || "",
+//       state: addr.state || "",
+//       district: addr.district || "",
+//       zipCode: addr.zipCode || "",
+//       emailAddress: addr.emailAddress || "",
+//       mobileNumber: addr.mobileNumber || "",
+//       fullName: (addr.fullName || "").trim(),
+//     }));
+//     setAddresses(formatted);
+//     const customerName =
+//       (keep[0]?.fullName || "").trim();
+//     setFullName(customerName);
+//   } catch (err) {
+//     console.error("Error fetching customer data:", err);
+//   }
+// }, [userId]);
 
+// useEffect(() => {
+//   const primary = addresses.find((a) => a.isPrimary) || addresses[0];
+//   const district = primary?.district?.toLowerCase();
+//   setServiceUnavailable(Boolean(district && district !== "visakhapatnam"));
+// }, [addresses]);
 
 useEffect(() => {
   fetchCustomerData();
@@ -375,7 +417,6 @@ useEffect(() => {
           console.error('Error sending message:', error);
         }
       window.location.href = `/profilePage/${userType}/${userId}`;
-  
   } catch (error) {
     console.error('Error:', error);
     window.alert('Failed to create the ticket. Please try again later.');
@@ -688,7 +729,7 @@ useEffect(() => {
               {/* Modal */}
                     <Modal show={showModal} onHide={() => setShowModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>{isEditing ? 'Edit Address' : 'Add Address'}</Modal.Title>
+                    <Modal.Title>{isGuestName(fullName) ? 'Add Address' : 'Edit Address'}</Modal.Title>
                   </Modal.Header>
                 <Modal.Body>
                   <Form>
@@ -800,7 +841,7 @@ useEffect(() => {
                       />
                     </Form.Group>
                     <Button type="button" variant="primary" onClick={handleAddressEdit}>
-                      {isEditing ? 'Edit Address' : 'Add Address'}
+                      {isGuestName(fullName) ? 'Add Address' : 'Edit Address'}
                     </Button>
                   </Form>
                 </Modal.Body>
@@ -1027,7 +1068,7 @@ useEffect(() => {
         {/* Get Quote Button */}
         <Button 
           variant="success" 
-          type="submit" 
+          type="submit"  
           onClick={handleSaveTicket}
           disabled={isSubmitting || isAddressInvalid || serviceUnavailable}
         >
@@ -1036,7 +1077,7 @@ useEffect(() => {
         <Button
           type="button"
           className="back-btn"
-          onClick={() => window.location.href = `/profilePage/${userType}/${userId}`}
+          onClick={() => navigate(`/profilePage/${userType}/${userId}`)}
         >
           Back
         </Button>

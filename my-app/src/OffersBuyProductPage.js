@@ -4,14 +4,14 @@ import Sidebar from './Sidebar';
 import Header from './Header.js';
 import Footer from './Footer.js';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Dashboard as MoreVertIcon,} from '@mui/icons-material';
 import ViewOffersBuyProductPage from "./ViewOffersBuyProductPage.js";
 import { Button, Form, Modal } from 'react-bootstrap'; 
 import axios from "axios";
 
 const OffersBuyProduct = () => { 
-//   const navigate = useNavigate();
+  const navigate = useNavigate();
   const {id} = useParams();
   const {userType} = useParams(); 
   const [loading, setLoading] = useState(true);
@@ -63,9 +63,11 @@ const OffersBuyProduct = () => {
   const [deliveryInDays, setDeliveryInDays] = useState('');
   const [numberOfStockAvailable, setNumberOfStockAvailable] = useState('');
   const [disableBuy, setDisableBuy] = useState(false);
+const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
+
   useEffect(() => {
-    console.log(loading, productOptions, editingAddressId, buyProductId);
-  }, [loading, productOptions, editingAddressId, buyProductId]);
+    console.log(loading, productOptions, editingAddressId, buyProductId, isEditing);
+  }, [loading, productOptions, editingAddressId, buyProductId, isEditing]);
   
     const fetchProfileType = useCallback(async () => {
       try {
@@ -137,7 +139,7 @@ const OffersBuyProduct = () => {
 
   const handleGetQuotation = async (e) => {
     e.preventDefault();
-
+    
      if (numberOfStockAvailable === 0) {
     setQuantityError("No stock available.");
     return;
@@ -227,7 +229,7 @@ const OffersBuyProduct = () => {
       const buyProductData = await response.json();
       setBuyProductId(buyProductData.buyProductId);
       localStorage.setItem('id', id); 
-     window.location.href = `/buyProductPaymentPage/${userType}/${userId}/${buyProductData.buyProductId}`;
+     navigate(`/buyProductPaymentPage/${userType}/${userId}/${buyProductData.buyProductId}`);
     } catch (error) {
       console.error("Error submitting quotation:", error);
       window.alert('Failed to submitting quotation. Please try again later.');    }
@@ -242,6 +244,13 @@ const OffersBuyProduct = () => {
       setColorError("Please choose a color from the given options!");
     }
   };
+
+  useEffect(() => {
+  if (!loading && Number(numberOfStockAvailable) > 0 && !requiredQuality) {
+    setRequiredQuality(1);  
+  }
+}, [loading, numberOfStockAvailable, requiredQuality]);
+
 
   const handleQuantityChange = (e) => {
     const value = e.target.value.trim();
@@ -273,7 +282,6 @@ const OffersBuyProduct = () => {
       setDisableBuy(false);
       setIsChecked(true);
     }
-
     setRequiredQuality(qty);
   } else {
     setQuantityError("Please enter a valid quantity.");
@@ -428,7 +436,7 @@ useEffect(() => {
   return (
     <div>
   <Header />
-    <div className="d-flex flex-row justify-content-start align-items-start mt-100" style={{ overflowY: "scroll", overflowX: "hidden" }}>
+    <div className="d-flex flex-row justify-content-start align-items-start mt-mob-50">
       {/* Sidebar menu for Larger Screens */}
       {!isMobile && (
         <div className=" ml-0 m-4 p-0 sde_mnu">
@@ -469,7 +477,7 @@ useEffect(() => {
                      {/* Modal */}
                            <Modal show={showModal} onHide={() => setShowModal(false)}>
                        <Modal.Header closeButton>
-                           <Modal.Title>{isEditing ? 'Edit Address' : 'Add Address'}</Modal.Title>
+                           <Modal.Title>{isGuestName(fullName) ? 'Add Address' : 'Edit Address'}</Modal.Title>
                          </Modal.Header>
                        <Modal.Body>
                          <Form>
@@ -580,11 +588,11 @@ useEffect(() => {
                              />
                            </Form.Group>
                            <Button type="button" variant="primary" onClick={handleAddressEdit}>
-                             {isEditing ? 'Edit Address' : 'Add Address'}
+                             {isGuestName(fullName) ? 'Add Address' : 'Edit Address'}
                            </Button>
                          </Form>
                        </Modal.Body>
-                     </Modal>
+                     </Modal> 
                              </div>
                
                          <div className="p-3 border rounded bg-light">
@@ -695,8 +703,8 @@ useEffect(() => {
                 readOnly
               />
             </div>
-          <div className="d-flex">
-            <div className="col-md-6 gap-1">
+
+            <div className="col-md-6">
                 <label>Price <span className="req_star">*</span></label>
                 <input
                   type="text"
@@ -717,7 +725,6 @@ useEffect(() => {
                   placeholder="Discount"
                   readOnly
                 />
-              </div>
               </div>
               <div className="col-md-6">
                 <label>Price After Discount <span className="req_star">*</span></label>
@@ -809,10 +816,10 @@ useEffect(() => {
                 className="form-control"
                 value={requiredQuality}
                 onChange={handleQuantityChange}
-                disabled={isAddressInvalid}
+                disabled={isAddressInvalid || Number(numberOfStockAvailable) === 0}
                 required
               >
-                <option value="">Select Quantity</option>
+                {/* <option value="">Select Quantity</option> */}
                 {[1, 2, 3, 4, 5].map((qty) => (
                   <option key={qty} value={qty}>
                     {qty}
@@ -862,22 +869,6 @@ useEffect(() => {
       {showModals && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <button
-      onClick={() => setShowModal(false)}
-      style={{
-        color: "red",
-        position: "absolute",
-        top: "10px",
-        right: "15px",
-        background: "none",
-        border: "none",
-        fontSize: "20px",
-        fontWeight: "bold",
-        cursor: "pointer"
-      }}
-    >
-      ✕
-    </button>
             <h2 className="text-center">Terms and Conditions</h2>
             <div className="text-justify">
                     <div className="mt-20">
@@ -1226,7 +1217,7 @@ useEffect(() => {
               <Button 
                 type="button"
                 className="back-btn"
-                onClick={() => window.location.href =`/profilePage/${userType}/${userId}`}
+                onClick={() => navigate(`/profilePage/${userType}/${userId}`)}
               >
                 Back
               </Button>
@@ -1256,8 +1247,8 @@ useEffect(() => {
           background: white;
           padding: 20px;
           border-radius: 20px;
-          width: 90%;
-          max-width: 500px;
+          width: 100%;
+          max-width: 600px;
           max-height: 80vh;
           overflow-y: auto;
           text-align: left;

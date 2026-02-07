@@ -8,9 +8,9 @@ import Footer from './Footer.js';
 import axios from 'axios';
 // import RaiseTicketConfirmation from './RaiseTicketConfirmation.js';
 import Sidebar from './Sidebar';
-import {  useParams } from 'react-router-dom';
-const ApartmentRaiseTicket = () => { 
-//    const navigate = useNavigate();
+import {  useParams, useNavigate } from 'react-router-dom';
+const ApartmentRaiseTicket = () => {
+   const navigate = useNavigate();
    const {userType} = useParams();
    const {userId} = useParams();
   const {selectedUserType} = useParams();
@@ -719,7 +719,7 @@ const isFormDisabled = isSubscription !== "Yes";
   return ( 
     <div>
       <Header />
-    <div className="d-flex flex-row justify-content-start align-items-start mt-100">
+    <div className="d-flex flex-row justify-content-start align-items-start">
        {/* Sidebar for larger screens */}
        {!isMobile && (
         <div className=" ml-0 m-4 p-0 sde_mnu">
@@ -748,7 +748,7 @@ const isFormDisabled = isSubscription !== "Yes";
 
       {/* Main Content */}
       <div className={`container m-1 ${isMobile ? 'w-100' : 'w-75'}`}>
-      <h1 className="text-center mb-1 mx-3">Apartment Common Area Maintenance</h1>
+      <h1 className="text-center mb-1 mt-mob-50 mx-3">Apartment Common Area Maintenance</h1>
          <div className="d-flex justify-content-between align-items-center">
               <label className='mt-2'>Address <span className="req_star">*</span></label>
               <div className='d-flex justify-content-between'>                        
@@ -1088,7 +1088,7 @@ const isFormDisabled = isSubscription !== "Yes";
           <Button
             type="button"
             className="back-btn"
-            onClick={() => window.location.href = `/profilePage/${userType}/${userId}`}
+            onClick={() => navigate(`/profilePage/${userType}/${userId}`)}
           >
             Back
           </Button>

@@ -3,17 +3,16 @@ import axios from "axios";
 import Form from "react-bootstrap/Form";
 import Header from './Header';
 import Footer from './Footer';
-import {  useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 const FILE_FIELDS = [
   { label: "Passport Size Photo (PDF)", name: "passportPhoto" },
   { label: "Driving License (PDF)",  name: "drivingLicense" },
   { label: "Aadhar Card (PDF)",      name: "aadharCard" },
   { label: "Pan Card (PDF)",         name: "panCard" },
 ];
-
 const DeliveryPartner = () => {
-  // const navigate = useNavigate();
-  const { userId, userType } = useParams();   
+  const navigate = useNavigate();
+  const { userId, userType } = useParams();
   const [isMobile, setIsMobile] = useState(false);
   const [districtList, setDistrictList] = useState([]);
   const [stateList, setStateList] = useState([]);
@@ -224,7 +223,7 @@ const DeliveryPartner = () => {
       );
       if (status >= 200 && status < 300) {
         alert("Registration Successful!");
-        window.location.href = `/profilePage/${userType}/${userId}`;
+        navigate(`/profilePage/${userType}/${userId}`);
       } else {
         alert("Failed to submit.");
       }
@@ -404,10 +403,10 @@ const DeliveryPartner = () => {
                 />
                 {formErrors[name] && <p className="text-danger">{formErrors[name]}</p>}
                 {showAlert[name] && (
-                  <div style={{fontSize: "10px", color: "red", marginTop: "1px"}}>
+                  <div className="alert alert-warning mt-1" style={{fontSize: "10px"}}>
                     <strong>Note:</strong> After selecting, click <strong>Upload {label}</strong> to confirm.
                   </div>
-                )}   
+                )}
 
                 {files[name]?.file && (
                   <div>
@@ -437,7 +436,7 @@ const DeliveryPartner = () => {
                     Uploaded as: <code>{uploadedNames[name]}</code>
                   </div>
                 )} */}
-              </div>
+              </div>       
             ))}
           </div>
          <div className="d-flex justify-content-between">
@@ -452,7 +451,7 @@ const DeliveryPartner = () => {
             <button     
               type="button"
               className="btn btn-warning w-50 mt-1 ms-2"
-              onClick={() => window.location.href =  `/profilePage/${userType}/${userId}`}
+              onClick={() => navigate(`/profilePage/${userType}/${userId}`)}
             >
               Back
             </button>

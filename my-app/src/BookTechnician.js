@@ -7,10 +7,10 @@ import axios from 'axios';
 import Header from './Header.js';
 import Footer from './Footer.js';
 import Sidebar from './Sidebar';
-import { useParams} from 'react-router-dom';
+import { useParams, useNavigate} from 'react-router-dom';
 
 const AddressManager = () => {
-//  const Navigate = useNavigate(); 
+ const Navigate = useNavigate(); 
 //  const {id} = useParams();
   const {selectedUserType} = useParams();
  const {userType} = useParams();
@@ -65,11 +65,13 @@ district: '',
 zipCode: '',
 });
 const [serviceUnavailable, setServiceUnavailable] = useState(false);
+const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
+ 
 // const [response, setResponse] = useState(null);
 
   useEffect(() => {
-    console.log(ticketId, loading, fullName, mobileNumber, raiseTicketId, editingAddressId);
-  }, [ticketId, loading, fullName,  mobileNumber, raiseTicketId, editingAddressId]);
+    console.log(ticketId, loading, fullName, mobileNumber, raiseTicketId, editingAddressId, isEditing);
+  }, [ticketId, loading, fullName,  mobileNumber, raiseTicketId, editingAddressId, isEditing]);
 
   // const API_URL = 'https://handymanapiv2.azurewebsites.net/api/Address/GetAddressById/';
   // Fetch customer profile data
@@ -393,12 +395,12 @@ const handleUpdateJobDescription = async (e) => {
       },
       body: JSON.stringify(payload1),
     });
-    if (!response.ok) {
+    if (!response.ok) { 
       throw new Error('Failed to Book Technician.');
     }
     const data = await response.json(); 
     setRaiseTicketId(data.raiseTicketId);
-   window.location.href = `/bookTechnicianPaymentPage/${userType}/${userId}/${data.raiseTicketId}`;
+   Navigate(`/bookTechnicianPaymentPage/${userType}/${userId}/${data.raiseTicketId}`)
   } catch (error) {
     console.error('Error:', error);
     window.alert('Failed to Book Technician. Please try again later.');
@@ -521,7 +523,7 @@ const handleUpdateJobDescription = async (e) => {
 
       {/* Main Content */}
       <div className={`container m-1 ${isMobile ? 'w-100' : 'w-75'}`}>
-      <h1 className="text-center mb-1 mt-mob-100">Book A Technician</h1>
+      <h1 className="text-center mb-1">Book A Technician</h1>
         {/* Display primary address with "Change Address" link */}
          <div className="d-flex justify-content-between align-items-center">
                                 <label className='mt-2'>Address <span className="req_star">*</span></label>
@@ -531,7 +533,7 @@ const handleUpdateJobDescription = async (e) => {
                       {/* Modal */}
                             <Modal show={showModal} onHide={() => setShowModal(false)}>
                         <Modal.Header closeButton>
-                            <Modal.Title>{isEditing ? 'Edit Address' : 'Add Address'}</Modal.Title>
+                            <Modal.Title>{isGuestName(fullName) ? 'Add Address' : 'Edit Address'}</Modal.Title>
                           </Modal.Header>
                         <Modal.Body>
                           <Form>
@@ -640,7 +642,7 @@ const handleUpdateJobDescription = async (e) => {
                               />
                             </Form.Group>
                             <Button type="button" variant="primary" onClick={handleAddressEdit}>
-                              {isEditing ? 'Edit Address' : 'Add Address'}
+                              {isGuestName(fullName) ? 'Add Address' : 'Edit Address'}
                             </Button>
                           </Form>
                         </Modal.Body>
@@ -749,8 +751,7 @@ const handleUpdateJobDescription = async (e) => {
                 value={category}
                 onChange={handleCategoryChange}    
                 disabled={isAddressInvalid || serviceUnavailable}
-                required
-              >
+                required >
                 <option value="">Select Category</option>
                 <option>Plumbing and Sanitary</option>
                 <option>Electrical</option>
@@ -941,22 +942,6 @@ const handleUpdateJobDescription = async (e) => {
       {showModals && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <button
-      onClick={() => setShowModal(false)}
-      style={{
-        color: "red",
-        position: "absolute",
-        top: "10px",
-        right: "15px",
-        background: "none",
-        border: "none",
-        fontSize: "20px",
-        fontWeight: "bold",
-        cursor: "pointer"
-      }}
-    >
-      ✕
-    </button>
             <h2>Terms and Conditions</h2>
             <div className="text-justify">
                     <div className="mt-20">
@@ -1229,7 +1214,7 @@ const handleUpdateJobDescription = async (e) => {
         <Button
           type="button"
           className="back-btn"
-          onClick={() => window.location.href = `/profilePage/${userType}/${userId}`}
+          onClick={() => Navigate(`/profilePage/${userType}/${userId}`)}
         >
           Back
         </Button>

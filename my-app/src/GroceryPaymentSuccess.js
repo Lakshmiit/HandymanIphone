@@ -16,8 +16,8 @@ const GroceryPaymentSuccess = () => {
  const [customerId, setUserId] = useState("");
  const [totalAmount,setTotalAmount] =useState("");
  const [statusMessage, setStatusMessage] = useState("Updating payment status...");
-    
-useEffect(() => {
+
+useEffect(() => {     
   console.log(loading, orderBooking);
 }, [loading, orderBooking]);
 

@@ -45,7 +45,7 @@ const [error, setError] = useState("");
 const [emailAddress, setEmailAddress] = useState("");
 const [requiredQuatity, setRequiredQuantity] = useState('');
 const [totalAmount, setTotalAmount] = useState('');
-const [paymenterror, setPaymentError] = useState(null);
+// const [paymenterror, setPaymentError] = useState(null);
 
   // const paymentDataTime = new Date().toLocaleString("en-IN", {
   //   timeZone: "Asia/Kolkata",
@@ -111,10 +111,10 @@ const [paymenterror, setPaymentError] = useState(null);
 
 const handleUpdateJobDescription = async (e) => {
   e.preventDefault();
-  if (selectedPayment === "online") {
-    setPaymentError("⚠️ Online payment is not available at the moment. Only Cash On Delivery Available.");
-    return;
-  }
+  // if (selectedPayment === "online") {
+  //   setPaymentError("⚠️ Online payment is not available at the moment. Only Cash On Delivery Available.");
+  //   return;
+  // }
 
   if (!selectedPayment) {
     setError("Please select at least one payment method.");
@@ -190,7 +190,8 @@ const handleUpdateJobDescription = async (e) => {
     // Store confirmation code in state
     setTechnicianConfirmationCode(data.technicianConfirmationCode);
     window.alert(`We are Redirecting to the Payment Page! Your reference number is ${bookTechnicianIds}. Technician will contact you shortly.`);
-    window.location.href=`https://localhost:7155/PaymentPage/${raiseTicketId}`;
+    window.location.href = `/bookTechnicianOnlinePayment/${raiseTicketId}`;
+    // window.location.href=`https://handymanserviceproviders-h2gncthtfdemdwe5.centralindia-01.azurewebsites.net/PaymentPage/${raiseTicketId}`;
   } else if (selectedPayment === 'technician') {
     response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BookTechnician/${raiseTicketId}`, {
       method: 'PUT',
@@ -268,7 +269,7 @@ const handleCheckboxChange = (value) => {
       )}
 
 <div className={`container m-1 ${isMobile ? "w-100" : "w-75"}`}>
-<h2 className="title mt-mob-100">PAYMENT CONFIRMATION</h2>
+<h2 className="title">PAYMENT CONFIRMATION</h2>
     <div className="booking-confirmation">
       <p className='text-center fs-4'><strong className='name'>{customerName}</strong> Thank you for Choosing the HandyMan Services</p>
 
@@ -298,15 +299,15 @@ const handleCheckboxChange = (value) => {
         <div className='d-flex flex-column m-1'>
         {isMobile ? (
         <div className='d-flex flex-column'>
-        <label className='fs-5'>
+        {/* <label className='fs-5'>
             <input 
             type="checkbox" 
             className="form-check-input border-dark m-1"
             checked={selectedPayment === 'online'}
             onChange={() => handleCheckboxChange('online')}/>
             Pay Through Online
-          </label>
-          {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>}
+          </label> */}
+          {/* {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>} */}
           <label className='fs-5'>
             <input 
             type="checkbox" 
@@ -318,18 +319,18 @@ const handleCheckboxChange = (value) => {
           </div>
         ) : (
           <div className="desktop-view d-flex flex-column">
-      <label className="me-4">
+      {/* <label className="me-4">
         <input 
           type="checkbox" 
           className="form-check-input border-dark me-2"
           checked={selectedPayment === 'online'}
           onChange={() => handleCheckboxChange('online')}
         />
-        Pay Through Online
-      </label>
-          {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>}
+        Pay Through Online 
+      </label> */}
+          {/* {paymenterror && <p className="text-danger" style={{fontSize: "14px"}}>{paymenterror}</p>} */}
       <label>
-        <input 
+        <input   
           type="checkbox" 
           className="form-check-input border-dark me-2"
           checked={selectedPayment === 'technician'}
@@ -367,22 +368,6 @@ const handleCheckboxChange = (value) => {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <button
-      onClick={() => setShowModal(false)}
-      style={{
-        color: "red",
-        position: "absolute",
-        top: "10px",
-        right: "15px",
-        background: "none",
-        border: "none",
-        fontSize: "20px",
-        fontWeight: "bold",
-        cursor: "pointer"
-      }}
-    >
-      ✕
-    </button>
             <h2>Terms and Conditions</h2>
             <div className="text-justify">
                     <div className="mt-20">

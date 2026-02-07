@@ -79,7 +79,7 @@ useEffect(() => {
 
   // ✅ Step 2: Render UI
   return (
-    <div className="h-100 d-flex align-items-center py-2 flex-column">
+    <div className="mt-5 h-100 d-flex align-items-center py-2 flex-column">
       <div className="login_section rounded-3 p-4">
         <div className="rgt_cnt text-center">
           <img

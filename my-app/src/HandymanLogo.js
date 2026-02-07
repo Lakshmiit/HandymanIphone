@@ -1,15 +1,16 @@
 import React, {useEffect, useRef } from "react";
+import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import HandyManCharacter from "./img/hm_char.png";
 import HandyManLogo from "./img/Hm_Logo 1.png";
-
+// import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   // const navigate = useNavigate();
-      
+
   const wordRefs = useRef([]);
- 
-  useEffect(() => { 
+
+  useEffect(() => {
     wordRefs.current.forEach((word, index) => {
       setTimeout(() => {
         if (word) word.classList.add('show');
@@ -49,7 +50,7 @@ const LandingPage = () => {
             className="img-fluid"
           />
         </div>
-      </div> 
+      </div>
       <div className="row">
         <div className="col">
           <div id="ldr_txt" className="gry_fnt py-2">

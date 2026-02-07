@@ -3,21 +3,23 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import './App.css';
-import { useParams } from "react-router-dom";
-// import { Dashboard as MoreVertIcon } from "@mui/icons-material";
-// import Sidebar from './Sidebar';
+import { useParams, useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { Modal, Button, Form} from 'react-bootstrap';
+import Footer from "./Footer.js";
+import Confetti from "react-confetti";
+import IdlyRavvaImg from './img/IdlyRavva.jpeg';
 
 const GroceryPaymentmethod = () => {
-  // const navigate = useNavigate(); 
- const {userType} = useParams(); 
+  const navigate = useNavigate();
+  // const location = useLocation();
+ const {userType} = useParams();
   const {userId} = useParams();
   const {groceryItemId} = useParams();
    const [isMobile, setIsMobile] = useState(false);
     // const [showMenu, setShowMenu] = useState(false);
-   const [isChecked, setIsChecked] = useState('');
-const [selectedPayment, setSelectedPayment] = useState(null);
+   const [isChecked, setIsChecked] = useState(true);
+const [selectedPayment, setSelectedPayment] = useState("cash");
 const [error, setError] = useState("");
   const [martId, setMartId] = useState('');
   const [totalItemsSelected, setTotalItemsSelected] = useState('');
@@ -50,122 +52,302 @@ const [mobileNumber, setMobileNumber] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editingAddressId, setEditingAddressId] = useState(null);
   const [shouldBlink,setShouldBlink] = useState(false);
- const [location, setLocation] = useState({latitude: '', longitude: ''});
-  const [locationError, setLocationError] = useState(null);
+   const[groceryId,setgroceryId] =useState();
+  const [groceryData,setgroceryData]=useState();
+//  const [location, setLocation] = useState({latitude: '', longitude: ''});
+//   const [locationError, setLocationError] = useState(null);
+// ADD these (you already have some; keep only one copy)
+const [referralRec, setReferralRec] = useState(null);
+const [referralPoints, setReferralPoints] = useState(0);   
+const [referralAmount, setReferralAmount] = useState(0);  
+const [netPayable, setNetPayable] = useState(0);     
+const [isOffersOrder, setIsOffersOrder] = useState(false);
+ const [firstOrderDiscount, setFirstOrderDiscount] = useState(0);
+  const [isNewUser, setIsNewUser] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
+const [cashbackMessage, setCashbackMessage] = useState("");
+// const [date, setDate] = useState("");
+const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
+const readServerPoints = (record) => {
+  const raw =
+    record?.referralPoints ?? 
+    record?.referralpoints ??
+    record?.ReferralPoints ??
+    0;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : 0;
+};
+const [loading, setLoading] = useState(false); 
+  
+useEffect(() => {
+  console.log("Addresses:", addresses);
+  const primary = addresses.find(a => a.type === "primary");
+  console.log("ZipCode:", primary?.zipCode);
+}, [addresses]);
 
 useEffect(() => {
-  console.log( isChecked, editingAddressId );
-}, [isChecked, editingAddressId]);
+  console.log(  cashbackMessage, loading, isChecked, editingAddressId, customerName, groceryId);
+}, [cashbackMessage, loading, isChecked, editingAddressId, customerName, groceryId]);
 
-const getLocation = () => {
-    return new Promise((resolve) => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const coords = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-            };
-            setLocation(coords);
-            resolve(coords);
-          },
-          (err) => {
-            setLocationError(err.message);
-            resolve({ latitude: null, longitude: null });
-          },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      } else {
-        setLocationError("Geolocation not supported in this browser.");
-        resolve({ latitude: null, longitude: null });
-      }
-    });
-  };
+const showSugarOffer =
+  Number(grandTotal) >= 499 && Number(grandTotal) <= 998;
+const netPayables=  grandTotal - firstOrderDiscount     
 
-  useEffect(() => {
-  const fetchCart = async () => {
+  const totalPayable =
+    isNewUser || grandTotal > 1000 ? netPayables : netPayable;
+const numericGrandTotal = Number(grandTotal) || 0;
+const isFirstOrderMinNotReached = isNewUser && numericGrandTotal < 150;
+
+  const loginMeta = (() => {   
     try {
-      if (!groceryItemId) return;
-      const existingSnap = localStorage.getItem(`cartSnapshot_${groceryItemId}`);
-      if (existingSnap) {
-        if (!localStorage.getItem("allCategories")) {
-          localStorage.setItem("allCategories", existingSnap);
-        }
+      return JSON.parse(localStorage.getItem("loginMeta") || "null") || {};
+    } catch {
+      return {};
+    }
+  })();
+
+   useEffect(() => {
+    if (firstOrderDiscount > 0) {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 4000); 
+    }
+  }, [firstOrderDiscount]);
+
+  const mobile =
+    state.mobile ?? loginMeta.mobile ?? localStorage.getItem("mobile") ?? "";
+    
+  const CheckFirstOrder = async (mobile) => {
+    if (!mobile) return null;
+    const url = `https://handymanapiv2.azurewebsites.net/api/Mart/CheckFirstOrder?CustomerPhoneNumber=${encodeURIComponent(
+      mobile
+    )}`;
+    try {
+      const res = await fetch(url);
+      const text = await res.text();
+      console.log("RAW RESPONSE:", text);
+      if (
+        text.includes("Firstorder Can not be found")
+      ) {
+        return null; 
       }
-      const response = await fetch(
-        `https://handymanapiv2.azurewebsites.net/api/Mart/GetProductDetails?id=${groceryItemId}`
+  let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (err) {     
+      console.warn("Could not parse CheckFirstOrder response:", err);
+      return null;
+    }
+    if (parsed && !Array.isArray(parsed)) {
+      parsed = [parsed];
+    }
+    return Array.isArray(parsed) ? parsed : null;
+  } catch (error) {
+    console.error("API ERROR:", error);
+    return null;
+  }
+};
+
+useEffect(() => {
+  let cancelled = false;
+  (async () => {
+    try {
+      const prevOrders = await CheckFirstOrder(mobile);
+      if (cancelled) return;
+      const isNew = prevOrders === null;
+      setIsNewUser(isNew);
+      const usedCashbacks = new Set();
+      if (Array.isArray(prevOrders)) {
+        prevOrders.forEach((order) => {
+          const categoryTotal = (order.categories ?? []).reduce(
+            (sum, c) => sum + Number(c?.totalAmount ?? 0),
+            0
+          );
+          const paid = Number(order.grandTotal ?? 0);
+          const diff = Math.round(categoryTotal - paid);
+          if (diff === 50) {
+            usedCashbacks.add(50);
+          }
+          if (diff === 100) {
+            usedCashbacks.add(100);
+            usedCashbacks.add(50);
+          }
+          if (diff === 200) {
+            usedCashbacks.add(200);
+            usedCashbacks.add(50);
+          }
+          if (diff === 300) {
+            usedCashbacks.add(300);
+            usedCashbacks.add(50); 
+          }  
+        });
+      }
+      const currentGT = Number(grandTotal) || 0;
+      let discount = 0;
+      let msg = "";
+      if (currentGT >= 1999 && !usedCashbacks.has(200)) {
+        discount = 200;
+      } 
+       else if (currentGT >= 1499 && !usedCashbacks.has(200)) {
+        discount = 200;
+      } 
+       else if (currentGT >= 1000 && !usedCashbacks.has(100)) {
+        discount = 100;
+      } 
+      else if (currentGT >= 150 && !usedCashbacks.has(50)) {
+        discount = 50;
+      } 
+      else {
+        discount = 0; 
+        // if (isNew) {
+        //   msg = "Order ₹150 or more to get ₹50 cashback on your first order!";
+        // }
+      }
+      setFirstOrderDiscount(discount);
+      setCashbackMessage(msg);
+      console.log("✅ Cashback FINAL CHECK:", {
+        usedCashbacks: [...usedCashbacks],
+        applied: discount,
+        currentGT,
+      });
+
+    } catch (err) {
+      console.error("Cashback check failed:", err);
+      if (!cancelled) {
+        setFirstOrderDiscount(0);
+        setCashbackMessage("");
+      }
+    }
+  })();
+
+  return () => {
+    cancelled = true;
+  };
+}, [mobile, grandTotal]);    
+
+
+const getReferralRecord = async (userId) => {
+  if (!userId) return null;
+  const url = `https://handymanapiv2.azurewebsites.net/api/ReferralPoints/GetReferralPointsByUserId?referreId=${encodeURIComponent(userId)}`;
+  const res = await fetch(url);     
+  const text = await res.text();
+  let data = []; 
+  try { data = text ? JSON.parse(text) : []; } catch { data = []; }
+  if (Array.isArray(data) && data.length > 0) {
+    data.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return data[0];
+  }
+  return null; 
+};
+
+useEffect(() => {
+  let cancelled = false;
+  (async () => {
+    try {
+      const rec = await getReferralRecord(userId);
+      if (cancelled) return;
+      setReferralRec(rec);
+      setReferralPoints(readServerPoints(rec));
+    } catch (e) {
+      console.error("Failed to load referral points:", e);
+      if (!cancelled) {
+        setReferralRec(null);
+        setReferralPoints(0);
+      }
+    }
+  })();
+  return () => { cancelled = true; };
+}, [userId]);
+
+useEffect(() => {
+  const gt = Number(grandTotal) || 0;
+  const pts = Number(referralPoints) || 0;
+  const applied = Math.min(pts, gt);   
+  setReferralAmount(applied);
+  setNetPayable(Math.max(0, gt - applied));
+}, [grandTotal, referralPoints]);
+
+useEffect(() => {
+  const fetchCart = async () => {
+    if (!groceryItemId) return;
+    const ctrl = new AbortController();
+    try {
+      const res1 = await fetch(
+        `https://handymanapiv2.azurewebsites.net/api/Mart/GetProductDetails?id=${groceryItemId}`,
+        { signal: ctrl.signal }
       );
-      if (!response.ok) throw new Error("Failed to fetch product details");
-      const data = await response.json();
+      if (!res1.ok) throw new Error("Failed to fetch product details");
+      const data = await res1.json();
       setCartData(data);
+      const catNames = Array.isArray(data?.categories)
+        ? data.categories.map(c => String(c?.categoryName || "").trim().toLowerCase())
+        : [];
+      const onlyOffers = catNames.length > 0 && catNames.every(n => n === "offers");
+      setIsOffersOrder(onlyOffers);
       setMartId(data.martId);
       setGrandTotal(data.grandTotal);
       setTotalItemsSelected(data.totalItemsSelected);
       setCustomerName(data.customerName);
-      if (!existingSnap && Array.isArray(data.categories)) {
-        const allCategories = data.categories.map(cat => ({
-          categoryName: cat.categoryName,
-          products: (cat.products || []).map(p => ({
-            productId: p.productId || p.id,
-            productName: p.productName || p.name || "",
-            qty: Number(p.noOfQuantity || p.qty || 0),
-            mrp: Number(p.mrp || 0),
-            discount: Number(p.discount || 0),
-            afterDiscountPrice: Number(p.afterDiscountPrice || p.price || 0),
-            stockLeft: Number(p.stockLeft || 0),
-            image: p.productImage || p.image || p.productImageFilename || "",
-          })),
-        }));
-
-        const json = JSON.stringify(allCategories);
-        localStorage.setItem(`cartSnapshot_${groceryItemId}`, json);
-        if (!localStorage.getItem("allCategories")) {
-          localStorage.setItem("allCategories", json);
-        }
-        localStorage.setItem("activeOrderId", groceryItemId);
-        localStorage.setItem(
-          `cartMeta_${groceryItemId}`,
-          JSON.stringify({
-            items: data.totalItemsSelected,
-            total: data.grandTotal
-          })
-        );
+      // setDate(data.date);
+      const products = (data?.categories ?? []).flatMap(c => c?.products ?? []);
+      const selected = products.filter(
+        p => p?.isSelected || p?.selected || (p?.qty ?? p?.quantity ?? 0) > 0
+      );
+      const baseList = selected.length ? selected : products;
+      const productNames = Array.from(
+        new Set( 
+          baseList
+            .map(p => p?.productName?.trim())
+            .filter(Boolean)
+        )
+      );
+      if (productNames.length === 0) {
+        console.warn("⚠️ No product names found in the first API response");
+        setgroceryData([]);
+        setgroceryId(null);
+        return;
       }
-    } catch (error) {
-      console.error("Error fetching cart:", error);
+      const requests = productNames.map(async (name) => {
+        const url = `https://handymanapiv2.azurewebsites.net/api/UploadGrocery/GetGroceryItemsByProductName?productName=${encodeURIComponent(
+          name
+        )}`;
+        const res = await fetch(url, { signal: ctrl.signal });
+        if (!res.ok) throw new Error(`UploadGrocery failed for "${name}" (HTTP ${res.status})`);
+        const items = await res.json();            
+        const arr = Array.isArray(items) ? items : (items ? [items] : []);
+        return arr.map(it => ({ ...it, _matchedProductName: name }));
+      });
+      const settled = await Promise.allSettled(requests);
+      const allItems = [];
+      settled.forEach((r, idx) => {
+        const n = productNames[idx];
+        if (r.status === "fulfilled") {
+          allItems.push(...r.value);
+        } else {
+          console.warn(`UploadGrocery lookup failed for "${n}":`, r.reason);
+        }
+      });
+      setgroceryData(allItems);
+      const firstId = allItems?.[0]?.id ?? null;
+      setgroceryId(firstId);
+      console.log("✅ Combined UploadGrocery items:", allItems);
+      console.log("✅ First grocery id:", firstId);
+    } catch (err) {
+      if (err?.name === "AbortError") return; 
+      setError(err.message || String(err));
+      console.error("Error fetching cart data:", err);
     }
+    return () => ctrl.abort();
   };
-
   fetchCart();
-  getLocation();
 }, [groceryItemId]);
 
-//  useEffect(() => {
-//   const fetchCart = async () => {
-//     try {
-//       if (!groceryItemId) {
-//         console.error("No id found in localStorage or location state");
-//         return;
-//       }
-//       const response = await fetch(
-//         `https://handymanapiv2.azurewebsites.net/api/Mart/GetProductDetails?id=${groceryItemId}`
-//       );
-//       if (!response.ok) {
-//         throw new Error("Failed to fetch product details");
-//       }
-//       const data = await response.json();
-//       setCartData(data); 
-//       setMartId(data.martId);
-//       setGrandTotal(data.grandTotal);
-//       setTotalItemsSelected(data.totalItemsSelected);
-//       setCustomerName(data.customerName);
-//     } catch (error) {
-//       console.error("Error fetching cart:", error);
-//     }
-//   };
-//   fetchCart();
-//   getLocation(); 
-// }, [groceryItemId]);
+const goBackToCart = () => {
+  if (isOffersOrder) {
+    navigate(`/groceryOffersCart/${userType}/${userId}`);
+  } else {
+    navigate(`/groceryCart/${userType}/${userId}`);
+  }
+};
 
  const fetchCustomerData = useCallback(async () => {
       try {
@@ -177,9 +359,8 @@ const getLocation = () => {
         const data = await response.json();
         console.log(data);
         const addresses = Array.isArray(data) ? data : [data];
-        // Format addresses if necessary
         const formattedAddresses = addresses.map((addr) => ({
-          id: addr.addressId, // Use addressId
+          id: addr.addressId, 
           type: addr.isPrimaryAddress ? 'primary' : 'secondary',
           address: addr.address,
           state: addr.state,
@@ -200,7 +381,6 @@ const getLocation = () => {
   useEffect(() => {
   const primary = addresses.find(addr => addr.type === "primary");
   const district = primary?.district?.toLowerCase();
-
   if (district && district !== "visakhapatnam") {
     setServiceUnavailable(true);  
   } else {
@@ -251,7 +431,6 @@ const getLocation = () => {
 
   // Handle address editing
   const handleAddressEdit = async () => {
-
     if (!newAddress || !zipCode || !mobileNumber || !state || !district) {
       alert("Please fill in all required fields.");
       return; 
@@ -325,7 +504,7 @@ const getLocation = () => {
 
     const primaryAddress = addresses.find(addr => addr.type === 'primary');
     const isAddressInvalid = !primaryAddress || !primaryAddress.address || !primaryAddress.zipCode;
-    
+     const isOrderDisabled = isAddressInvalid || serviceUnavailable || isFirstOrderMinNotReached;
     useEffect(() => {
         if (isAddressInvalid) {
           setShouldBlink(true);
@@ -333,68 +512,121 @@ const getLocation = () => {
           setShouldBlink(false);
         }
       }, [isAddressInvalid]);
-    
 
-
-  // Detect screen size for responsiveness
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    handleResize(); // Set initial state
+    handleResize(); 
     window.addEventListener('resize', handleResize);
-  
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  const handleUpdatePaymentMethod = async () => {
+  // if (!selectedPayment) {
+  //   setError("Please select at least one payment method.");
+  //   return;
+  // }
+  // if (!isChecked) {
+  //   alert("You must accept the terms and conditions.");
+  //   return;
+  // }
 
-const handleUpdatePaymentMethod = async () => {
-  // e.preventDefault();
-  if (!selectedPayment) {
-    setError("Please select at least one payment method.");
-    return;
-  }
-  if (!isChecked) {
-      alert("You must accept the terms and conditions.");
-      return; 
-    }  
-
-    try {
-      const {latitude, longitude} = await getLocation();
-      const primaryAddress = addresses.find((addr) => addr.type === "primary");
+  try {
+    const primaryAddress = addresses.find((addr) => addr.type === "primary");
     const state = primaryAddress?.state;
     const district = primaryAddress?.district || "";
     const pincode = primaryAddress?.zipCode || primaryAddress?.pincode;
-    const mobileNumber = primaryAddress?.mobileNumber || primaryAddress?.mobileNumber; 
-    
-  const payload = {
-    ...cartData,
-    customerName: addressData.fullName || fullName,
-    address: addressData.address || primaryAddress?.address, 
-    state: addressData.state || state,
-    district: addressData.district || district,
-    zipCode: addressData.zipCode || pincode,
-    customerPhoneNumber: addressData.mobileNumber || mobileNumber,
-    id: groceryItemId,
-    userId: userId, 
-    martId: martId,
-    date: new Date(),
-    grandTotal: grandTotal,
-    totalItemsSelected: totalItemsSelected,
-    status: selectedPayment === "online" ? "Draft" : "Open",
-    paymentMode: selectedPayment,
-    utrTransactionNumber: "",
-    transactionNumber: "",
-    transactionStatus: "",
-    paidAmount: "",
-    AssignedTo: "",
-    DeliveryPartnerUserId: "",
-    latitude: latitude !== null ? Number(latitude) : null,
-    longitude: longitude !== null ? Number(longitude) : null,
-    isPickUp: false,
-    isDelivered: false,
-  };
+    const mobileNumber = primaryAddress?.mobileNumber || primaryAddress?.mobileNumber;
 
-    let response;
-    if (selectedPayment === 'online') {
+    const payload = {
+      ...cartData,
+      customerName: addressData.fullName || fullName,
+      address: addressData.address || primaryAddress?.address,
+      state: addressData.state || state,
+      district: addressData.district || district,
+      zipCode: addressData.zipCode || pincode,
+      customerPhoneNumber: addressData.mobileNumber || mobileNumber,
+      id: groceryItemId,
+      userId: userId,
+      martId: martId,
+      date: new Date(),   
+      grandTotal: String(totalPayable), 
+      totalItemsSelected: totalItemsSelected,
+      status: "Open",
+      paymentMode: selectedPayment,
+      utrTransactionNumber: "",
+      transactionNumber: "",
+      transactionStatus: "",
+      paidAmount: "",
+      AssignedTo: "",
+      DeliveryPartnerUserId: "",
+      latitude: 0,
+      longitude: 0,
+      isPickUp: false,
+      isDelivered: false,
+    };
+
+    let response = await fetch(
+      `https://handymanapiv2.azurewebsites.net/api/Mart/UpdateProductDetails/${groceryItemId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to update order.");
+    }
+
+    // If update succeeds, RESET referral points to 0 on the referral record
+    if (referralAmount > 0 && referralRec?.id) {
+      try {
+        const id = String(referralRec.id).trim();
+        const payloadPut = {
+          id,
+          date: referralRec.date ?? new Date().toISOString(),
+          referralNumbers: referralRec.referralNumbers ?? "",
+          referreId: referralRec.referreId ?? userId ?? "",
+          IsReferralUsed: true,
+          referralPoints: "0",
+        };
+
+        let resp = await fetch(
+          `https://handymanapiv2.azurewebsites.net/api/ReferralPoints/UpdateReferralPoints?id=${encodeURIComponent(id)}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json; charset=utf-8" },
+            body: JSON.stringify(payloadPut),
+          }
+        );
+
+        if (!resp.ok) {
+          resp = await fetch(
+            `https://handymanapiv2.azurewebsites.net/api/ReferralPoints/UpdateReferralPoints/${encodeURIComponent(id)}`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json; charset=utf-8" },
+              body: JSON.stringify(payloadPut),
+            }
+          );
+        }
+
+        if (!resp.ok) {
+          const t = await resp.text().catch(() => "");
+          console.error("Referral PUT failed:", resp.status, t);
+        } else {
+          setReferralPoints(0);
+        }
+      } catch (e) {
+        console.error("Referral PUT error:", e);
+      }
+    }
+    localStorage.removeItem(`cartSnapshot_${groceryItemId}`);
+    localStorage.removeItem("activeOrderId");
+    localStorage.removeItem("allCategories");
+    localStorage.removeItem(`cartMeta_${groceryItemId}`);
+
+   if (selectedPayment === 'online') {
      response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/UpdateProductDetails/${groceryItemId}`, {
       method: 'PUT',
       headers: {
@@ -404,15 +636,12 @@ const handleUpdatePaymentMethod = async () => {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to Update Technician.');
+      throw new Error('Failed to Update Payment.');
     }
-    // const data = await response.json();
 localStorage.removeItem(`cartSnapshot_${groceryItemId}`);
   localStorage.removeItem("activeOrderId");
   localStorage.removeItem("allCategories");
   localStorage.removeItem(`cartMeta_${groceryItemId}`);
-
-    // Store confirmation code in state
     window.alert(`We are Redirecting to the Payment Page! Your reference number is ${martId}.`);
     window.location.href = `/groceryOnlinePayment/${groceryItemId}`;
   } else if (selectedPayment === 'cash') {
@@ -426,17 +655,156 @@ localStorage.removeItem(`cartSnapshot_${groceryItemId}`);
 
     if (!response.ok) {
     }
-    // const data = await response.json();
-    localStorage.removeItem(`cartSnapshot_${groceryItemId}`);
+     localStorage.removeItem(`cartSnapshot_${groceryItemId}`);
   localStorage.removeItem("activeOrderId");
   localStorage.removeItem("allCategories");
   localStorage.removeItem(`cartMeta_${groceryItemId}`);
-    window.alert(`Thank You for choosing the Lakshmi Mart Services! Your reference order number is ${martId}. Delivery in 45 minutes`);
-   window.location.href = `/profilePage/${userType}/${userId}`;
-   }
+    const primary = addresses.find(a => a.type === "primary");
+  console.log("ZipCode:", primary?.zipCode);
+if (primary?.zipCode === "530048" || primary?.zipCode === "530045") {
+ window.alert(`Thank You for Choosing the Lakshmi Mart Services! Your Reference Order Number is ${martId}. Delivery in 45 Minutes.`);
+    } else {
+       window.alert(`Thank You for Choosing the Lakshmi Mart Services! Your Reference Order Number is ${martId}. Delivery in Between 45 to 120 Minutes.`);
+    }
+   window.location.href = `/profilePage/${userType}/${userId}`;   
+   }    
   } catch (error) {
     console.error('Error:', error);
-    window.alert('Failed to Update Technician. Please try again later.');
+  }
+};         
+
+const normalizeName = (name) => {
+  return (name ?? "")
+    .toLowerCase()      
+    .replace(/\s+/g, "") 
+    .replace(/[^a-z0-9]/g, "");
+};
+
+const buildProductMapFromCart = (cart) => {
+  const products = (cart?.categories ?? []).flatMap(c => c?.products ?? []);
+  const map = new Map();
+  for (const p of products) {
+    const name = normalizeName(p?.productName);
+    if (!name) continue;
+    const qty = Number(
+      p?.noOfQuantity ??
+      p?.noofQuantity ??
+      p?.qty ??
+      p?.quantity ??
+      0
+    ) || 0;
+    const stockLeft = Number(
+      p?.stockLeft ??
+      p?.StockLeft ??
+      p?.stockleft ??
+      0
+    ) || 0;
+    map.set(name, { qty, stockLeft });
+  }
+  return map;
+};
+
+const handleUpdateStockLeft = async () => {
+  try {
+    if (!Array.isArray(groceryData) || groceryData.length === 0) {
+      console.warn("No grocery data to update.");
+      return;
+    }
+    if (!cartData) {
+      console.warn("Cart data unavailable.");
+      return;
+    }
+    const productMap = buildProductMapFromCart(cartData);
+    const requests = groceryData.map(async (item) => {
+    const key = normalizeName(item?._matchedProductName || item?.name);
+      if (!key) return null;
+      const info = productMap.get(key);
+      if (!info) {
+        console.warn(`No cart match for grocery item ${item.id} (${key})`);
+        return null;
+      }
+      const prevStock = info.stockLeft; 
+      const newStock = prevStock;       
+      const payload = {
+        id: item.id,
+        date: item.date,
+        GroceryItemId: item.groceryItemId,
+        Name: item.name,
+        Category: item.category,
+        Images: Array.isArray(item.images) ? item.images : [],
+        MRP: item.mrp,
+        Discount: item.discount,
+        AfterDiscount: item.afterDiscount,
+        StockLeft: String(newStock),   
+        DeliveryIn: item.deliveryIn,
+        RequestedBy: "Admin",
+        Status: item.status,
+        Code: item.code,
+        Units: item.units,
+      };
+      const res = await fetch(
+        `https://handymanapiv2.azurewebsites.net/api/UploadGrocery/UpdateGroceryItems?id=${encodeURIComponent(item.id)}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (!res.ok) {
+        const msg = await res.text().catch(() => "");
+        throw new Error(`Failed for ${item.id}: ${msg}`);
+      }
+      console.log(`✔ Stock unchanged for ${item.name}: ${prevStock}`);
+      return true;
+    });
+    await Promise.allSettled(requests);
+    console.log("Stock updated (unchanged).");
+  } catch (error) {
+    console.error("Error updating stock:", error);
+    alert("Failed to update grocery stock.");
+  }
+};
+
+const sendLmartsms = async () => {
+  try {
+    const primaryAddress = addresses.find((addr) => addr.type === "primary");
+    const mobileNumber = primaryAddress?.mobileNumber || primaryAddress?.mobileNumber; 
+    const response = await fetch("https://handymanapiv2.azurewebsites.net/api/Auth/sendLmartsms", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: addressData.fullName || fullName,
+        ticketId: martId,
+        phoneNumber: addressData.mobileNumber || mobileNumber,
+        address: addressData.address || primaryAddress?.address,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json(); 
+    console.log("SMS API success:", data);
+  } catch (error) {
+    console.error("Error sending SMS:", error);
+  }
+};
+
+const handlePaymentAndSms = async () => {
+  try {
+    setLoading(true);
+    await Promise.all([
+      handleUpdateStockLeft(),
+      sendLmartsms(),
+      handleUpdatePaymentMethod()
+    ]);
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -484,15 +852,15 @@ localStorage.removeItem(`cartSnapshot_${groceryItemId}`);
 //   );
 // };
   
-  // const BothHandlePaymentandLocation = async (e) => {
-  //     e.preventDefault();
-  //     try {
-  //       // await handleLocationMethod();
-  //       await handleUpdatePaymentMethod();
-  //     } catch (error) {
-  //       console.log("error:", error);
-  //     }
-  //   };
+//   const BothHandlePaymentandLocation = async (e) => {
+//       e.preventDefault();
+//       try {
+//         // await handleLocationMethod();
+//         await handleUpdatePaymentMethod();
+//       } catch (error) {
+//         console.log("error:", error);
+//       }
+//     };
 
 const handleCheckboxChange = (value) => {
   const newValue = selectedPayment === value ? null : value;
@@ -509,30 +877,6 @@ const handleCheckboxChange = (value) => {
   return (
     <div>
     <div className="d-flex mt-80">
-        {/* {!isMobile && (
-        <div className="ml-0 p-0 sde_mnu">
-          <Sidebar />
-        </div>
-      )}  */}
-
-      {/* Floating menu for mobile */}
-      {/* {isMobile && (
-        <div className="groceryfloating-menu">
-          <Button
-            variant="primary"
-            className="rounded-circle shadow"
-            onClick={() => setShowMenu(!showMenu)}
-          >
-            <MoreVertIcon />
-          </Button>
-
-          {showMenu && (
-              <div className="sidebar-container">
-                <Sidebar />
-              </div>
-          )}
-        </div>
-      )} */}
 <div>
           <h1
             style={{
@@ -563,19 +907,21 @@ const handleCheckboxChange = (value) => {
     className="me-2 text-success" 
     role="button" 
     style={{ cursor: "pointer" }}
-    onClick={() => window.location.href = `/groceryCart/${userType}/${userId}`}
+    onClick={goBackToCart}
   >
     <ArrowBackIcon />
   </span>
   <h2 className="title text-success mb-0">PAYMENT CONFIRMATION</h2>
 </div>
-
+  {/* HANDYMAN */}
 <div className="d-flex justify-content-between align-items-center">
-                                <label className='mt-2 fs-6'>Address <span className="req_star">*</span></label>
+                                <label className='mt-2 fs-6 fw-bold'>Address <span className="req_star">*</span></label>
                       {/* Modal */}
                             <Modal show={showModal} onHide={() => setShowModal(false)}>
                         <Modal.Header closeButton style={{ backgroundColor: isEditing ? "#008000" : "#008000",color: "white"}}>
-                            <Modal.Title className='w-100'>{isEditing ? 'Edit Address' : 'Add Address'}</Modal.Title>
+                          <Modal.Title className='w-100'>
+                            {isGuestName(fullName) ? 'Add Address' : 'Edit Address'}
+                          </Modal.Title>
                           </Modal.Header>
                         <Modal.Body>
                           <Form>
@@ -598,6 +944,7 @@ const handleCheckboxChange = (value) => {
                                 maxLength="10"
                                 value={mobileNumber}
                                 onChange={(e) => setMobileNumber(e.target.value)}
+                                readOnly
                               />
                               </Form.Group>
                             <Form.Group className="mb-3">
@@ -688,11 +1035,11 @@ const handleCheckboxChange = (value) => {
                                             borderColor: isAddressInvalid ? "#008000" : "#008000",
                                             color: "white"
                                         }} onClick={handleAddressEdit}>
-                              {isEditing ? 'Edit Address' : 'Add Address'}
+                              {isGuestName(fullName) ? 'Add Address' : 'Edit Address'}
                             </Button>
                           </Form>
                         </Modal.Body>
-                      </Modal>
+                      </Modal>  
                       </div>
                 
                           <div className="p-3 border rounded bg-light">
@@ -703,9 +1050,7 @@ const handleCheckboxChange = (value) => {
                                     className="list-group-item d-flex justify-content-between align-items-center bg-white text-dark"
                                   >
                                     <div>
-                                      {/* <span className="m1-2">{address.id}</span>
-                                      <br /> */}
-                                      <span className="ml-2">{address.fullName}</span>
+                                     <span className="ml-2">{address.fullName}</span>
                                       <br />
                                       <span className="ml-2">{address.mobileNumber}</span>
                                       <br />
@@ -717,10 +1062,8 @@ const handleCheckboxChange = (value) => {
                                       <br />
                                       <span className="ml-2">{address.zipCode}</span> 
                                       <br />
-                                      {/* <hr /> */}
                                     </div>
                                     <div className="text-end">
-                                    {/* {addresses.map((address) => ( */}
                                       <Button
                                         key={address.id}
                                         style={{
@@ -729,8 +1072,8 @@ const handleCheckboxChange = (value) => {
                                             color: "white"
                                         }}
                                         className={`text-white mx-1 ${
-                            shouldBlink ? "blinking-button" : ""
-                          }`}
+                                          shouldBlink ? "blinking-button" : ""
+                                        }`}
                                         onClick={() => {
                                           setGuestCustomerId(address.id);
                                           setFullName(address.fullName);
@@ -745,57 +1088,133 @@ const handleCheckboxChange = (value) => {
                                       >
                                         {address.address === "" ? "Add Address" : "Edit Address"}
                                       </Button>
-                                    {/* ))} */}
                                 </div> 
                                   </div>
                                 ))}   
                                 </div>
+
                             {fullName.trim().toLowerCase() === "guest" && (
                               <p className="text-danger">
-                                Note: Please enter your address to Book A Technician
+                                Note: Please enter your address to Order Grocery
                               </p>
-                            )}
+                            )}      
+                    <div className='m-2'>
                       {serviceUnavailable && (
                         <div className="alert alert-danger">
-                          <strong>Note:</strong> Currently, the options to raise a ticket or book technician services are unavailable in your district.
+                          <strong>Note:</strong> Currently, the options to Raise a Ticket, Book Technician or Lakshmi Mart services are unavailable in your district.
                             You can still purchase products through the "Buy Product" section.
-                            For further assistance, please contact our customer support at 62811 98953.
+                            For further assistance, please contact our customer support at 6281198953.
                         </div>
                       )}   
-    
+                    </div>
+
     <div className="grocery-confirmation">
-   <p className='text-center fs-6'>{customerName}<strong className='name'></strong> Thank you for Choosing the Lakshmi Mart</p> 
-      <table className="grocery-table m-3">
+    <p className='text-center' style={{ fontSize: "13px" }}><span className='name'>{fullName}</span> Thank you for Choosing the Lakshmi Mart</p>
+      
+       <div style={{ textAlign: "center" }}>    
+       {firstOrderDiscount > 0 && (
+        <span style={{ whiteSpace: "nowrap", color: "green"  }}>
+          🎉 You have got 
+          <span style={{ fontWeight: "bold", color: "red" }}> Rs </span>
+          <span style={{ fontWeight: "bold", color: "red" }}>
+            {firstOrderDiscount}
+          </span>
+          <span style={{ fontWeight: "normal", color: "green" }}> cashback!</span>
+        </span>
+      )}
+      </div>
+  <div
+    className="d-flex align-items-center justify-content-between p-2"
+    style={{
+      background: "linear-gradient(90deg, #fff3cd, #ffe69c)",
+      border: "2px dashed #ff9800",
+      borderRadius: "12px",
+    }}
+  >
+    <div>
+      <strong style={{ color: "#d84315", fontSize: "13px" }}>
+        🎁 FREE Idly Ravva 500 g    
+      </strong>
+      <div style={{ fontSize: "13px", fontWeight: "bold", textAlign: "center"}}>
+        On orders above ₹499
+      </div>
+    </div>
+
+    <img
+      src={IdlyRavvaImg}
+      alt="Free Atta"
+      style={{ width: "50px", height: "60px" }}
+    />
+  </div>
+         
+  <table className="grocery-table m-2">
           <tbody>
             <tr>
               <td style={{ width: "40%", fontSize: "14px" }}>Order Id</td>
               <td style={{ width: "40%" }}>{martId}</td>
-            </tr>
+            </tr>   
             <tr>
               <td style={{ width: "40%", fontSize: "14px" }}>Number of Items selected</td>
               <td style={{ width: "40%" }}>{totalItemsSelected}</td>
             </tr>
+          {showConfetti && <Confetti />}
             <tr>
               <td style={{ width: "40%", fontSize: "14px" }}>Grand Total</td>
               <td style={{ width: "40%" }}>Rs {grandTotal} /-</td>
             </tr>
+           {showSugarOffer && (
+            <tr>     
+              <td colSpan="2" style={{ textAlign: "center" }}>
+                <img
+                  src={IdlyRavvaImg}
+                  alt="Free Atta"
+                  style={{ width: "60px", height: "60px" }}
+                /> 
+                <div style={{ fontSize: "13px", fontWeight: 600, color: "green" }}>
+                  🎁 FREE Idly Ravva 500 g
+                </div>
+              </td>
+            </tr>
+          )}
+
+            {firstOrderDiscount > 0 && (
+              <tr>
+                <td style={{ width: "40%", fontSize: "14px" }}>
+                  Cash Back
+                </td>
+
+                <td style={{ width: "40%", fontSize: "14px" }}>
+                  {`₹${firstOrderDiscount}`}
+                </td>
+              </tr>
+            )}
+            {/* {Number(referralAmount) > 0 && (
+              <tr>
+                <td style={{ width: "40%", fontSize: "14px" }}>Referral Earn Amount</td>
+                <td style={{ width: "40%", color: "red" }}>- Rs {referralAmount} /-</td>
+              </tr>
+            )} */}
+             <tr>
+                <td style={{ width: "40%", fontSize: "14px", fontWeight: 600 }}>Total Payable</td>
+                <td style={{ width: "40%", fontWeight: 700 }}>Rs {totalPayable} /-</td>
+              </tr>
           </tbody>
         </table>
 
       <div className='payment m-2'>
-        <label className='text-white w-100 p-2' style={{background: "#008000",borderRadius: "15px", fontSize: "15px"}}>Select Payment Mode</label>
+        <label className='text-white w-100 p-2' style={{background: "#008000",borderRadius: "15px", fontSize: "14px"}}>Pay After Delivery – No Advance Needed</label>
         <div className='d-flex flex-column m-1'>
         {isMobile ? (
         <div className='d-flex flex-column'>
-        <label className='fs-6'>
+        {/* <label style={{fontSize: "13px"}}>
             <input 
             type="radio" 
             className="form-check-input border-dark m-1"
             checked={selectedPayment === 'online'}
             onChange={() => handleCheckboxChange('online')}/>
             Pay Through Online
-          </label>
-          <label className='fs-6'>
+          </label> */}
+          <label style={{fontSize: "18px"}}>
             <input 
             type="radio" 
             className="form-check-input border-dark m-1"
@@ -807,7 +1226,7 @@ const handleCheckboxChange = (value) => {
           </div>
         ) : (
           <div className="desktop-view d-flex flex-column ">
-      <label className="me-4">
+      {/* <label className="me-4" style={{fontSize: "12px"}}>
         <input 
         type="radio" 
         className="form-check-input border-dark me-2"
@@ -815,8 +1234,8 @@ const handleCheckboxChange = (value) => {
         onChange={() => handleCheckboxChange('online')}
         />
         Pay Through Online
-      </label>
-      <label>
+      </label> */}
+      <label style={{fontSize: "20px"}}>
         <input 
           type="radio" 
           className="form-check-input border-dark me-2"
@@ -832,17 +1251,19 @@ const handleCheckboxChange = (value) => {
 </div>
 
        <div className="note m-1">
-           <input 
+          <div className="d-flex align-items-center">
+  <input 
     type="checkbox" 
     className="form-check-input border-dark me-2"
     checked={isChecked}
     required
     onChange={(e) => setIsChecked(e.target.checked)}
+    style={{ width: "13px", height: "13px" }} 
   />
   <button
     onClick={(e) => {
       e.preventDefault();
-      setShowModal(true);
+      setShowModals(true);
     }}
     className="p-0"
     style={{ 
@@ -851,19 +1272,20 @@ const handleCheckboxChange = (value) => {
       textDecoration: "underline", 
       cursor: "pointer",
       whiteSpace: "nowrap",
-      fontSize: "13px",
+      fontSize: "13px",      
       color: "#0000FF",
     }}
   >
-    Terms & conditions & Cancellation Policy
+    Terms & Conditions & Cancellation Policy
   </button>
-
+</div>
+  {/* HANDYMAN */}
       {/* Modal for Terms and Conditions */}
       {showModals && (
         <div className="modal-overlay">
           <div className="modal-content">
             <button
-      onClick={() => setShowModal(false)}
+      onClick={() => setShowModals(false)}
       style={{
         color: "red",
         position: "absolute",
@@ -878,257 +1300,64 @@ const handleCheckboxChange = (value) => {
     >
       ✕
     </button>
-            <h2>Terms and Conditions</h2>
+            <h3>Terms & Conditions</h3>
             <div className="text-justify">
-                    <div className="mt-20">
-                        <h4>I. YOUR ACCEPTANCE OF THIS AGREEMENT</h4>
+                    <div className="mt-10">
+                        <h5>I. General</h5>
                         <p>
-                            This is an agreement between you ("you" or "your") and Lakshmi Sai Service Providers, a Proprietorship firm incorporated under the Registration of Establishment – Sec 2(b) and Sec 4(2) The Andhra Pradesh (Insurance of integrated Registration and Furnishing of Combined returns under various labour  Laws by certain Establishments) Act, 2015  with its registered office at Dr.No.44-40-12, Nandhagirinagar, Akkayyapalem, Visakhapatnam - 530016 ("Lakshmi Sai Service Provider" "we," or "our") that governs your use of the search services offered by Lakshmi Sai Service Providers through its website http://handymanserviceproviders.com ("Website"), using which Lakshmi Sai Service Providers may provide the search services ("Platform"). When you access or use Platform you agree to be bound by these Terms and Conditions ("Terms").
+                          These Terms & Conditions apply to all grocery and daily-need purchases made through Lakshmi Mart (via APP or website).
+                          By placing an order, you agree to abide by these T&C.
+                          Lakshmi Sai Service Provider reserves the right to update policies without prior notice.                        
+                        </p>
+                    </div> 
+                    <div className="mt-10">
+                        <h5>II. Orders</h5>
+                        <p>Orders are accepted subject to stock availability.In case of unavailability, Lakshmi Mart may cancel the product and issue a refund/replacement.
+                            Customers must provide accurate delivery address and contact information. Incorrect details may lead to order cancellation.                       
                         </p>
                     </div>
-                    <div className="mt-20">
-                        <h4>II. CHANGES</h4>
-                        <p>
-                            We may periodically change the Terms and the Site without notice, and you are responsible for checking these Terms periodically for revisions. All amended Terms become effective upon our posting to the Site, and any use of the site after such revisions have been posted signifies your consent to the changes.
+                    <div className="mt-10">    
+                        <h5>III. Pricing & Payment</h5>
+                        <p>All prices are inclusive of GST, unless otherwise specified.Prices are subject to change depending on market conditions and supplier updates.
+                          Payment options: UPI, credit/debit cards, net banking, and Cash on Delivery (COD, where available).                      
                         </p>
                     </div>
-                    <div className="mt-20">
-                        <h4>III. HOW YOU MAY USE OUR MATERIALS</h4>
-                        <p>
-                            We use a diverse range of information, text, photographs, designs, graphics, images, sound and video recordings, animation, content, advertisement and other materials and effects (collectively "Materials") for the search services on the Platform. We provide the Materials through the Platform FOR YOUR PERSONAL AND NON-COMMERCIAL USE ONLY.
-                        </p>
-                        <p>
-                            While every attempt has been made to ascertain the authenticity of the Platform content, Lakshmi Sai Service Providers is not liable for any kind of damages, losses or action arising directly or indirectly, due to access and/or use of the content in the Platform including but not limited to decisions based on the content in the Platform which results in any loss of revenue, profits, property etc.
-                        </p>
-                        <p>
-                            Accordingly, you may view, use, copy, and distribute the Materials found on the Platform for internal, non-commercial, informational purposes only. You are prohibited from data mining, scraping, crawling, or using any process or processes that send automated queries to Lakshmi Sai Service Provider. You may not use the Platform or any of them to compile a collection of listings, including a competing listing product or service. You may not use the Platforms or any Materials for any unsolicited commercial e-mail. Except as authorized in this paragraph, you are not being granted a license under any copyright, trademark, patent or other intellectual property right in the Materials or the products, services, processes or technology described therein. All such rights are retained by Lakshmi Sai Service Provider, its subsidiaries, parent companies, and/or any third party owner of such rights.
+                    <div className="mt-10">
+                        <h5>IV. Delivery</h5>
+                        <p>Groceries are delivered within the estimated time shown at checkout.
+                          Free delivery is available on eligible orders (e.g., above a specified order value).
+                          Delivery times may vary due to traffic, weather, or supply chain issues.                        
                         </p>
                     </div>
-                    <div className="mt-20">
-                        <h4>IV. HOW YOU MAY USE OUR MARKS</h4>
+                    <div className="mt-10">
+                        <h5>V. Returns & Refunds</h5>
                         <p>
-                            The Lakshmi Sai Service Provider proprietorship firm names and logos and all related products and service names, design marks and slogans are trademarks and service marks owned by and used under license from Lakshmi Sai Service Provider or its wholly-owned subsidiaries. All other trademarks and service marks herein are the property of their respective owners. All copies that you make of the Materials on the Platform must bear any copyright, trademark or other proprietary notice located on the respective Platform that pertains to the material being copied. You are not authorized to use any HomeTriangl Lakshmi Sai Service Provider e name or mark in any advertising, publicity or in any other commercial manner without the prior written consent of Lakshmi Sai Service Provider. 
+                          Perishable items (milk, vegetables, fruits, bakery, etc.) are non-returnable once delivered.
+                          Non-perishable grocery items (packed pulses, rice, oil, flour, etc.) can be returned only if:
+                        <br />
+                        <h5>Wrong item delivered</h5>
+                        Damaged or defective packaging at the time of delivery
+                        Returns must be initiated within 24 hours of delivery by contacting customer support.
+                        Refunds (if applicable) will be processed within 7–10 working days to the original payment method.
                         </p>
                     </div>
-                    <div className="mt-20">
-                        <h4>V. HOW WE MAY USE INFORMATION YOU PROVIDE TO US</h4>
-                        <p>
-                            Do not send us any confidential or proprietary information. Except for any personally identifiable information that we agree to keep confidential as provided in our Privacy Policy, any material, including, but not limited to any feedback, data, answers, questions, comments, suggestions, ideas or the like, which you send us will be treated as being non-confidential and nonproprietary. We assume no obligation to protect confidential or proprietary information (other than personally identifiable information) from disclosure and will be free to reproduce, use, and distribute the information to others without restriction. We will also be free to use any ideas, concepts, know-how or techniques contained in information that you send us for any purpose whatsoever including but not limited to developing, manufacturing and marketing products and services incorporating such information.
+                     <h3>Cancellation Policy</h3>
+                    <div className="mt-10">
+                        <h5>I. Order Cancellations</h5>
+                        <p>Orders can be cancelled before packing/dispatched at no extra cost.
+                          Once the order is packed or out for delivery, cancellation is not allowed.
+                          In case of COD orders, repeated cancellations may lead to blocking of the COD option for that customer.
                         </p>
-                    </div>
-                    <div className="mt-20">
-                        <h4>VI. REVIEWS, RATINGS & COMMENTS BY USERS</h4>
-                        <p>
-                            Since, Lakshmi Sai Service Provider provides information directory services website, your ("Users") use any of the aforementioned medium to post Reviews, Ratings and Comments about the Lakshmi Sai Service Provider services and also about the Advertiser's listed at Lakshmi Sai Service Provider is subject to additional terms and conditions as mentioned herein.
-                        </p>
-                        <p>
-                            You are solely responsible for the content of any transmissions you make to the Site and any material you add to the Site, including but not limited to transmissions like your Reviews, Ratings & Comments posted by you(the "Communications"). Lakshmi Sai Service Provider does not endorse or accept any of your Communication as representative of their (Lakshmi Sai Service Provider) views. By transmitting any public Communication to the Site, you grant Lakshmi Sai Service Provider an irrevocable, non-exclusive, worldwide, perpetual, unrestricted, royalty-free license (with the right to sublicense) to use, reproduce, distribute, publicly display, publicly perform, adapt, modify, edit, createImageMedia derivative works from, incorporate into one or more compilations and reproduce and distribute such compilations, and otherwise exploit such Communications, in the Platform.
-                        </p>
-                        <p>
-                            You confirm and warrant that you have the right to grant these rights to Lakshmi Sai Service Provider. You hereby waive and grant to Lakshmi Sai Service Provider all rights including intellectual property rights and also "moral rights" in your Communications, posted at Lakshmi Sai Service Provider is free to use all your Communications as per its requirements from time to time. You represent and warrant that you own or otherwise control all of the rights to the content that you post as Review, Rating or Comments; that the content is accurate; that use of the content you supply does not violate these Terms and will not cause injury to any person or entity. For removal of doubts it is clarified that, the reference to Communications would also mean to include the reviews, ratings and comments posted by your Friends tagged by you. Also Lakshmi Sai Service Provider reserves the right to mask or unmask your identity in respect of your Reviews, Ratings & Comments posted by you.
-                        </p>
-                        <p>
-                            Lakshmi Sai Service Provider has the right, but not the obligation to monitor and edit or remove any content posted by you as Review, Rating or Comments. Lakshmi Sai Service Provider cannot review all Communications made on its website. However, Lakshmi Sai Service Provider reserves the right, but has no obligation, to monitor and edit, modify or delete any Communications (or portions thereof) which Lakshmi Sai Service Provider in its sole discretion deems inappropriate, offensive or contrary to any Lakshmi Sai Service Provider policy, or that violate this terms:
-                        </p>
-                        <ul>
-                        <li>
-                            Lakshmi Sai Service Provider reserves the right not to upload or distribute to, or otherwise publish through the Site any Communication which
-                            is obscene, indecent, pornographic, profane, sexually explicit, threatening, or abusive.
-                        </li>
-                        <li>
-                            constitutes or contains false or misleading indications of origin or statements of fact.
-                        </li>
-                        <li>
-                            slanders, libels, defames, disparages, or otherwise violates the legal rights of any third party.
-                        </li>
-                        <li>
-                            causes injury of any kind to any person or entity.
-                        </li>
-                        <li>
-                            infringes or violates the intellectual property rights (including copyright, patent and trademark rights), contract rights, trade secrets, privacy or publicity rights or any other rights of any third party.
-                        </li>
-                        <li>
-                            violates any applicable laws, rules, or regulations.
-                        </li>
-                        <li>
-                            contains software viruses or any other malicious code designed to interrupt, destroy or limit the functionality of any computer software or hardware or telecommunications equipment.
-                        </li>
-                        <li>
-                            impersonates another person or entity, or that collects or uses any information about Site visitors.
-                        </li>
-                        </ul>
-                        <p>
-                            It is also clarified that, if there are any issues or claims due to your posts by way of Reviews, Ratings and Comments, then Lakshmi Sai Service Provider reserves right to take appropriate legal action against you. Further, you shall indemnify and protect Lakshmi Sai Service Provider against such claims or damages or any issues, due to your posting of such Reviews, Ratings and Comments Lakshmi Sai Service Provider takes no responsibility and assumes no liability for any content posted by you or any third party on Lakshmi Sai Service Provider site or on any mediums of Lakshmi Sai Service Provider.
-                        </p>
-                        <p>
-                            You further acknowledge that conduct prohibited in connection with your use of the Lakshmi Sai Service Provider (http://handymanserviceproviders.com) website includes, but is not limited to, breaching or attempting to breach the security of the Site.
-                        </p>
-                        <div className="mt-20">
-                        <h4>VII. PRIVACY POLICY</h4>
-                        <p>
-                            Lakshmi Sai Service Provider is committed to protecting the privacy and confidentiality of any personal information that it may request and receive from its clients, business partners and other users of the Website. To read our privacy policy statement regarding such personal information please refer to PRIVACY POLICY.
+                        <div className="mt-10">
+                        <h4>II. Refund Timelines</h4>
+                        <p>For prepaid orders cancelled before dispatch, a full refund will be processed.
+                            Refunds take 7–10 working days to reflect in the original payment method.                        
                         </p>
                         </div>
-                        <div className="mt-20">
-                        <h4>VIII. CONTENT DISCLAIMER</h4>
-                        <p>
-                            Lakshmi Sai Service Provider communicates information provided and created by advertisers, homeowners, home improvement professionals and other third parties. While every attempt has been made to ascertain the authenticity of the content on the Platform Lakshmi Sai Service Provider has no control over content, the accuracy of such content, integrity or quality of such content and the information on our pages, and material on the Platform may include technical inaccuracies or typographical errors, and we make no guarantees, nor can we be responsible for any such information, including its authenticity, currency, content, quality, copyright compliance or legality, or any other intellectual property rights compliance, or any resulting loss or damage. Further, we are not liable for any kind of damages, losses or action arising directly or indirectly due to any content, including any errors or omissions in any content, access and/or use of the content on the Platform or any of them including but not limited to content based decisions resulting in loss of revenue, profits, property etc.
-                        </p>
-                        <p>
-                            All of the data on products and promotions including but not limited to, the prices and the availability of any product or service is subject to change without notice by the party providing the product or promotion. You should use discretion while using the Platform.
-                        </p>
-                        <p>
-                            Lakshmi Sai Service Provider reserves the right, in its sole discretion and without any obligation, to make improvements to, or correct any error or omissions in, any portion of the Platform. Where appropriate, we will endeavor to update information listed on the Website on a timely basis, but shall not be liable for any inaccuracies.
-                        </p>
-                        <p>
-                            All rights, title and interest including trademarks and copyrights in respect of the domain name and Platform content hosted on the Platform are reserved with Lakshmi Sai Service Provider. Users are permitted to read, print or download text, data and/or graphics from the Website or any other Platform for their personal use only. Unauthorized access, reproduction, redistribution, transmission and/or dealing with any information contained in the Platform in any other manner, either in whole or in part, are strictly prohibited, failing which strict legal action will be initiated against such users.
-                        </p>
-                        <p>
-                            Links to external Internet sites may be provided within the content on Website as a convenience to users. The listing of an external site does not imply endorsement of the site by Lakshmi Sai Service Provider or its affiliates. Lakshmi Sai Service Provider does not make any representations regarding the availability and performance of its Platform or any of the external websites to which we provide links. When you click advertiser banners, sponsor links, or other external links from the Website, your browser automatically may direct you to a new browser window that is not hosted or controlled by Lakshmi Sai Service Provider.
-                        </p>
-                        <p>
-                            Lakshmi Sai Service Provider and its affiliates are not responsible for the content, functionality, authenticity or technological safety of these external sites. We reserve the right to disable links to or from third-party sites to our website, although we are under no obligation to do so. This right to disable links includes links to or from advertisers, sponsors, and home service providers that may use our Marks as part of a co-branding relationship.
-                        </p>
-                        <p>
-                            Some external links may produce information that some people find objectionable, inappropriate, or offensive. We are not responsible for the accuracy, relevancy, copyright compliance, legality, or decency of material contained in any externally linked websites. We do not fully screen or investigate business listing websites before or after including them in directory listings that become part of the Materials on our Platform, and we make no representation and assume no responsibility concerning the content that third parties submit to become listed in any of these directories.
-                        </p>
-                        <p>
-                            All those sections in the Platform that invite reader participation will contain views, opinion, suggestion, comments and other information provided by the general public, and Lakshmi Sai Service Provider will at no point of time be responsible for the accuracy or correctness of such information. Lakshmi Sai Service Provider reserves the absolute right to accept/reject information from readers and/or advertisements from advertisers and impose/relax Platform access rules and regulations for any user(s).
-                        </p>
-                        <p>
-                            Lakshmi Sai Service Provider also reserves the right to impose/change the access regulations of the Platform , whether in terms of access fee, timings, equipment, access restrictions or otherwise, which shall be posted from time to time under these terms and conditions. It is the responsibility of users to refer to these terms and conditions each time they use the Platform.
-                        </p>
-                        <p>
-                            While every attempt has been made to ascertain the authenticity of the content in the Platform, Lakshmi Sai Service Provider is not liable for any kind of damages, losses or action arising directly or indirectly, due to access and/or use of the content in the Platform including but not limited to any decisions based on content in the Platform resulting in loss of revenue, profits, property etc.
-                        </p>
-                        </div>
-                        <div className="mt-20">
-                        <h4>IX. WARRANTY DISCLAIMER</h4>
-                        <p>
-                            Please remember that any provider of goods or services is entitled to register with Lakshmi Sai Service Provider. Lakshmi Sai Service Provider does not examine whether the advertisers are good, reputable or quality sellers of goods/service providers. You must satisfy yourself about all relevant aspects prior to availing of the terms of service. Lakshmi Sai Service Provider has also not negotiated or discussed any terms of engagement with any of the advertisers. The same should be done by you. Purchasing of goods or availing of services from advertisers shall be at your own risk.
-                        </p>
-                        <p>
-                            We do not investigate, represent or endorse the accuracy, legality, legitimacy, validity or reliability of any products, services, other promotions or materials, including advice, ratings, and recommendations contained on, distributed through, or linked, downloaded or accessed from the Platform.
-                        </p>
-                        <p>
-                            References that we make to any names, marks, products or services of third parties or hypertext links to third party sites or information do not constitute or imply our endorsement, sponsorship or recommendation of the third party, of the quality of any product or service, advice, information or other materials displayed, purchased, or obtained by you as a result of an advertisement or any other information or offer in or in connection with the Platform.
-                        </p>
-                        <p>
-                            Any use of the Platform, reliance upon any Materials, and any use of the Internet generally shall be at your sole risk. Lakshmi Sai Service Provider disclaims any and all responsibility or liability for the accuracy, content, completeness, legality, reliability, or operability or availability of information or material displayed in the search results in the Platform.
-                        </p>
-                        <p>
-                            THE MATERIAL AND THE PLATFORMS USED TO PROVIDE THE MATERIAL (INCLUDING THE WEBSITE ) ARE PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT. HOMETRIANGLE DISCLAIMS, TO THE FULLEST EXTENT PERMITTED UNDER LAW, ANY WARRANTIES REGARDING THE SECURITY, RELIABILITY, TIMELINESS, ACCURACY AND PERFORMANCE OF THE PLATFORMS AND MATERIALS. LAKSHMI SAI SERVICE PROVIDER DOES NOT WARRANT THAT ANY DEFECTS OR ERRORS WILL BE CORRECTED; OR THAT THE CONTENT IS FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS.
-                        </p>
-                        <p>
-                            LAKSHMI SAI SERVICE PROVIDER DISCLAIMS ANY AND ALL WARRANTIES TO THE FULLEST EXTENT OF THE LAW, INCLUDING ANY WARRANTIES FOR ANY INFORMATION, GOODS, OR SERVICES, OBTAINED THROUGH, ADVERTISED OR RECEIVED THROUGH ANY LINKS PROVIDED BY OR THROUGH THE PLATFORM SOME COUNTRIES OR OTHER JURISDICTIONS DO NOT ALLOW THE EXCLUSION OF IMPLIED WARRANTIES, SO THE ABOVE EXCLUSIONS MAY NOT APPLY TO YOU. YOU MAY ALSO HAVE OTHER RIGHTS THAT VARY FROM COUNTRY TO COUNTRY AND JURISDICTION TO JURISDICTION.
-                        </p>
-                        </div>
-                        <div className="mt-20">
-                        <h4>X. USING HANDYMANSERVICEPROVIDERS.COM LOCAL SERVICE NEED FULFILLMENT</h4>
-                        <p>
-                            Users of this service are responsible for all aspects of the transactions in which they choose to participate. Users of this service should be aware that:
-                        </p>
-                        <p>
-                            Service Providers and Users are completely responsible for working out the exchange and performance of services. Lakshmi Sai Service Provider is not responsible for any non-performance or breach of any contract entered into between the Users and Service Providers. Lakshmi Sai Service Provider cannot and does not guarantee that the concerned Service Provider will perform any transaction concluded on this Platform.
-                        </p>
-                        <p>
-                            Both User and Service Provider do hereby agree that Lakshmi Sai Service Provider shall not be required to mediate or resolve any dispute or disagreement that might arise between the parties out of these transactions.
-                        </p>
-                        <p> 
-                            Service Providers and Users are responsible for researching and complying with any applicable laws, regulations or restrictions on items, services, or manner of sale or exchange that may pertain to transactions in which they participate.
-                        </p>
-                        <p>
-                            Service Providers and Users are responsible for all applicable taxes and for all costs incurred by participating in the local service need fulfillment platform.
-                        </p>
-                        <p>
-                            Lakshmi Sai Service Provider will not be liable for damages of any kind incurred to any parties as a result of the information contained on this Platform. Users shall not use or manipulate this service for any fraudulent activity or purpose. Items or services offered for sale must comply with applicable laws. Lakshmi Sai Service Provider disclaims any and / or all responsibility and / or liability for any harm resulting from your use of third party services, and you hereby irrevocably waive any claim against Lakshmi Sai Service Provider with respect to the Content or operation of any third party services.
-                        </p>
-                        <p>
-                            Using our Services does not give you ownership of any intellectual property rights in our Services or the Content you access. These terms do not grant you the right to use any branding or logos used in our Services.
-                        </p>
-                        <p>
-                            You agree to comply with the Terms of Use and acknowledge that Lakshmi Sai Service Provider reserves the right to terminate your account or take such other action ( including legal remedies) as deemed fit if you commit breach of any Terms of Use.
-                        </p>
-                        <p>
-                            User agrees that he / she / they, indemnify Lakshmi Sai Service Provider, its employees, officers, agents and directors from claims, demands and damages (actual and consequential) of every kind and nature, known and unknown, suspected and unsuspected, disclosed and undisclosed, arising out of or in any way connected with transactions or disputes.
-                        </p>
-                        <p>
-                            We do not control the information provided by other Users that is made available through our system. Users may find other User's information to be offensive, harmful, inaccurate, or deceptive. Please use caution and common sense for your own safety. Please note that there are also risks of dealing with underage persons or people acting under false pretence. Additionally, there may also be risks dealing with international trade and foreign nationals.
-                        </p>
-                        <p>
-                            It is confirmed and acknowledged by the User that, all/any information provided by the User, including name, age, contact details and other details to this Platform are accurate and can be used and forwarded by this Platform to Service Provider(s). Any such act, committed by Lakshmi Sai Service Provider shall not constitute a violation of privacy or other rights of the User.
-                        </p>
-                        <p>
-                            This Platform is not liable for any transactions between the User and Service Provider. Lakshmi Sai Service Provider holds no responsibility for unsatisfactory or delayed services, nor for any damages incurred during service. However, in cases of escalated services, coverage up to Rs.10,000 is provided, subject to a proper inspection of the scenario.
-                        </p>
-                        <p>
-                            Lakshmi Sai Service Provider does not make any kind of warranties or representation on delivery, service, quality, suitability and availability of services on this Platform.
-                        </p>
-                        <p>
-                            Lakshmi Sai Service Provider shall not be responsible for any loss or damage whatsoever that may be suffered or any personal injury that may be suffered to a User, directly or indirectly by use or non-use of services mentioned on this Platform.
-                        </p>
-                        <p>
-                            Prices mentioned (if any) on this Platform are subject to change. Users are advised to check with Service Provider for the final price and additional charges applicable, if any. Users does hereby agree to absolve Lakshmi Sai Service Provider from all/any dispute in relation to price of services.
-                        </p>
-                        <p>
-                            You hereby approve and / or authorise Lakshmi Sai Service Provider to take such measures as are necessary for security purposes and / or improving the quality of services and / or to enhance and provide better Service Provider services to the satisfaction of the User. The User hereby disclaims his right to prevent and/ or proceed against Lakshmi Sai Service Provider in relation to the same.
-                        </p>
-                        </div>
-                        <div className="mt-20">
-                        <h4>XII. ADDITIONAL DISCLAIMER</h4>
-                        <p>
-                            Users using any of Lakshmi Sai Service Provider service across the following mediums ie. through internet ie<a href="http://handymanserviceproviders.com"> http://handymanserviceproviders.com</a> Website is bound by this additional disclaimer wherein they are cautioned to make proper enquiry before they (Users) rely, act upon or enter into any transaction (any kind or any sort of transaction including but not limited to monetary transaction ) with the Advertiser listed with Lakshmi Sai Service Provider.
-                        </p>
-                        <p>
-                            All the Users are cautioned that all and any information of whatsoever nature provided or received from the Advertiser/s is taken in good faith, without least suspecting the bonafides of the Advertiser/s and Lakshmi Sai Service Provider does not confirm, does not acknowledge, or subscribe to the claims and representation made by the Advertiser/s listed with Lakshmi Sai Service Provider. Further, Lakshmi Sai Service Provider is not at all responsible for any act of Advertiser/s listed at Lakshmi Sai Service Provider.
-                        </p>
-                        </div>
-                        <div className="mt-20">
-                        <h4>XIII. LIMITATION OF LIABILITY</h4>
-                        <p>
-                            IN NO EVENT SHALL LAKSHMI SAI SERVICE PROVIDER BE LIABLE TO ANY USER ON ACCOUNT OF SUCH USER'S USE, MISUSE OR RELIANCE ON THE PLATFORMS FOR ANY DAMAGES WHATSOEVER, INCLUDING DIRECT, SPECIAL, PUNITIVE, INDIRECT, CONSEQUENTIAL OR INCIDENTAL DAMAGES OR DAMAGES FOR LOSS OF PROFITS, REVENUE, USE, OR DATA WHETHER BROUGHT IN WARRANTY, CONTRACT, INTELLECTUAL PROPERTY INFRINGEMENT, TORT (INCLUDING NEGLIGENCE) OR OTHER THEORY, EVEN IF LAKSHMI SAI SERVICE PROVIDER IS AWARE OF OR HAVE BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE, ARISING OUT OF OR CONNECTED WITH THE USE (OR INABILITY TO USE) OR PERFORMANCE OF THE PLATFORM, THE MATERIALS OR THE INTERNET GENERALLY, OR THE USE (OR INABILITY TO USE), RELIANCE UPON OR PERFORMANCE OF ANY MATERIAL CONTAINED IN OR ACCESSED FROM ANY PLATFORMS. LAKSHMI SAI SERVICE PROVIDER DOES NOT ASSUME ANY LEGAL LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS, OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT OR PROCESS DISCLOSED ON THE PLATFORMS OR OTHER MATERIAL ACCESSIBLE FROM THE PLATFORM.
-                        </p>
-                        <p>
-                            THE USER OF THE PLATFORM ASSUMES ALL RESPONSIBILITY AND RISK FOR THE USE OF THIS PLATFORM AND THE INTERNET GENERALLY. THE FOREGOING LIMITATIONS SHALL APPLY NOTWITHSTANDING ANY FAILURE OF THE ESSENTIAL PURPOSE OF ANY LIMITED REMEDY AND TO THE FULLEST EXTENT PERMITTED UNDER APPLICABLE LAW. SOME COUNTRIES DO NOT ALLOW THE EXCLUSION OR LIMITATION OF LIABILITY OF CONSEQUENTIAL OR INCIDENTAL DAMAGES, SO THE ABOVE EXCLUSIONS MAY NOT APPLY TO ALL USERS; IN SUCH COUNTRIES LIABILITY IS LIMITED TO THE FULLEST EXTENT PERMITTED BY LAW.
-                        </p>
-                        </div>
-                        <div className="mt-20">
-                        <h4>XIV. THIRD PARTY SITES</h4>
-                        <p>
-                            Your correspondence or business dealing with or participation in the sales promotions of advertisers or service providers found on or through the Platform, including payment and delivery of related goods or services, and any other terms, conditions, and warranties or representations associated with such dealings, are solely between you and such advertisers or service providers. You assume all risks arising out of or resulting from your transaction of business over the Internet, and you agree that we are not responsible or liable for any loss or result of the presence of information about or links to such advertisers or service providers on the Platform. You acknowledge and agree that we are not responsible or liable for the availability, accuracy, authenticity, copyright compliance, legality, decency or any other aspect of the content, advertising, products, services, or other materials on or available from such sites or resources. You acknowledge and agree that your use of these linked sites is subject to different terms of use than these Terms, and may be subject to different privacy practices than those set forth in the Privacy Policy governing the use of the Platforms. We do not assume any responsibility for review or enforcement of any local licensing requirements that may be applicable to businesses listed on the Platforms
-                        </p>
-                        <p>
-                            <b>MONITORING OF MATERIALS TRANSMITTED BY YOU:</b> Changes may be periodically incorporated into the Platforms. Lakshmi Sai Service Provider may make improvements and/or changes in the products, services and/or programs described in the Platform and the Materials at any time without notice. We are under no obligation to monitor the material residing on or transmitted to the Platform. However, anyone using the Platform agrees that Lakshmi Sai Service Provider may monitor the Platform contents periodically to (1) comply with any necessary laws, regulations or other governmental requests; (2) to operate the Platform properly or to protect itself and its users. Lakshmi Sai Service Provider reserves the right to modify, reject or eliminate any material residing on or transmitted to its Platform that it, in its sole discretion, believes is unacceptable or in violation of the law or these Terms and Conditions.
-                        </p>
-                        <p>
-                            <b>DELETIONS FROM SERVICE:</b> Lakshmi Sai Service Provider will delete any materials at the request of the user who submitted the materials or at the request of an advertiser who has decided to "opt-out" of the addition of materials to its advertising, including, but not limited to ratings and reviews provided by third parties. Lakshmi Sai Service Provider reserves the right to delete (or to refuse to post to public forums) any materials it deems detrimental to the system or is, or in the opinion of Lakshmi Sai Service Provider, may be, defamatory, infringing or violate of applicable law. Lakshmi Sai Service Provider reserves the right to exclude Material from the Platform. Materials submitted to Lakshmi Sai Service Provider for publication on the Platform may be edited for length, clarity and/or consistency with Lakshmi Sai Service Provider editorial standards.
-                        </p>
-                        </div>
-                        <div className="mt-20">
-                        <h4>XV. INDEMNIFICATION</h4>
-                        <p>
-                            You agree to indemnify and hold us and (as applicable) our parent, subsidiaries, affiliates, officers, directors, agents, and employees, harmless from any claim or demand, including reasonable attorneys' fees, made by any third party due to or arising out of your breach of these Terms, your violation of any law, or your violation of the rights of a third party, including the infringement by you of any intellectual property or other right of any person or entity. These obligations will survive any termination of the Terms.
-                        </p>
-                        </div>
-                        <div className="mt-20">
-                        <h4>XVI. MISCELLANEOUS</h4>
-                        <p>
-                            These Terms will be governed by and construed in accordance with the Indian laws, without giving effect to its conflict of laws provisions or your actual state or country of residence, and you agree to submit to personal jurisdiction in India. You agree to exclude, in its entirety, the application to these Terms of the United Nations Convention on Contracts for the International Sale of Goods. You are responsible for compliance with applicable laws. If for any reason a court of competent jurisdiction finds any provision or portion of the Terms to be unenforceable, the remainder of the Terms will continue in full force and effect. These Terms constitute the entire agreement between us and supersedes and replaces all prior or contemporaneous understandings or agreements, written or oral, regarding the subject matter of these Terms. Any waiver of any provision of the Terms will be effective only if in writing and signed by you and Lakshmi Sai Service Provider. Lakshmi Sai Service Provider reserves the right to investigate complaints or reported violations of these Terms and to take any action we deem necessary and appropriate. Such action may include reporting any suspected unlawful activity to law enforcement officials, regulators, or other third parties. In addition, we may take action to disclose any information necessary or appropriate to such persons or entities relating to user profiles, e-mail addresses, usage history, posted materials, IP addresses and traffic information. Lakshmi Sai Service Provider reserves the right to seek all remedies available at law and in equity for violations of these Terms.
-                        </p>
-                        <p>
-                            Force Majeure. In no event shall we or any Distribution Site have liability or be deemed to be in breach hereof for any failure or delay of performance resulting from any governmental action, fire, flood, insurrection, earthquake, power failure, network failure, riot, explosion, embargo, strikes (whether legal or illegal), terrorist act, labor or material shortage, transportation interruption of any kind or work slowdown or any other condition not reasonably within our control. Your payment obligations shall continue during any event of force majeure. Indemnification. You agree to indemnify us and the Distribution Sites and hold us and the Distribution Site harmless from and with respect to any claims, actions, liabilities, losses, expenses, damages and costs (including, without limitation, actual attorneys' fees) that may at any time be incurred by us or them arising out of or in connection with these Terms or any Advertising Products or services you request, including, without limitation, any claims, suits or proceedings for defamation or libel, violation of right of privacy or publicity, criminal investigations, infringement of intellectual property, false or deceptive advertising or sales practices and any virus, contaminating or destructive features. Telephone Conversations. 
-                        </p>
-                        <p>
-                            All telephone conversations between you and us about your advertising may be recorded and you hereby consent to such monitoring and recordation. Arbitration: Any disputes and differences whatsoever arising in connection with these Terms shall be settled by Arbitration in accordance with the Arbitration and Conciliation Act, 1996. a) All proceedings shall be conducted in English language. b) Unless the Parties agree on a sole arbitrator there shall be three Arbitrators, one to be selected by each of the parties, and the third to be selected by the two Arbitrators appointed by the parties. c) The venue of Arbitration shall be in Visakhapatnam, Andhra Pradesh, India.
-                        </p>
-                        <p>
-                            Entire Agreement. These Terms constitutes the entire agreement between you and us with respect to the subject matter of these Terms and supersedes all prior written and all prior or contemporaneous oral communications regarding such subject matter. Accordingly, you should not rely on any representations or warranties that are not expressly set forth in these Terms. If any provision or provisions of these Terms shall be held to be invalid, illegal, unenforceable or in conflict with the law of any jurisdiction, the validity, legality and enforceability of the remaining provisions shall not in any way be affected or impaired. Except as provided in Section 1, these Terms may not be modified except by writing signed by you and us; provided, however, we may change these Terms from time to time, and such revised terms and conditions shall be effective with respect to any Advertising Products ordered after written notice of such revised terms to you or, if earlier, posting of such revised terms and conditions on our Website.
-                        </p>
-                        </div>
-                        <div className="mt-20">
-                        <h4>XVII. END OF TERMS OF SERVICE</h4>
-                        <p>
-                            If you have any questions or concerns regarding this Agreement, please contact us at <a href="mailto:handymanserviceproviders@gmail.com.">handymanserviceproviders@gmail.com.</a>
+                        <div className="mt-10">
+                        <h5>III. Special Notes</h5>
+                        <p>Bulk or wholesale orders may have separate cancellation/return terms.
+                          Festival/offers/discounted items are not eligible for return or cancellation once dispatched.                        
                         </p>
                         </div>
                 </div>
@@ -1142,29 +1371,43 @@ const handleCheckboxChange = (value) => {
     </div>
 
 <div className="button">
-  <button onClick={getLocation}>Get Location</button>
+  {/* <button onClick={getLocation}>Get Location</button>
       {location && (
         <p>
           Latitude: {location.latitude}, Longitude: {location.longitude}
         </p>
       )}
-      {locationError && <p style={{ color: "red" }}>{locationError}</p>}
+      {locationError && <p style={{ color: "red" }}>{locationError}</p>} */}
     {/* <button className="btn-back m-2">Back</button> */}
-    <button className="btn-grocery" onClick={handleUpdatePaymentMethod} >Order Now</button> 
-    {/* onClick={handleUpdateJobDescription} */}
+      <button
+        className="btn-grocery"
+  disabled={isOrderDisabled}
+  onClick={handlePaymentAndSms}
+  title={
+    isAddressInvalid
+      ? "Please add a valid address"
+      : serviceUnavailable
+      ? "Service unavailable in your area"
+      : isFirstOrderMinNotReached
+      ? "Minimum order value ₹150 required on your first order to get ₹50 cashback."
+      : ""
+  }
+>
+  Order Now
+</button>
 </div>
     </div>
     </div>
     </div>
-
+<Footer/>
     {/* Styles for floating menu */}
 <style jsx>{`
         .modal-overlay {
           position: fixed;
           top: 0;
           left: 0; 
-          width: 110%;
-          height: 110%;
+          width: 100%;
+          height: 100%;
           background: rgba(0, 0, 0, 0.5);
           display: flex;
           justify-content: center;
@@ -1177,6 +1420,7 @@ const handleCheckboxChange = (value) => {
           padding: 20px;
           border-radius: 20px;
           width: 100%;
+          font-size: 13px;
           max-width: 600px;
           max-height: 80vh;
           overflow-y: auto;

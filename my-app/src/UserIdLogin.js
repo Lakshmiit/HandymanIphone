@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import HandyManCharacter from "./img/hm_char.png";
 import HandyManLogo from "./img/Hm_Logo 1.png";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 const UserIdLogin = () => {
-//   const navigate = useNavigate(); 
- 
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     userName: '',
     userPassword: '',   
@@ -58,7 +58,7 @@ if (!userName || !userPassword) {
 
     if (data && data.userId && data.profileType)
     {
-      window.location.href = `/profilePage/${data.profileType}/${data.userId}`;
+      navigate(`/profilePage/${data.profileType}/${data.userId}`);
     } else {
     //   setError("Invalid username or password.");
       setSubmitted(false);
@@ -104,7 +104,7 @@ if (!userName || !userPassword) {
   value={formData.userName}
   onChange={handleChange}
 />
-</div>  
+</div>
 
 <div style={{ position: "relative" }}>
   <label>Password</label>
@@ -112,7 +112,7 @@ if (!userName || !userPassword) {
     type={showPassword ? "text" : "password"}  
     name="userPassword"
     value={formData.userPassword}
-    onChange={handleChange}   
+    onChange={handleChange}
     style={{ width: "100%", paddingRight: "40px" }}
   />
   <span

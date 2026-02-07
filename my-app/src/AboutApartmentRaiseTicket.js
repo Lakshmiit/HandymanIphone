@@ -9,10 +9,10 @@ import Footer from './Footer';
 import { Dashboard as MoreVertIcon } from '@mui/icons-material';
 import Sidebar from './Sidebar';
 import { Button} from 'react-bootstrap';
-import {  useParams } from 'react-router-dom';
+import {  useNavigate, useParams } from 'react-router-dom';
 const AboutApartmentRaiseTicket = () => {
-    // const Navigate = useNavigate();
-  const {userType} = useParams(); 
+    const Navigate = useNavigate();
+  const {userType} = useParams();
    const {userId} = useParams();
   const {selectedUserType} = useParams();
   const [isMobile, setIsMobile] = useState(false);
@@ -100,14 +100,14 @@ const AboutApartmentRaiseTicket = () => {
      <div className="d-flex justify-content-between mt-2">  
   <button
     className="btn btn-success text-white btn-sm w-23 fs-6"
-    onClick={() => window.location.href = `/apartmentRaiseTicket/${userType}/${userId}`}
+    onClick={() => Navigate(`/apartmentRaiseTicket/${userType}/${userId}`)}
   >
     📱 Raise Complaints
   </button>
 <Button
     type="button"
     className="back-btn"
-    onClick={() => window.location.href =`/profilePage/${userType}/${userId}`}
+    onClick={() => Navigate(`/profilePage/${userType}/${userId}`)}
   >
     Back
   </Button>
