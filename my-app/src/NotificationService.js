@@ -13,7 +13,7 @@ export const initPushNotifications = async () => {
 
   // Register with FCM
   await PushNotifications.register();
-
+        
   // On successful registration
   PushNotifications.addListener("registration", (token) => {
     console.log("FCM Token:", token.value);
