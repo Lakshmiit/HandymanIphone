@@ -63,6 +63,12 @@ const GroceryPaymentmethod = () => {
   const [cashbackMessage, setCashbackMessage] = useState("");
   // const [date, setDate] = useState("");
   const isGuestName = (name) => (name ?? "").trim().toLowerCase() === "guest";
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+   console.log(location, locationError, loading);
+  }, [location, locationError, loading]);
+ 
   const readServerPoints = (record) => {
     const raw =
       record?.referralPoints ??
@@ -806,8 +812,6 @@ const GroceryPaymentmethod = () => {
       console.error("Error sending SMS:", error);
     }
   };
-
-  const [loading, setLoading] = useState(false);
 
   const handlePaymentAndSms = async () => {
     try {
