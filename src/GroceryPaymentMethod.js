@@ -12,7 +12,7 @@ const GroceryPaymentmethod = () => {
   const navigate = useNavigate();
   const { userType } = useParams();
   const { userId } = useParams();
-  const { groceryItemId } = useParams();      
+  const { groceryItemId } = useParams();
   const [isMobile, setIsMobile] = useState(false);
   const [isChecked, setIsChecked] = useState(true);
   const [selectedPayment, setSelectedPayment] = useState("cash");
@@ -755,6 +755,7 @@ const GroceryPaymentmethod = () => {
           Status: item.status,
           Code: item.code,
           Units: item.units,
+          
         };
         const res = await fetch(
           `https://handymanapiv2.azurewebsites.net/api/UploadGrocery/UpdateGroceryItems?id=${encodeURIComponent(

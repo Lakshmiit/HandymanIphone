@@ -4,6 +4,8 @@ import "./App.css";
 // npm install jspdf jspdf-autotable
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+
+import { useRef } from "react";
 // import AdminSidebar from './AdminSidebar';
 import Footer from './Footer.js';
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -512,276 +514,166 @@ const addFooter = (doc) => {
   );
 };
 
-  const handleDownloadPDF = () => {
-  const doc = new jsPDF("p", "mm", "a4");
-  addHeader(doc, martId);
-  addFooter(doc);
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(10);
-
-  doc.text(`Customer Name: ${customerName}`, 14, 28);
-  const addressText = `Customer Address: ${[
-    address,
-    district,
-    state,
-    pincode,
-    mobileNumber,
-  ].filter(Boolean).join(", ")}`;
-  doc.text(addressText, 14, 32, { maxWidth: 180 });
-  doc.text(`Date: ${date ? date.split("T")[0] : ""}`, 14, 42);
-
-  autoTable(doc, {
-    startY: 48,
-    head: [[
-      "S.No",
-      "Photo",
-      "Item Name",
-      "Category",
-      "MRP",
-      "Dis (%)",
-      "Price",
-      "Qty",
-      "Total",
-    ]],
-    body: items.map((item, index) => [
-      index + 1,
-      "",
-      item.name,
-      item.category,
-      `Rs. ${Math.round(item.mrp)}`,
-      `${Math.round(item.discount)}%`,
-      `Rs. ${Math.round(item.afterDiscountPrice)}`,
-      item.quantity,
-      `Rs. ${Math.round(item.total)}`,
-    ]),
-    styles: {
-      fontSize: 9,
-      textColor: [0, 0, 0],
-      cellPadding: 3,
-    },
-    headStyles: {
-      fillColor: [0, 128, 0],
-      textColor: [255, 255, 255],
-      halign: "center",
-    },
-    columnStyles: {
-      0: { cellWidth: 10, halign: "center" },
-      1: { cellWidth: 25 },
-      2: { cellWidth: 40 },
-      3: { cellWidth: 25 },
-      4: { cellWidth: 20, halign: "right" },
-      5: { cellWidth: 15, halign: "right" },
-      6: { cellWidth: 23, halign: "right" },
-      7: { cellWidth: 12, halign: "center" },
-      8: { cellWidth: 23, halign: "right" },
-    },
-
-    didDrawCell(data) {
-      if (data.column.index === 1 && data.cell.section === "body") {
-        const item = items[data.row.index];
-        if (!item) return;
-
-        const imgData = imageUrls[item.id];
-        if (!imgData) return;
-
-        const size = 14;
-        const x = data.cell.x + (data.cell.width - size) / 2;
-        const y = data.cell.y + (data.cell.height - size) / 2;
-
-        doc.addImage(imgData, "JPEG", x, y, size, size);
-      }
-    },
-
-    didDrawPage() {
-      addHeader(doc, martId);
-      addFooter(doc);
-    },
-  });
-
-  const uiGrandTotal = Math.round(
-    items.reduce((sum, item) => sum + Number(item.total), 0)
-  );
-
-
-  const finalY = doc.lastAutoTable.finalY + 8;
-
-  doc.setFont(undefined, "bold");
-  doc.setFontSize(11);
-  doc.text(
-    `Grand Total : Rs. ${uiGrandTotal}`,
-    195,
-    finalY,
-    { align: "right" }
-  );
-
-  doc.save(`Grocery_Order_${martId}.pdf`);
-};
-
 //   const handleDownloadPDF = () => {
 //   const doc = new jsPDF("p", "mm", "a4");
-//   doc.setFontSize(14);
-//   doc.text(`Order Number: ${martId}`, 105, 12, { align: "center" });
+//   addHeader(doc, martId);
+//   addFooter(doc);
+//   doc.setTextColor(0, 0, 0);
 //   doc.setFontSize(10);
-//   doc.text(`Customer Name: ${customerName}`, 14, 22);
+
+//   doc.text(`Customer Name: ${customerName}`, 14, 28);
 //   const addressText = `Customer Address: ${[
-//   address,
-//   district,
-//   state,
-//   pincode,
-//   mobileNumber,
-// ].filter(Boolean).join(", ")}`;
+//     address,
+//     district,
+//     state,
+//     pincode,
+//     mobileNumber,
+//   ].filter(Boolean).join(", ")}`;
+//   doc.text(addressText, 14, 32, { maxWidth: 180 });
+//   doc.text(`Date: ${date ? date.split("T")[0] : ""}`, 14, 42);
 
-// doc.text(addressText, 14, 25, {
-//   maxWidth: 180,   
-// });             
-
-//   doc.text(`Date: ${date ? date.split("T")[0] : ""}`, 14, 34);
-//   const tableHead = [[
-//     "Sl.No",
-//     "Photo",
-//     "Item Name",
-//     "Category",
-//     "MRP",
-//     "Discount (%)",
-//     "Price",
-//     "Qty",
-//     "Total",
-//   ]];    
-//   const tableBody = items.map((item, index) => [
-//     index + 1,
-//     item.id, 
-//     item.name,
-//     item.category,
-//     `Rs. ${Number(item.mrp).toFixed(0)}`,
-//     `${item.discount}%`,
-//     `Rs. ${Number(item.afterDiscountPrice).toFixed(0)}`,
-//     item.quantity,
-//     `Rs. ${Number(item.total).toFixed(0)}`,
-//   ]);
-//   const uiGrandTotal = items.reduce(
-//     (sum, item) => sum + Number(item.total),
-//     0
-//   );
-//   // tableBody.push([
-//   //   "",
-//   //   "",
-//   //   "",
-//   //   "",
-//   //   "",
-//   //   "",
-//   //   "",
-//   //   "Grand Total",
-//   //   `Rs. ${uiGrandTotal.toFixed(0)}`,
-//   // ]);
-//   let finalY = doc.lastAutoTable.finalY + 10;
-// const pageHeight = doc.internal.pageSize.height;
-
-// if (finalY + 15 > pageHeight) {
-//   doc.addPage();
-//   finalY = 20;
-// }
-
-// doc.setFont(undefined, "bold");
-// doc.setFontSize(11);
-// doc.text(
-//   `Grand Total : Rs. ${uiGrandTotal.toFixed(0)}`,
-//   195,
-//   finalY,
-//   { align: "right" }
-// );
-// doc.setFontSize(11);
 //   autoTable(doc, {
-//     startY: 42,
-//     head: tableHead,
-//     body: tableBody,
-//     theme: "grid",
+//     startY: 48,
+//     head: [[
+//       "S.No",
+//       "Photo",
+//       "Item Name",
+//       "Category",
+//       "MRP",
+//       "Dis (%)",
+//       "Price",
+//       "Qty",
+//       "Total",
+//     ]],
+//     body: items.map((item, index) => [
+//       index + 1,
+//       "",
+//       item.name,
+//       item.category,
+//       `Rs. ${Math.round(item.mrp)}`,
+//       `${Math.round(item.discount)}%`,
+//       `Rs. ${Math.round(item.afterDiscountPrice)}`,
+//       item.quantity,
+//       `Rs. ${Math.round(item.total)}`,
+//     ]),
 //     styles: {
 //       fontSize: 9,
+//       textColor: [0, 0, 0],
 //       cellPadding: 3,
-//       textColor: [0, 0, 0]
 //     },
 //     headStyles: {
 //       fillColor: [0, 128, 0],
-//       textColor: 255,
+//       textColor: [255, 255, 255],
 //       halign: "center",
 //     },
 //     columnStyles: {
-//     0: { cellWidth: 10, halign: "center" },
-//     1: { cellWidth: 25 },  
-//     2: { cellWidth: 40 },
-//     3: { cellWidth: 25 },
-//     4: { cellWidth: 15, halign: "right" },
-//     5: { cellWidth: 20, halign: "right" },
-//     6: { cellWidth: 20, halign: "right" },
-//     7: { cellWidth: 12, halign: "center" },
-//     8: { cellWidth: 20, halign: "right" },
-//       // 0: { halign: "center", cellWidth: 10 },   
-//       // 1: { cellWidth: 50 },                   
-//       // 2: { cellWidth: 25 },                   
-//       // 3: { halign: "right", cellWidth: 20 },   
-//       // 4: { halign: "right", cellWidth: 22 },  
-//       // 5: { halign: "right", cellWidth: 20 },    
-//       // 6: { halign: "center", cellWidth: 15 },  
-//       // 7: { halign: "right", cellWidth: 22 },   
-//     },       
-//     didDrawCell: function (data) {
-//   if (
-//     data.column.index === 1 && 
-//     data.cell.section === "body"
-//   ) {
-//     const productId = data.cell.raw;
-//     const imgData = imageUrls[productId];
+//       0: { cellWidth: 10, halign: "center" },
+//       1: { cellWidth: 25 },
+//       2: { cellWidth: 40 },
+//       3: { cellWidth: 25 },
+//       4: { cellWidth: 20, halign: "right" },
+//       5: { cellWidth: 15, halign: "right" },
+//       6: { cellWidth: 23, halign: "right" },
+//       7: { cellWidth: 12, halign: "center" },
+//       8: { cellWidth: 23, halign: "right" },
+//     },
 
-//     if (imgData) {
-//       const imgWidth = 14;
-//       const imgHeight = 14;
+//     didDrawCell(data) {
+//       if (data.column.index === 1 && data.cell.section === "body") {
+//         const item = items[data.row.index];
+//         if (!item) return;
 
-//       const x = data.cell.x + (data.cell.width - imgWidth) / 2;
-//       const y = data.cell.y + (data.cell.height - imgHeight) / 2;
+//         const imgData = imageUrls[item.id];
+//         if (!imgData) return;
 
-//       doc.addImage(
-//         imgData,
-//         "JPEG",
-//         x,
-//         y,
-//         imgWidth,
-//         imgHeight
-//       );
-//     }
-//   }
-// }
+//         const size = 14;
+//         const x = data.cell.x + (data.cell.width - size) / 2;
+//         const y = data.cell.y + (data.cell.height - size) / 2;
+
+//         doc.addImage(imgData, "JPEG", x, y, size, size);
+//       }
+//     },
+
+//     didDrawPage() {
+//       addHeader(doc, martId);
+//       addFooter(doc);
+//     },
 //   });
+
+//   const uiGrandTotal = Math.round(
+//     items.reduce((sum, item) => sum + Number(item.total), 0)
+//   );
+
+
+//   const finalY = doc.lastAutoTable.finalY + 8;
+
+//   doc.setFont(undefined, "bold");
+//   doc.setFontSize(11);
+//   doc.text(
+//     `Grand Total : Rs. ${uiGrandTotal}`,
+//     195,
+//     finalY,
+//     { align: "right" }
+//   );
+
 //   doc.save(`Grocery_Order_${martId}.pdf`);
 // };
 
-//     const handleDownloadExcel = () => {
-//   const worksheetData = items.map((item, idx) => ({
-//     "Sl. No": idx + 1,
-//     "Item Name": item.name,
-//     "Category": item.category,
-//     "MRP": item.mrp,
-//     "Discount (%)": item.discount,
-//     "After Discount Price": item.afterDiscountPrice,
-//     "Required Quantity": item.quantity,
-//     "Total": item.total,
-//   }));
+const handlePrint = () => {
+  const receipt = document.getElementById("thermal-receipt");
+  receipt.style.display = "block";
 
-//   worksheetData.push({
-//     "Sl. No": "",
-//     "Item Name": "",
-//     "Category": "",
-//     "MRP": "",
-//     "Discount (%)": "",
-//     "After Discount Price": "",
-//     "Required Quantity": "Grand Total",
-//     "Total": items.reduce((sum, item) => sum + item.total, 0),
-//   });
+  window.print();
 
-//   const worksheet = XLSX.utils.json_to_sheet(worksheetData);
-//   const workbook = XLSX.utils.book_new();
-//   XLSX.utils.book_append_sheet(workbook, worksheet, "Grocery Items");
-//   XLSX.writeFile(workbook, `Grocery_Order_${martId}.xlsx`);
-// };
+  receipt.style.display = "none";
+};
+
+
+<div id="thermal-receipt" style={{ display: "none" }}>
+  <div className="receipt">
+    <h3 style={{ textAlign: "center", margin: 0 }}>DMART</h3>
+    <p style={{ textAlign: "center", margin: 0 }}>Thank You Visit Again</p>
+    <hr />
+
+    <p>Customer: {customerName}</p>
+    <p>
+      {[address, district, state, pincode, mobileNumber]
+        .filter(Boolean)
+        .join(", ")}
+    </p>
+    <p>Date: {date ? date.split("T")[0] : ""}</p>
+
+    <hr />
+
+    {items.map((item, index) => (
+      <div key={index} style={{ marginBottom: "6px" }}>
+        <div>
+          {index + 1}. {item.name}
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <span>
+            {item.quantity} × {Math.round(item.afterDiscountPrice)}
+          </span>
+          <span>{Math.round(item.total)}</span>
+        </div>
+      </div>
+    ))}
+
+    <hr />
+
+    <h4 style={{ textAlign: "right" }}>
+      Total: Rs.{" "}
+      {Math.round(
+        items.reduce((sum, item) => sum + Number(item.total), 0)
+      )}
+    </h4>
+
+    <p style={{ textAlign: "center" }}>
+      ***** Thank You *****
+    </p>
+  </div>
+</div>
+
 
 useEffect(() => {
   if (!items.length) return;
@@ -1011,9 +903,9 @@ const handleImageClick = (imageSrc, product) => {
             borderRadius: "20px",
             padding: "6px 14px",
           }}
-          onClick={handleDownloadPDF}
+          onClick={handlePrint}
         >
-          Download PDF
+          Print
         </button>
   {/* <button
                   style={{
