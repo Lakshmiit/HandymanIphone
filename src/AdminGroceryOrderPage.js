@@ -2,10 +2,10 @@ import React, { useState, useEffect} from "react";
 // import * as XLSX from "xlsx";
 import "./App.css";
 // npm install jspdf jspdf-autotable
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+// import jsPDF from "jspdf";
+// import autoTable from "jspdf-autotable";
 
-import { useRef } from "react";
+// import { useRef } from "react";
 // import AdminSidebar from './AdminSidebar';
 import Footer from './Footer.js';
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -481,38 +481,38 @@ useEffect(() => {
    const handleSubmit = (e) => {
      e.preventDefault();
    };
-const addHeader = (doc, martId) => {
-  doc.setTextColor(0, 0, 0); 
-  doc.setFontSize(12);
-  doc.setFont(undefined, "bold");
-  doc.text("Handyman", 14, 12);
-  doc.text("Lakshmi Mart", 195, 12, { align: "right" });
-  doc.setLineWidth(0.5);
-  doc.line(14, 15, 195, 15);
-  doc.setFontSize(11);
-  doc.setFont(undefined, "normal");
-  doc.text(`Order Number: ${martId}`, 105, 22, { align: "center" });
-};
+// const addHeader = (doc, martId) => {
+//   doc.setTextColor(0, 0, 0); 
+//   doc.setFontSize(12);
+//   doc.setFont(undefined, "bold");
+//   doc.text("Handyman", 14, 12);
+//   doc.text("Lakshmi Mart", 195, 12, { align: "right" });
+//   doc.setLineWidth(0.5);
+//   doc.line(14, 15, 195, 15);
+//   doc.setFontSize(11);
+//   doc.setFont(undefined, "normal");
+//   doc.text(`Order Number: ${martId}`, 105, 22, { align: "center" });
+// };
 
-const addFooter = (doc) => {
-  const pageHeight = doc.internal.pageSize.height;
-  doc.setLineWidth(0.5);
-   doc.line(
-    20,                
-    pageHeight - 15,    
-    190,                
-    pageHeight - 15    
-  );
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(9);
-  doc.setFont(undefined, "normal");
-  doc.text(
-    "For Support : Call / WhatsApp 6281198953 | Mon–Sun : 7:00 AM – 9:00 PM",
-    105,
-    pageHeight - 10,
-    { align: "center" }
-  );
-};
+// const addFooter = (doc) => {
+//   const pageHeight = doc.internal.pageSize.height;
+//   doc.setLineWidth(0.5);
+//    doc.line(
+//     20,                
+//     pageHeight - 15,    
+//     190,                
+//     pageHeight - 15    
+//   );
+//   doc.setTextColor(0, 0, 0);
+//   doc.setFontSize(9);
+//   doc.setFont(undefined, "normal");
+//   doc.text(
+//     "For Support : Call / WhatsApp 6281198953 | Mon–Sun : 7:00 AM – 9:00 PM",
+//     105,
+//     pageHeight - 10,
+//     { align: "center" }
+//   );    
+// };   
 
 //   const handleDownloadPDF = () => {
 //   const doc = new jsPDF("p", "mm", "a4");
