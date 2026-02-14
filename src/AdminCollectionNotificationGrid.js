@@ -9,7 +9,7 @@ import {
   Forward as ForwardIcon,
 } from "@mui/icons-material";
 import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
-import "./App.css";
+import "./App.css"; 
  
 const AdminCollectionNotificationGrid = () => {
   // const navigate = useNavigate();

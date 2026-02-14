@@ -84,7 +84,7 @@ import TechnicianViewBookTechnician from "./TechnicianViewBookTechnician.js";
 import BookTechnicianDetailsNotifications from "./BookTechnicianDetailsNotifications.js";
 import BookTechnicianDetailsGrid from "./BookTechnicianDetailsGrid.js";
 import RaiseTicketConfirmation from "./RaiseTicketConfirmation.js";
-import HandyManLogo from "./HandymanLogo.js";
+import HandyManLogo from "./HandyManLogo.js";
 import LoginPage from "./LoginPage.js";
 import UserIdLogin from "./UserIdLogin.js";
 import CustomerRaiseTicketGridView from "./CustomerRaiseTicketGridView.js";

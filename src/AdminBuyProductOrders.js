@@ -8,7 +8,7 @@ import { ArrowBack, Dashboard as MoreVertIcon} from '@mui/icons-material';
 import ForwardIcon from '@mui/icons-material/Forward';
 import { Button, Form, Row, Col } from 'react-bootstrap';
 
-const AdminBuyProductOrders = () => {
+const AdminBuyProductOrders = () => { 
   const navigate = useNavigate(); 
   const {buyProductId} = useParams();
   const [buyProductTicketId, setBuyProductTicketId] = useState('');
