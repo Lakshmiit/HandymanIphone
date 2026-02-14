@@ -8,9 +8,9 @@ import { Button} from 'react-bootstrap';
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { ArrowBack, Dashboard as MoreVertIcon} from '@mui/icons-material';
-
-const AdminClosedBuyProductOrders = () => {
-const Navigate = useNavigate();
+ 
+const AdminClosedBuyProductOrders = () => {   
+const Navigate = useNavigate();   
   const {buyProductId} = useParams(); 
   const [buyProductTicketId, setBuyProductTicketId] = useState('');
   const [isMobile, setIsMobile] = useState(false);

@@ -13,7 +13,7 @@ const AdminCollectionsList = () => {
   const [collectionstatus, setCollectionstatus] = useState("");
   const [catalogue, setCatalogue] = useState("");
   const [loading, setLoading] = useState(true); 
-  const [currentPage, setCurrentPage] = useState(1);  
+  const [currentPage, setCurrentPage] = useState(1);   
   const [searchTerm, setSearchTerm] = useState("");
   const rowsPerPage = 15;
   const navigate = useNavigate();

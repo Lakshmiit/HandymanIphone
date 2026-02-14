@@ -9,7 +9,7 @@ import { Button } from 'react-bootstrap';
 
 const AdminBuyProductOrdersView = () => {
   const navigate = useNavigate();  
-  const {buyProductId} = useParams();
+  const {buyProductId} = useParams(); 
   const [buyProductTicketId, setBuyProductTicketId] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);

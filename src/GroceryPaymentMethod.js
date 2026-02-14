@@ -10,7 +10,7 @@ import Footer from "./Footer.js";
 import Confetti from "react-confetti";
 const GroceryPaymentmethod = () => {
   const navigate = useNavigate();
-  const { userType } = useParams();
+  const { userType } = useParams();             
   const { userId } = useParams();
   const { groceryItemId } = useParams();
   const [isMobile, setIsMobile] = useState(false);

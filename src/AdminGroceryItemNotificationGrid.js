@@ -14,7 +14,7 @@ const AdminGroceryItemNotificationGrid = () => {
   // const [showMenu, setShowMenu] = useState(false);
   const [groceryData, setGroceryData] = useState([]);
   const [state, setState] = useState("");
-  const [district, setDistrict] = useState(""); 
+  const [district, setDistrict] = useState("");  
   const [zipCode, setZipcode] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [filteredData, setFilteredData] = useState([]);
