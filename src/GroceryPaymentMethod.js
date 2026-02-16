@@ -12,7 +12,7 @@ const GroceryPaymentmethod = () => {
   const navigate = useNavigate();
   const { userType } = useParams();             
   const { userId } = useParams();
-  const { groceryItemId } = useParams();
+  const { groceryItemId } = useParams();    
   const [isMobile, setIsMobile] = useState(false);
   const [isChecked, setIsChecked] = useState(true);
   const [selectedPayment, setSelectedPayment] = useState("cash");

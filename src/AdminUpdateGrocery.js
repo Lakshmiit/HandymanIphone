@@ -442,12 +442,12 @@ if (error) {
                 onChange={(e) => setExpireDate(e.target.value)}
                 placeholder="Expiry Date"
               />
-            </div>
+            </div>    
 
             <div className="form-group">
               <label>Limit <span className="req_star">*</span></label>
               <input
-                type="text"
+                type="text"      
                 className="form-control" 
                 value={limit}
                 onChange={(e) => setLimit(e.target.value)}

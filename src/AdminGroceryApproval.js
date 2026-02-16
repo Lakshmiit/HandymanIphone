@@ -13,9 +13,9 @@ const AdminGroceryApproval = () => {
   const [imageUrls, setImageUrls] = useState([]);
   const [status, setStatus] = useState("Approved");
   const [comments, setComments] = useState("");
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
-  useEffect(() => {    
+  useEffect(() => {         
     const fetchData = async () => {
       try {
         const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/UploadGrocery/GetGroceryItems/${id}`);

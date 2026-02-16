@@ -2,17 +2,15 @@ import React, { useState, useEffect} from "react";
 // import * as XLSX from "xlsx";
 import "./App.css";
 // npm install jspdf jspdf-autotable
-// import jsPDF from "jspdf";
-// import autoTable from "jspdf-autotable";
-
-// import { useRef } from "react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 // import AdminSidebar from './AdminSidebar';
 import Footer from './Footer.js';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowBack} from '@mui/icons-material';
   // Dashboard as MoreVertIcon
-// import ForwardIcon from '@mui/icons-material/Forward';
+import ForwardIcon from '@mui/icons-material/Forward';
 import { Button, Form, Row, Col, Modal } from 'react-bootstrap';
 import axios from "axios";
 const AdminGroceryOrderPage = () => {
@@ -421,54 +419,54 @@ const handleAssignedToChange = (e) => {
 };
 
 // ForwardIcon 
-//   const handleUpdatePaymentMethod = async () => {
-//     try {   
-//       const partner = deliveryPartners.find(p => p.deliveryPartnerId === selectedPartner);
-//   const payload = {
-//     ...cartData,
-//     customerName: customerName,
-//     address: address, 
-//     state: state,
-//     district: district,
-//     zipCode: pincode,
-//     customerPhoneNumber: mobileNumber,
-//     id: groceryItemId,
-//     userId: customerId, 
-//     martId: martId,
-//     date: new Date(),
-//     grandTotal: grandTotal,
-//     totalItemsSelected: totalItemsSelected,
-//     status: "In Progress", 
-//     paymentMode: paymentMode,
-//     utrTransactionNumber: transactionDetails,
-//     transactionNumber: transactionNumber,
-//     transactionStatus: transactionStatus,
-//     paidAmount: paidAmount,
-//     AssignedTo: partner? partner.deliveryPartnerName: "",
-//     DeliveryPartnerUserId: partner? partner.userId: "",
-//     latitude: latitude,
-//     longitude: longitude,
-//     code: code,
-//     units: units,
-//   };
+  const handleUpdatePaymentMethod = async () => {
+    try {   
+      const partner = deliveryPartners.find(p => p.deliveryPartnerId === selectedPartner);
+  const payload = {
+    ...cartData,
+    customerName: customerName,
+    address: address, 
+    state: state,
+    district: district,
+    zipCode: pincode,
+    customerPhoneNumber: mobileNumber,
+    id: groceryItemId,
+    userId: customerId, 
+    martId: martId,
+    date: new Date(),
+    grandTotal: grandTotal,
+    totalItemsSelected: totalItemsSelected,
+    status: "In Progress", 
+    paymentMode: paymentMode,
+    utrTransactionNumber: transactionDetails,
+    transactionNumber: transactionNumber,
+    transactionStatus: transactionStatus,
+    paidAmount: paidAmount,
+    AssignedTo: partner? partner.deliveryPartnerName: "",
+    DeliveryPartnerUserId: partner? partner.userId: "",
+    latitude: latitude,
+    longitude: longitude,
+    code: code,
+    units: units,
+  };
 
-//     let response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/UpdateProductDetails/${groceryItemId}`, {
-//       method: 'PUT',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify(payload),
-//     });
-//     if (!response.ok) {
-//       throw new Error('Failed to Update Delivery Partner.');
-//     }
-//     alert(`Ticket has been assigned to ${partner ? partner.deliveryPartnerName : ""}`);
-//     navigate(`/adminNotifications`);
-//   } catch (error) {
-//     console.error('Error:', error);
-//     window.alert('Failed to Update Delivery Partner. Please try again later.');
-//   }
-// };
+    let response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Mart/UpdateProductDetails/${groceryItemId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to Update Delivery Partner.');
+    }
+    alert(`Ticket has been assigned to ${partner ? partner.deliveryPartnerName : ""}`);
+    navigate(`/adminNotifications`);
+  } catch (error) {
+    console.error('Error:', error);
+    window.alert('Failed to Update Delivery Partner. Please try again later.');
+  }
+};
 
   // Detect screen size for responsiveness
 useEffect(() => {
@@ -481,202 +479,194 @@ useEffect(() => {
    const handleSubmit = (e) => {
      e.preventDefault();
    };
-// const addHeader = (doc, martId) => {
-//   doc.setTextColor(0, 0, 0); 
-//   doc.setFontSize(12);
-//   doc.setFont(undefined, "bold");
-//   doc.text("Handyman", 14, 12);
-//   doc.text("Lakshmi Mart", 195, 12, { align: "right" });
-//   doc.setLineWidth(0.5);
-//   doc.line(14, 15, 195, 15);
-//   doc.setFontSize(11);
-//   doc.setFont(undefined, "normal");
-//   doc.text(`Order Number: ${martId}`, 105, 22, { align: "center" });
-// };
-
-// const addFooter = (doc) => {
-//   const pageHeight = doc.internal.pageSize.height;
-//   doc.setLineWidth(0.5);
-//    doc.line(
-//     20,                
-//     pageHeight - 15,    
-//     190,                
-//     pageHeight - 15    
-//   );
-//   doc.setTextColor(0, 0, 0);
-//   doc.setFontSize(9);
-//   doc.setFont(undefined, "normal");
-//   doc.text(
-//     "For Support : Call / WhatsApp 6281198953 | Mon–Sun : 7:00 AM – 9:00 PM",
-//     105,
-//     pageHeight - 10,
-//     { align: "center" }
-//   );    
-// };   
-
-//   const handleDownloadPDF = () => {
-//   const doc = new jsPDF("p", "mm", "a4");
-//   addHeader(doc, martId);
-//   addFooter(doc);
-//   doc.setTextColor(0, 0, 0);
-//   doc.setFontSize(10);
-
-//   doc.text(`Customer Name: ${customerName}`, 14, 28);
-//   const addressText = `Customer Address: ${[
-//     address,
-//     district,
-//     state,
-//     pincode,
-//     mobileNumber,
-//   ].filter(Boolean).join(", ")}`;
-//   doc.text(addressText, 14, 32, { maxWidth: 180 });
-//   doc.text(`Date: ${date ? date.split("T")[0] : ""}`, 14, 42);
-
-//   autoTable(doc, {
-//     startY: 48,
-//     head: [[
-//       "S.No",
-//       "Photo",
-//       "Item Name",
-//       "Category",
-//       "MRP",
-//       "Dis (%)",
-//       "Price",
-//       "Qty",
-//       "Total",
-//     ]],
-//     body: items.map((item, index) => [
-//       index + 1,
-//       "",
-//       item.name,
-//       item.category,
-//       `Rs. ${Math.round(item.mrp)}`,
-//       `${Math.round(item.discount)}%`,
-//       `Rs. ${Math.round(item.afterDiscountPrice)}`,
-//       item.quantity,
-//       `Rs. ${Math.round(item.total)}`,
-//     ]),
-//     styles: {
-//       fontSize: 9,
-//       textColor: [0, 0, 0],
-//       cellPadding: 3,
-//     },
-//     headStyles: {
-//       fillColor: [0, 128, 0],
-//       textColor: [255, 255, 255],
-//       halign: "center",
-//     },
-//     columnStyles: {
-//       0: { cellWidth: 10, halign: "center" },
-//       1: { cellWidth: 25 },
-//       2: { cellWidth: 40 },
-//       3: { cellWidth: 25 },
-//       4: { cellWidth: 20, halign: "right" },
-//       5: { cellWidth: 15, halign: "right" },
-//       6: { cellWidth: 23, halign: "right" },
-//       7: { cellWidth: 12, halign: "center" },
-//       8: { cellWidth: 23, halign: "right" },
-//     },
-
-//     didDrawCell(data) {
-//       if (data.column.index === 1 && data.cell.section === "body") {
-//         const item = items[data.row.index];
-//         if (!item) return;
-
-//         const imgData = imageUrls[item.id];
-//         if (!imgData) return;
-
-//         const size = 14;
-//         const x = data.cell.x + (data.cell.width - size) / 2;
-//         const y = data.cell.y + (data.cell.height - size) / 2;
-
-//         doc.addImage(imgData, "JPEG", x, y, size, size);
-//       }
-//     },
-
-//     didDrawPage() {
-//       addHeader(doc, martId);
-//       addFooter(doc);
-//     },
-//   });
-
-//   const uiGrandTotal = Math.round(
-//     items.reduce((sum, item) => sum + Number(item.total), 0)
-//   );
-
-
-//   const finalY = doc.lastAutoTable.finalY + 8;
-
-//   doc.setFont(undefined, "bold");
-//   doc.setFontSize(11);
-//   doc.text(
-//     `Grand Total : Rs. ${uiGrandTotal}`,
-//     195,
-//     finalY,
-//     { align: "right" }
-//   );
-
-//   doc.save(`Grocery_Order_${martId}.pdf`);
-// };
-
-const handlePrint = () => {
-  const receipt = document.getElementById("thermal-receipt");
-  receipt.style.display = "block";
-
-  window.print();
-
-  receipt.style.display = "none";
+const addHeader = (doc, martId) => {
+  doc.setTextColor(0, 0, 0); 
+  doc.setFontSize(12);
+  doc.setFont("Roboto", "bold");
+  doc.text("Handyman", 14, 12);
+  doc.text("Lakshmi Mart", 195, 12, { align: "right" });
+  doc.setLineWidth(0.5);
+  doc.line(14, 15, 195, 15);
+  doc.setFontSize(11);
+  doc.setFont("Roboto", "bold");
+  doc.text(`Order Number: ${martId}`, 105, 22, { align: "center" });
 };
 
+const addFooter = (doc) => {
+  const pageHeight = doc.internal.pageSize.height;
+  doc.setLineWidth(0.5);
+   doc.line(
+    20,                
+    pageHeight - 15,    
+    190,                
+    pageHeight - 15    
+  );
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(9);
+  doc.setFont("Roboto", "bold");
+  doc.text(
+    "For Support : Call / WhatsApp 6281198953 | Mon–Sun : 7:00 AM – 9:00 PM",
+    105,    
+    pageHeight - 10,
+    { align: "center" }            
+  );
+};
 
-<div id="thermal-receipt" style={{ display: "none" }}>
-  <div className="receipt">
-    <h3 style={{ textAlign: "center", margin: 0 }}>DMART</h3>
-    <p style={{ textAlign: "center", margin: 0 }}>Thank You Visit Again</p>
-    <hr />
+const handleDownloadPDF = () => {
+  const doc = new jsPDF("p", "mm", "a4");
+  const PAGE_HEIGHT = doc.internal.pageSize.height;
+  const FOOTER_SPACE = 25;
+  const TOP_MARGIN = 30;
+  addHeader(doc, martId);
+  addFooter(doc);
+  doc.setFont("Roboto", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Customer Name: ${customerName}`, 14, 28);
+  const addressText = `Customer Address: ${[
+    address,
+    district,
+    state,
+    pincode,
+    mobileNumber,
+  ].filter(Boolean).join(", ")}`;
 
-    <p>Customer: {customerName}</p>
-    <p>
-      {[address, district, state, pincode, mobileNumber]
-        .filter(Boolean)
-        .join(", ")}
-    </p>
-    <p>Date: {date ? date.split("T")[0] : ""}</p>
+  doc.text(addressText, 14, 32, { maxWidth: 180 });
+  doc.text(`Date: ${date ? date.split("T")[0] : ""}`, 14, 42);
+  autoTable(doc, {
+    startY: 48,
+    head: [[
+      "S.No",
+      "Photo",
+      "Item Name",
+      "Category",
+      "MRP",
+      "Dis (%)",
+      "Price",
+      "Qty",
+      "Total",
+    ]],
+    body: items.map((item, index) => [
+      index + 1,
+      "",
+      item.name,
+      item.category,
+      `Rs. ${Math.round(item.mrp)}`,
+      `${Math.round(item.discount)}%`,
+      `Rs. ${Math.round(item.afterDiscountPrice)}`,
+      item.quantity,
+      `Rs. ${Math.round(item.total)}`,
+    ]),
+    styles: {
+      fontSize: 9,
+      cellPadding: 3,
+      textColor: [0, 0, 0],
+    },
+    headStyles: {
+      fillColor: [0, 128, 0],
+      textColor: [255, 255, 255],
+      halign: "center",
+    },
+    columnStyles: {
+      0: { cellWidth: 10, halign: "center" },
+      1: { cellWidth: 25 },
+      2: { cellWidth: 40 },
+      3: { cellWidth: 25 },
+      4: { cellWidth: 20, halign: "right" },
+      5: { cellWidth: 15, halign: "right" },
+      6: { cellWidth: 23, halign: "right" },
+      7: { cellWidth: 12, halign: "center" },
+      8: { cellWidth: 23, halign: "right" },
+    },
+    didDrawCell(data) {
+      if (data.column.index === 1 && data.cell.section === "body") {
+        const item = items[data.row.index];
+        const imgData = imageUrls[item?.id];
+        if (!imgData) return;
 
-    <hr />
+        const size = 14;
+        const x = data.cell.x + (data.cell.width - size) / 2;
+        const y = data.cell.y + (data.cell.height - size) / 2;
 
-    {items.map((item, index) => (
-      <div key={index} style={{ marginBottom: "6px" }}>
-        <div>
-          {index + 1}. {item.name}
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <span>
-            {item.quantity} × {Math.round(item.afterDiscountPrice)}
-          </span>
-          <span>{Math.round(item.total)}</span>
-        </div>
-      </div>
-    ))}
+        doc.addImage(imgData, "JPEG", x, y, size, size);
+      }
+    },
+    didDrawPage() {
+      addHeader(doc, martId);
+      addFooter(doc);
+    },
+  });
 
-    <hr />
+  doc.setFont("Roboto", "normal");
+  doc.setTextColor(0, 0, 0);
 
-    <h4 style={{ textAlign: "right" }}>
-      Total: Rs.{" "}
-      {Math.round(
-        items.reduce((sum, item) => sum + Number(item.total), 0)
-      )}
-    </h4>
+  const uiGrandTotal = Math.round(    
+    items.reduce((sum, item) => sum + Number(item.total), 0)
+  );
 
-    <p style={{ textAlign: "center" }}>
-      ***** Thank You *****
-    </p>
-  </div>
-</div>
+  let pdfCashback = 0;
+  if (
+    (cashbackAmount >= 49 && cashbackAmount <= 51) ||
+    (cashbackAmount >= 99 && cashbackAmount <= 101) ||
+    (cashbackAmount >= 199 && cashbackAmount <= 201) ||
+    (cashbackAmount >= 299 && cashbackAmount <= 301)
+  ) {
+    pdfCashback = cashbackAmount;
+  }
 
+  const pdfShowFreeSugar =
+    Number(grandTotal) > 499 && Number(grandTotal) < 998;
+
+  let currentY = doc.lastAutoTable.finalY + 10;
+
+  let requiredHeight = 12;
+  if (pdfCashback > 0) requiredHeight += 6;
+  if (pdfShowFreeSugar) requiredHeight += 6;
+  if (currentY + requiredHeight > PAGE_HEIGHT - FOOTER_SPACE) {
+    doc.addPage();
+    addHeader(doc, martId);
+    addFooter(doc);
+    currentY = TOP_MARGIN + 10;
+  }
+  if (pdfCashback > 0) {
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0);
+    doc.text(
+      `Cashback Applied : Rs. ${pdfCashback}`,
+      195,
+      currentY,
+      { align: "right" }
+    );
+    currentY += 6;
+  }
+
+  if (pdfShowFreeSugar) {
+    doc.setFontSize(10);
+    doc.setTextColor(0, 128, 0); 
+    doc.setFont("Roboto", "bold");
+    doc.text(
+      `FREE ITEM : Royal Pesara Upma Mix 250 g`,
+      195,
+      currentY,
+      { align: "right" }
+    );
+    currentY += 8;
+  }
+
+  doc.setFont("Roboto", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(200, 0, 0); 
+  doc.text(
+    `Grand Total : Rs. ${uiGrandTotal}`,
+    195,
+    currentY,
+    { align: "right" }
+  );
+  doc.save(`Grocery_Order_${martId}.pdf`);
+};
 
 useEffect(() => {
-  if (!items.length) return;
+  if (!items.length) return;        
   const controller = new AbortController();
   async function loadImages() {
     const map = {};
@@ -878,7 +868,7 @@ const handleImageClick = (imageSrc, product) => {
    {showFreeSugar && (
     <tr>
       <td colSpan="10" className="text-end fw-bold text-success">
-        🎁 Give Customer <strong>Idly Ravva Loose 500 g FREE</strong>
+        🎁 Give Customer <strong>Royal Pesara Upma Mix 250 g FREE</strong>
       </td>    
     </tr>
   )}    
@@ -903,9 +893,9 @@ const handleImageClick = (imageSrc, product) => {
             borderRadius: "20px",
             padding: "6px 14px",
           }}
-          onClick={handlePrint}
+          onClick={handleDownloadPDF}
         >
-          Print
+          Download PDF
         </button>
   {/* <button
                   style={{
@@ -1060,9 +1050,9 @@ const handleImageClick = (imageSrc, product) => {
             <Button type="submit" className=" text-white mx-2" style={{background: 'green'}} onClick={() => navigate(`/adminNotifications`)} title="Back">
                 <ArrowBack />
                 </Button>
-                {/* <Button type="submit" className="text-white mx-2" style={{background: 'green'}} title="Forward" onClick={handleUpdatePaymentMethod}> 
+                <Button type="submit" className="text-white mx-2" style={{background: 'green'}} title="Forward" onClick={handleUpdatePaymentMethod}> 
                 <ForwardIcon />
-                </Button> */}
+                </Button>
             </div>
           </form>
         </div>

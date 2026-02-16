@@ -9,13 +9,13 @@ import { Button, Modal } from "react-bootstrap";
 import SearchIcon from '@mui/icons-material/Search';
 import FavoriteIcon from "@mui/icons-material/Favorite"; 
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder"; 
-import { CartStorage } from "./CartStorage";
+import { CartStorage } from "./CartStorage.js";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ImageCache from "./utils/ImageCache";
+import ImageCache from "./utils/ImageCache.js";
 import Footer from "./Footer.js";
 // import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 // import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-const GroceryCard = () => {
+const GroceryChristmasOffers = () => {
   const navigate = useNavigate();
   // const location = useLocation();
   const { userType, userId, selectedUserType } = useParams();
@@ -35,14 +35,20 @@ const [selectedCategory, setSelectedCategory] = useState(null);
 const [searchQuery, setSearchQuery] = useState('');
 const [likedProducts, setLikedProducts] = useState({}); 
 const [zoomProduct, setZoomProduct] = useState(null);
+// const [totalItemsCount, setTotalItemsCount] = useState(0);
 const [grandSummary, setGrandSummary] = useState({ items: 0, total: 0 });
+// const [cartSummary, setCartSummary] = useState({
+//   items: 0,
+//   total: 0,
+//   products: [],
+// });
 
+// const [groceryName, setGroceryName] = useState('');
  useEffect(() => {
 console.log(checked, imageLoading, grandSummary);
 }, [checked, imageLoading, grandSummary]);
 
-const mobileNumber = localStorage.getItem("customerMobileNumber");
-console.log("Mobile Number from localStorage:", mobileNumber);
+const MIN_ORDER_AMOUNT = 1999;
 
 useEffect(() => {
   const saved = CartStorage.getAll() || [];
@@ -77,21 +83,22 @@ useEffect(() => {
     units: product?.units || "",
   };
 });
+
   CartStorage.upsertCategory(selectedCategory, current);
+
   setGrandSummary(CartStorage.grandSummary());
 }, [cart, selectedCategory, products]);
 
-// const handleAdd = (productId) => setCart(prev => ({ ...prev, [productId]: 1 }));
-
+const handleAdd = (productId) => setCart(prev => ({ ...prev, [productId]: 1 }));
+// const handleIncrement = (productId) =>
+//   setCart(prev => ({ ...prev, [productId]: (prev[productId] || 0) + 1 }));
 const handleIncrement = (productId) =>
   setCart(prev => {
     const product = products.find(p => String(p.id) === String(productId));
     const stock = Number(product?.stockLeft || 0);
-   const limit = getLimit(product);
-    const currentQty = Number(prev[productId] || 0);
-    if (currentQty >= stock) return prev;
-    if(currentQty >= limit) return prev;
-    return { ...prev, [productId]: currentQty + 1 };
+    const cur = Number(prev[productId] || 0);
+    if (cur >= stock) return prev;
+    return { ...prev, [productId]: cur + 1 };
   });
 
 const handleDecrementClick = (productId) =>
@@ -118,36 +125,27 @@ const toggleLike = (productId) => {
   setZoomImage(imageSrc);
   setZoomProduct(product);       
   setShowZoomModal(true);
-};         
+};
+  
+// const handleAddClick = (id) => {
+//     handleAdd(id);
+//     setChecked(true);
+//   };        
 
 const getQty = (id) => Number(cart?.[id] || 0);
 
 const canAddMore = (id) => {
   const product = products.find(p => String(p.id) === String(id));
   const stock = Number(product?.stockLeft || 0);
-  const limit = getLimit(product);
-  const currentQty = getQty(id);
-  return currentQty < stock && currentQty < limit;
+  return getQty(id) < stock;
 };
 
 const handleAddClick = (id) => {
   const product = products.find(p => String(p.id) === String(id));
   const stock = Number(product?.stockLeft || 0);
-  const limit = getLimit(product);
   if (stock <= 0) return; 
-  if(limit <= 0) return;
-  // handleAdd(id);
-  setCart(prev => ({ ...prev, [id]: 1}));
+  handleAdd(id);
   setChecked(true);
-};
-
-const getLimit = (product) => {
-  if (!product) return Infinity;
-   const apiLimit = Number(product.limit);
-     if (Number.isFinite(apiLimit) && apiLimit > 0) {
-    return apiLimit;
-  }
-  return Infinity;
 };
 
 function getItemTime(p) {
@@ -277,7 +275,7 @@ function getItemTime(p) {
           .filter(x => !!x.photo);
 
         const cachedMap = {};
-        const misses = [];   
+        const misses = [];
         for (const { productId, photo } of firstImages) {
           const cached = ImageCache.getBase64(photo);
           if (cached) {
@@ -346,7 +344,7 @@ function getItemTime(p) {
   useEffect(() => {
   let savedCategories = [];
 
-  try {  
+  try {
     const raw = localStorage.getItem("allCategories");
     if (raw) {
       const parsed = JSON.parse(raw);
@@ -357,11 +355,9 @@ function getItemTime(p) {
   }
 
   const currentCategory = decodeURIComponent(encodedCategory);
-
   const existingCategory = savedCategories.find(
     (c) => c.categoryName === currentCategory
   );
-
   if (existingCategory) {
     const restoredCart = {};
     (existingCategory.products || []).forEach((p) => {
@@ -423,7 +419,7 @@ function getItemTime(p) {
           </h1>
         </div>
 
-        <div className="wrapper d-flex" style={{ marginTop: isMobile ? "65px" : "250px" }}>
+        <div className="wrapper d-flex" style={{ marginTop: isMobile ? "65px" : "170px" }}>
           {/* Sidebar */}
           {!isMobile ? (
             <div className="ml-0 p-0 sde_mnu">
@@ -472,19 +468,6 @@ function getItemTime(p) {
                         style={{ pointerEvents: 'none' }}
                       />
                     </div>
-                   {selectedCategory === "DWCRA" && (
-                    <div
-                      className="mt-1 text-center"
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        color: "green",
-                        letterSpacing: "1px",
-                      }}
-                    >
-                      DWCRA MANUFACTURING PRODUCTS
-                    </div>
-                  )}
 
           {selectedCategory && (
             <>
@@ -494,14 +477,13 @@ function getItemTime(p) {
                 style={{ color: "green", cursor: "pointer" }}
                 onClick={() => navigate(`/profilePage/${userType}/${userId}`)}
               />
-              <h4 className="fw-bold mt-1">{selectedCategory}</h4>
+              <h4 className="fw-bold mb-0">{selectedCategory}</h4>
             </div>
              {(selectedCategory === "Vegetables" ||
                 selectedCategory === "Fruits" ||
-                selectedCategory === "Chicken" || 
-              selectedCategory === "Ice Creams" ) && (
+                selectedCategory === "Chicken") && (
                 <div
-                  className="mt-1 rounded-3"
+                  className="mt-2 rounded-3"
                   style={{
                     backgroundColor: "#fff3e0",
                     color: "red",
@@ -513,24 +495,8 @@ function getItemTime(p) {
                   📝 Delivery is only for Yendada and Madhurawada.
                 </div>
               )}
-              {selectedCategory === "Chicken" && (
-      <div
-        className="mt-1 rounded-3"
-        style={{
-          backgroundColor: "#e3f2fd",
-          color: "red",
-          fontSize: "13px",
-          fontWeight: "600",
-          border: "1px solid #90caf9",
-        }}
-      > 📝 Chicken Available Pre-Booking Only. <br/>
-        🕒 Pre Booking Orders from Saturday 5:00PM to Sunday 9:00AM. <br/>
-        🛍️ Delivery Time Tomorrow Sunday Between 7:00AM to 10:00AM.
-      </div>
-    )}
             </>
           )}
-          
         </div>
 
           {/* <div className="position-relative flex-grow-1 ms-5">
@@ -553,8 +519,7 @@ function getItemTime(p) {
         onClick={() => navigate(`/profilePage/${userType}/${userId}`)}/>      
         <h4 className="font-bold ">{selectedCategory}</h4>
       </div> */}
-  <div className="d-flex justify-content-end" style={{ marginTop: selectedCategory === "Chicken" ? "230px" : "120px"}}>  
-    {/* style={{marginTop: "120px"}} */}
+  <div className="d-flex justify-content-end" style={{marginTop: "90px"}}>
   <span className="text-success text-xs">
     Selected Qty:{" "}
     <span className="text-danger fw-bold">
@@ -592,6 +557,7 @@ function getItemTime(p) {
   .map((product) => {
     const stock = Number(product.stockLeft || 0);
     const isOutOfStock = stock <= 0;
+
     return (
       <div
   key={product.id}
@@ -604,6 +570,7 @@ function getItemTime(p) {
         {Math.round(Number(product.discount))}%
       </span>
     )}
+
     {!isOutOfStock && (
       <span
         style={{ cursor: "pointer", marginRight: "6px", marginTop: "2px", zIndex: 3 }}
@@ -617,6 +584,7 @@ function getItemTime(p) {
       </span>
     )}
   </div>
+
   {/* Product Image */}
   <div
     className="d-flex justify-content-center align-items-center position-relative"
@@ -695,22 +663,6 @@ function getItemTime(p) {
       )}
     </div>
   )}
-  {(() => {
-                                const limit = getLimit(product);
-                                return Number.isFinite(limit) && limit > 0 ? (
-                                  <div
-                                    style={{
-                                      color: "#db1818",
-                                      paddingBottom: "2px",
-                                      fontSize: "10px",
-                                      fontWeight: 600,
-                                      marginBottom: "28px",
-                                    }}
-                                  >
-                                    Max {limit} per customer
-                                  </div>
-                                ) : null;
-                              })()}
 
   {/* Checkbox */}
   {!isOutOfStock && (
@@ -753,9 +705,7 @@ function getItemTime(p) {
             cursor: canAddMore(product.id) ? "pointer" : "not-allowed" }}
             onClick={() => canAddMore(product.id) && handleIncrement(product.id)}
             disabled={!canAddMore(product.id)} 
-            title={getQty(product.id) >= getLimit(product) ? "Maximum limit reached"
-              : !canAddMore(product.id) ? "No more stock" : "Add one"
-            }
+            title={!canAddMore(product.id) ? "No more stock" : "Add one"}
                 >
             +
           </button>
@@ -783,15 +733,14 @@ function getItemTime(p) {
   })}
 {/* Cart Bar */}
 {(() => {
-  // Safe reader that ALWAYS returns an array of categories
   const readAllCategories = () => {
-    if (typeof window === "undefined") return []; // SSR guard
+    if (typeof window === "undefined") return [];
     try {
       const raw = localStorage.getItem("allCategories");
       if (!raw) return [];
       const parsed = JSON.parse(raw);
       const arr = Array.isArray(parsed) ? parsed : [parsed];
-      // ensure each category has an array `products`
+
       return arr
         .filter(Boolean)
         .map((cat) => ({
@@ -805,7 +754,6 @@ function getItemTime(p) {
   };
 
   const allCategories = readAllCategories();
-
   const summary = allCategories.reduce(
     (acc, cat) => {
       for (const p of cat.products) {
@@ -820,22 +768,22 @@ function getItemTime(p) {
     },
     { items: 0, total: 0 }
   );
-
   const items = summary.items;
   const total = Math.round(summary.total);
-
+  const remaining = Math.max(0, MIN_ORDER_AMOUNT - total);
+  const meetsMinimum = total >= MIN_ORDER_AMOUNT;
   return items > 0 ? (
     <div
       style={{
         position: "fixed",
-        bottom: "40px",
+        bottom: "0px",
         left: 0,
         width: "100%",
         backgroundColor: "green",
         color: "white",
         padding: "12px",
         display: "flex",
-        justifyContent: "space-between", 
+        justifyContent: "space-between",
         alignItems: "center",
         fontWeight: "bold",
         zIndex: 2000,
@@ -845,28 +793,40 @@ function getItemTime(p) {
     >
       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
         🛒
-        <div style={{ display: "flex", flexDirection: "column", lineHeight: "1.2" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            lineHeight: "1.2",
+          }}
+        >
           <span style={{ fontSize: "12px" }}>{items} items</span>
           <span style={{ fontSize: "12px" }}>₹{total}</span>
+
+          {!meetsMinimum && (
+            <span style={{ fontSize: "10px", color: "#ffe6e6" }}>
+              Add ₹{remaining} more (Min order ₹{MIN_ORDER_AMOUNT})
+            </span>
+          )}
         </div>
       </div>
-
       <button
         type="button"
         className="text-white fw-bold d-flex align-items-center gap-1"
         style={{
           fontSize: "12px",
-          cursor: "pointer",
+          cursor: meetsMinimum ? "pointer" : "not-allowed",
           background: "transparent",
           border: "none",
+          opacity: meetsMinimum ? 1 : 0.6,
         }}
-        onClick={() =>
-          navigate(`/groceryCart/${userType}/${userId}`, {
-            state: { mobileNumber },
-          })
-        }
+        disabled={!meetsMinimum}
+        onClick={() => {
+          if (!meetsMinimum) return;          
+          navigate(`/groceryChristmasCart/${userType}/${userId}`); 
+        }}
       >
-        View Cart →
+        {meetsMinimum ? "View Cart →" : `Min ₹${MIN_ORDER_AMOUNT}`}
       </button>
     </div>
   ) : null;
@@ -877,7 +837,6 @@ function getItemTime(p) {
 </div>
     </div>    
     <Footer/>
-       
       </div>
       <Modal show={showZoomModal} onHide={() => { setShowZoomModal(false); setZoomProduct(null); }} centered>
   <button
@@ -886,7 +845,6 @@ function getItemTime(p) {
   >
     &times;
   </button>
-
   <Modal.Body className="text-center">
     <div className="zoom-container">
       <img src={zoomImage} alt={zoomProduct?.name || "Zoomed Product"} className="zoom-image" />
@@ -942,4 +900,4 @@ function getItemTime(p) {
         }
       `}</style>
 
-export default GroceryCard;
+export default GroceryChristmasOffers;
