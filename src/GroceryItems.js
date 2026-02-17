@@ -13,15 +13,11 @@ import { CartStorage } from "./CartStorage";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ImageCache from "./utils/ImageCache";
 import Footer from "./Footer.js";
-// import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-// import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 const GroceryCard = () => {
   const navigate = useNavigate();
-  // const location = useLocation();
   const { userType, userId, selectedUserType } = useParams();
   const location = useLocation();
 const encodedCategory = location.state?.encodedCategory || localStorage.getItem("encodedCategory");
-// const [selectedCategory, setSelectedCategory] = useState("");
 const [selectedCategory, setSelectedCategory] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -61,7 +57,6 @@ useEffect(() => {
 useEffect(() => {
   if (!selectedCategory) return;
 
-  // Convert cart state → product list
   const current = Object.entries(cart).map(([productId, qty]) => {
   const product = products.find(p => String(p.id) === String(productId));
   return {
@@ -81,7 +76,6 @@ useEffect(() => {
   setGrandSummary(CartStorage.grandSummary());
 }, [cart, selectedCategory, products]);
 
-// const handleAdd = (productId) => setCart(prev => ({ ...prev, [productId]: 1 }));
 
 const handleIncrement = (productId) =>
   setCart(prev => {
@@ -136,7 +130,6 @@ const handleAddClick = (id) => {
   const limit = getLimit(product);
   if (stock <= 0) return; 
   if(limit <= 0) return;
-  // handleAdd(id);
   setCart(prev => ({ ...prev, [id]: 1}));
   setChecked(true);
 };
@@ -170,80 +163,6 @@ function getItemTime(p) {
   const idNum = Number(String(p.id || "").replace(/\D/g, "")) || 0;
   return idNum;
 }
-
-// useEffect(() => {
-//   if (!encodedCategory) return;
-//   const decodedCat = decodeURIComponent(encodedCategory);
-//   setSelectedCategory(decodedCat);
-//   const controller = new AbortController();
-//   let cancelled = false;
-//   async function fetchProductsAndFirstImages() {
-//     try {
-//       setImageLoading(true);
-//       const url = `https://handymanapiv2.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(decodedCat)}`;
-//       const { data: items } = await axios.get(url, { signal: controller.signal });
-//       const safeItems = Array.isArray(items) ? items : [];
-//       if (cancelled) return;
-//       const sorted = [...safeItems].sort((a, b) => {
-//         const tb = getItemTime(b);
-//         const ta = getItemTime(a);
-//         if (tb !== ta) return tb - ta;   
-//         return String(b.id).localeCompare(String(a.id));
-//       }); 
-//       const firstImages = safeItems
-//         .map(p => ({ productId: p.id, photo: Array.isArray(p.images) ? p.images[0] : null }))
-//         .filter(x => !!x.photo);
-//       const cachedMap = {};
-//       const misses = [];
-//       for (const { productId, photo } of firstImages) {
-//         const cached = ImageCache.getBase64(photo);
-//         if (cached) {
-//           cachedMap[productId] = [`data:image/jpeg;base64,${cached}`];
-//         } else {
-//           misses.push({ productId, photo });
-//         }
-//       }
-//       setProducts(sorted);
-//       if (Object.keys(cachedMap).length) setImageUrls(prev => ({ ...prev, ...cachedMap }));
-//       if (cancelled) return;
-//       const fetchOne = async ({ productId, photo }) => {
-//         try {
-//           const res = await fetch(
-//             `https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
-//             { signal: controller.signal }
-//           );
-//           const json = await res.json();
-//           const b64 = json?.imageData || "";
-//           if (!b64) return;
-//           ImageCache.setBase64(photo, b64);
-//           const dataUrl = `data:image/jpeg;base64,${b64}`;
-//           if (!cancelled) {
-//             setImageUrls(prev => {
-//               if (prev[productId]?.[0] === dataUrl) return prev;
-//               return { ...prev, [productId]: [dataUrl] };
-//             });
-//           }
-//         } catch (e) {
-//         }
-//       };
-
-//       await Promise.allSettled(misses.map(fetchOne));
-//     } catch (err) {
-//       if (err?.name !== "CanceledError" && err?.name !== "AbortError") {
-//         console.error("Error fetching grocery products:", err);
-//         setProducts([]);
-//         setImageUrls({});
-//       }
-//     } finally {
-//       if (!cancelled) setImageLoading(false);
-//     }
-//   }
-//   fetchProductsAndFirstImages();
-//   return () => {
-//     cancelled = true;
-//     controller.abort();
-//   };
-// }, [encodedCategory]);
 
  useEffect(() => {
     if (!encodedCategory) return;
@@ -533,28 +452,9 @@ function getItemTime(p) {
           
         </div>
 
-          {/* <div className="position-relative flex-grow-1 ms-5">
-                    <input
-                      type="text"
-                      className="form-control w-60 mt-2 ps-5 "
-                      placeholder="Search Products"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value.trimStart())}
-                      />
-                      <SearchIcon
-                        className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"
-                        style={{ pointerEvents: 'none' }}
-                      />
-                    </div> */}
   {selectedCategory && (
     <>
-    {/* <div className="d-flex align-items-center">
-    <ArrowBackIcon className="me-2" style={{ color: "green", cursor: "pointer" }}
-        onClick={() => navigate(`/profilePage/${userType}/${userId}`)}/>      
-        <h4 className="font-bold ">{selectedCategory}</h4>
-      </div> */}
   <div className="d-flex justify-content-end" style={{ marginTop: selectedCategory === "Chicken" ? "230px" : "120px"}}>  
-    {/* style={{marginTop: "120px"}} */}
   <span className="text-success text-xs">
     Selected Qty:{" "}
     <span className="text-danger fw-bold">
@@ -783,7 +683,6 @@ function getItemTime(p) {
   })}
 {/* Cart Bar */}
 {(() => {
-  // Safe reader that ALWAYS returns an array of categories
   const readAllCategories = () => {
     if (typeof window === "undefined") return []; // SSR guard
     try {
@@ -791,7 +690,6 @@ function getItemTime(p) {
       if (!raw) return [];
       const parsed = JSON.parse(raw);
       const arr = Array.isArray(parsed) ? parsed : [parsed];
-      // ensure each category has an array `products`
       return arr
         .filter(Boolean)
         .map((cat) => ({
@@ -894,9 +792,6 @@ function getItemTime(p) {
     <h6 className="text-start fw-bold m-0" style={{ fontSize: "12px" }}>
       {zoomProduct?.name || ""}
     </h6>
-    {/* <p className="text-start text-muted m-0" style={{ fontSize: "12px" }}>
-      MRP: ₹{zoomProduct?.mrp ?? ""}
-    </p> */}
     {zoomProduct?.afterDiscount != null && (
       <p className="text-start m-0" style={{ fontSize: "12px" }}>
         <b className="text-success me-2">₹{Math.round(Number(zoomProduct.afterDiscount))}</b>

@@ -1,9 +1,7 @@
 import Sidebar from './Sidebar';
 import { useState, useEffect } from 'react';
-// import Header from './Header';
 import MoreVertIcon from '@mui/icons-material/Dashboard';
 import { useParams, useNavigate } from 'react-router-dom';  
-// import Footer from './Footer';
 import { Button } from 'react-bootstrap';
 import axios from 'axios';  
 import BabyKidsImg from './img/BabyKids.jpeg';
@@ -20,8 +18,6 @@ const categories = [
   { label: 'Home Needs', value: 'Home Needs', image: HouseHoldImg },
   { label: 'Personal Care', value: 'Personal Care', image: PersonalCareImg },
   { label: 'Baby & Kids', value: 'Baby & Kids', image: BabyKidsImg },
-//   { label: 'Masalas & Cooking Essentials', value: 'Masalas & Cooking Essentials', image: MasalasImg },
-//   { label: 'Packaged & Gourmet', value: 'Packaged & Gourmet', image: GourmetImg },
 ];
 
 const GroceryCategoryIcons = () => {
@@ -154,7 +150,6 @@ const [error, setError] = useState('');
 >
   Back
 </Button>
-    {/* <Footer /> */}
     </> 
   );
 };

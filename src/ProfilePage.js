@@ -1,16 +1,10 @@
 import React, { useState, useEffect, useRef} from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
-// import { Carousel as BsCarousel } from "bootstrap";
 import Carousel from "react-bootstrap/Carousel";
 import './App.css';
 import { Modal, Button} from 'react-bootstrap';
 import Confetti from "react-confetti";
-// import LocationOnIcon from '@mui/icons-material/LocationOn';
-// import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-// import NotificationBell from "./NotificationsBell";
-// import OrdersNotificationBell from "./OrdersBellNotifications";
-// import TrackStatusNotificationBell from "./TrackStatusBellNotifications";
 import ImageCache from "./utils/ImageCache";
 import axios from "axios";    
 import Footer from './Footer.js';
@@ -20,27 +14,14 @@ import RouteIcon from "@mui/icons-material/Route";
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import StorefrontIcon from '@mui/icons-material/Storefront'; 
 import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
-// import AddToCartCount from "./AddToCartCount.js";
-// import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
 import UploadIcon from '@mui/icons-material/Upload';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';  
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import TransferWithinAStationIcon from '@mui/icons-material/TransferWithinAStation';
-// import Banner from './img/Saturday.jpeg';
-// import Banner2 from './img/MilkOffers.jpeg';   
-// import Banner2 from './img/ChickenOffers.jpeg';
-// import Banner2 from './img/DrinkOffers.jpeg';   F
-// import Banner3 from './img/Above45.jpeg'; 
-// import BannerVideo from './img/PongalOffers.mp4';
-// import VolumeOffIcon from '@mui/icons-material/VolumeOff';       
-// import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-// import Banner3 from './img/banner-4.jpg';  
 import { useNavigate, useParams } from "react-router-dom";   
 import Logo from "./img/Hm_Logo 1.png";
 import SearchIcon from "@mui/icons-material/Search";
-// import ArticleIcon from '@mui/icons-material/Article';
-// import AnnouncementIcon from '@mui/icons-material/Announcement';
 import LogoutIcon from "@mui/icons-material/Logout";   
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
@@ -55,8 +36,6 @@ import HomeDecor from './img/HomeDecor.jpeg';
 import HomeAppliances from './img/Kitchenware.jpeg';
 import BabyKidsImg from './img/BabyKids.jpeg';
 import PoojaImg from './img/Pooja.jpeg';
-// import FamilyPackImg from './img/FamilyPack.jpeg';
-// import PersonalCareImg from './img/PersonalCare.jpeg';
 import HairImg from './img/HairCare.jpeg';
 import BathBodyImg from './img/BathBody.jpeg';
 import RavvaImg from './img/RiceRavva.jpeg';
@@ -93,9 +72,8 @@ import Banner3Img from './img/100Cashback.jpeg';
 import Banner4Img from './img/200Cashback.jpeg';
 import Banner5Img from './img/300Cashback.jpeg';
 import UnbeatableImg from './img/MilkOffers.jpeg';
-// import Above45Img from './img/Above45.jpeg'; 
 import SaleImg from './img/SaleOffer.jpeg'; 
-// import { initPushNotifications } from "./NotificationService.js";
+import { initPushNotifications } from "./NotificationService.js";
 import DeliveryImg from './img/FreeDelivery.jpeg';
 import AddIcCallIcon from '@mui/icons-material/AddIcCall';
 import RoyalImg from './img/RoyalUpma.jpeg';
@@ -206,15 +184,12 @@ const categories = [
 const groceryCategories = [
   {label: 'LMart Special Royal Pesara Upma Mix', value: 'LMart Special', image: RoyalImg},
   { label: 'Unbeatable 10 Offers', value: 'Grocery Offers', image: UnbeatableImg },
-  // { label: 'Above 45 % Offers', value: 'Offers', image: Above45Img },
    { label: 'Buy 1 Get 1 Sale', value: 'Offers', image: SaleImg },
   { label: 'Kitchenware Appliances', value: 'Kitchenware Appliances', image: KitchenImg },
-  // {label: ( <> Chicken <br /> Pre-Booking </> ), value: 'Chicken', image: ChickenImg },
   { label: 'Milk, Curd & Ghee', value: 'Milk, Curd & Ghee', image: MilkImg },
    { label: 'Vegetables', value: 'Vegetables', image: VegetablesImg },
   { label: 'Fruits', value: 'Fruits', image: FruitsImg }, 
   { label: 'Ice Creams', value: 'Ice Creams', image: IcecreamImg },
-  // { label: 'Kitchenware Appliances', value: 'Kitchenware Appliances', image: KitchenImg },
   { label: 'Atta & Flours', value: 'Atta & Flours', image: AttaImg },
   { label: 'Rice & Ravva', value: 'Rice & Ravva', image: RavvaImg },    
    { label: 'Oils & Dals', value: 'Oils & Dals', image: OilsImg },
@@ -276,9 +251,6 @@ const ProfilePage = () => {
    const [error, setError] = useState('');
     const [products, setProducts] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState("");
-    //  const videoRef = useRef(null);
-// const [isMuted] = useState(true);
-// const [isMuted, setIsMuted] = useState(true);
 const [unreadCount, setUnreadCount] = useState(0);
 const [messageCounts, setMessageCounts] = useState({
   news:     0,
@@ -310,8 +282,6 @@ const [paymentMode, setPaymentMode] = useState('');
 const clickLock = useRef(false);
 const [isRegistered, setIsRegistered] = useState(false);
 const [partnerStatus, setPartnerStatus] = useState("");
-// const [isPickup] = useState(false);
-// const [isPickup, setIsPickup] = useState(false);
 const [cartData, setCartData] = useState(null);
 const [transactionDetails, setTransactionDetails] = useState('');
 const [transactionStatus, setTransactionStatus] = useState('');
@@ -347,13 +317,8 @@ const displayProducts =
 searchQuery.trim().length > 0 ? filteredProducts : products;
 const [imageLoading, setImageLoading] = useState(true);
 const [placeholderIndex, setPlaceholderIndex] = useState(0);
-// const carouselRef = useRef(null);
-// const carouselInstance = useRef(null);
 const firstCategories = groceryCategories.slice(0, 6);
 const secondCategories = groceryCategories.slice(6, 32);
-// const thirdCategories = groceryCategories.slice(15, 24);
-// const fourthCategories = groceryCategories.slice(24, 30);
-// const HEADER_HEIGHT = window.innerWidth <= 768 ? 50 : 100;
 
 const placeholderSuggestions = [
   'Search "Milk"', 'Search "Freedom Refined Sunflower Oil"', 'Search "Sona Masoori Rice"',
@@ -600,7 +565,7 @@ useEffect(() => {
       }
     };
     fetchProducts();
-    // initPushNotifications();
+    initPushNotifications();
   }, []);
 
   /* ================= FILTER ================= */
@@ -1740,9 +1705,8 @@ const updateLocalStorageCart = (product, qty) => {
   })}
 {/* Cart Bar */}               
 {(() => {
-  // Safe reader that ALWAYS returns an array of categories
   const readAllCategories = () => {
-    if (typeof window === "undefined") return []; // SSR guard
+    if (typeof window === "undefined") return []; 
     try {
       const raw = localStorage.getItem("allCategories");
       if (!raw) return [];
@@ -1921,25 +1885,9 @@ const updateLocalStorageCart = (product, qty) => {
                           alt="Poster"
                         /> 
                       </div>
-                      {/* <div
-                          onClick={() => {
-                            const encodedCategory = encodeURIComponent("Chicken");
-                            localStorage.setItem("encodedCategory", encodedCategory);
-                            navigate(`/grocery/${userType}/${userId}`, { state: { encodedCategory } });
-                          }}
-                          style={{ cursor: "pointer" }}
-                        >
-                          <img
-                            src={ChickenPoster}
-                            className="d-block w-100 img-fluid rounded"
-                            style={{ width: "50%", objectFit: "contain" }}
-                            alt="Poster"
-                          />
-                        </div> */}
-          
+                      
 <div className="container"  style={{
    minHeight: "100vh",
-  //  marginTop: `${HEADER_HEIGHT}px`,
    paddingTop: isMobile ? `${MOBILE_PADDING_TOP}px` : "0px",   
   }}>
   

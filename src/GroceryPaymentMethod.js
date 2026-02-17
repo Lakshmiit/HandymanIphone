@@ -50,7 +50,6 @@ const GroceryPaymentmethod = () => {
   const [shouldBlink, setShouldBlink] = useState(false);
   const [groceryId, setgroceryId] = useState();
   const [groceryData, setgroceryData] = useState();
-  //const [referralRec, setReferralRec] = useState(null);
   const [referralPoints, setReferralPoints] = useState(0);
   const [referralAmount, setReferralAmount] = useState(0);
   const [netPayable, setNetPayable] = useState(0);
@@ -61,7 +60,6 @@ const GroceryPaymentmethod = () => {
   const [location, setLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [cashbackMessage, setCashbackMessage] = useState("");
-  // const [date, setDate] = useState("");
   const isGuestName = (name) => (name ?? "").trim().toLowerCase() === "guest";
   const [loading, setLoading] = useState(false);
 
@@ -116,9 +114,7 @@ const GroceryPaymentmethod = () => {
       const text = await res.text();
       console.log("RAW RESPONSE:", text);
       if (
-        // !text ||
-        // text === "null" ||
-        text.includes("Firstorder Can not be found")
+       text.includes("Firstorder Can not be found")
       ) {
         return null;
       }
@@ -262,12 +258,10 @@ const GroceryPaymentmethod = () => {
       try {
         const rec = await getReferralRecord(userId);
         if (cancelled) return;
-        //setReferralRec(rec);
         setReferralPoints(readServerPoints(rec));
       } catch (e) {
         console.error("Failed to load referral points:", e);
         if (!cancelled) {
-          //setReferralRec(null);
           setReferralPoints(0);
         }
       }
@@ -341,7 +335,6 @@ const GroceryPaymentmethod = () => {
         setGrandTotal(data.grandTotal);
         setTotalItemsSelected(data.totalItemsSelected);
         setCustomerName(data.customerName);
-        // setDate(data.date);
         const products = (data?.categories ?? []).flatMap(
           (c) => c?.products ?? [],
         );
@@ -415,9 +408,8 @@ const GroceryPaymentmethod = () => {
       const data = await response.json();
       console.log(data);
       const addresses = Array.isArray(data) ? data : [data];
-      // Format addresses if necessary
       const formattedAddresses = addresses.map((addr) => ({
-        id: addr.addressId, // Use addressId
+        id: addr.addressId, 
         type: addr.isPrimaryAddress ? "primary" : "secondary",
         address: addr.address,
         state: addr.state,
@@ -624,7 +616,6 @@ const GroceryPaymentmethod = () => {
         grandTotal: grandTotal,
         totalItemsSelected: totalItemsSelected,
         status: "Open",
-        // status: selectedPayment === "online" ? "Draft" : "Open",
         paymentMode: selectedPayment,
         utrTransactionNumber: "",
         transactionNumber: "",
@@ -654,12 +645,10 @@ const GroceryPaymentmethod = () => {
         if (!response.ok) {
           throw new Error("Failed to Update Technician.");
         }
-        // const data = await response.json();
         localStorage.removeItem(`cartSnapshot_${groceryItemId}`);
         localStorage.removeItem("activeOrderId");
         localStorage.removeItem("allCategories");
         localStorage.removeItem(`cartMeta_${groceryItemId}`);
-        // Store confirmation code in state
         window.alert(
           `We are Redirecting to the Payment Page! Your reference number is ${martId}.`,
         );
@@ -678,7 +667,6 @@ const GroceryPaymentmethod = () => {
 
         if (!response.ok) {
         }
-        // const data = await response.json();
         localStorage.removeItem(`cartSnapshot_${groceryItemId}`);
         localStorage.removeItem("activeOrderId");
         localStorage.removeItem("allCategories");
@@ -876,40 +864,11 @@ const GroceryPaymentmethod = () => {
               role="button"
               style={{ cursor: "pointer" }}
               onClick={goBackToCart}
-              // onClick={() => navigate(`/groceryCart/${userType}/${userId}`)}
             >
               <ArrowBackIcon />
             </span>
             <h2 className="title text-success mb-0">PAYMENT CONFIRMATION</h2>
           </div>
-          {/* LIVE LOCATION DISPLAY */}
-          {/* <div className="card mt-3 shadow-sm">
-            <div className="card-body">
-              <h6 className="text-success mb-2">📍 Your Live Location</h6>
-
-              {location ? (
-                <>
-                  <iframe
-                    title="Live Location"
-                    width="100%"
-                    height="250"
-                    style={{ borderRadius: "10px", border: "1px solid #ddd" }}
-                    loading="lazy"
-                    allowFullScreen
-                    src={`https://www.google.com/maps?q=${location.latitude},${location.longitude}&z=16&output=embed`}
-                  />
-                  <p className="text-muted small mt-2">
-                    This location will be used only for delivery accuracy.
-                  </p>
-                </>
-              ) : (
-                <p className="text-danger small">
-                  {locationError || "Fetching your location..."}
-                </p>
-              )}
-            </div>
-          </div> */}
-
           {/* HANDYMAN */}
           <div className="d-flex justify-content-between align-items-center">
             <label className="mt-2 fs-6 fw-bold">
@@ -924,7 +883,6 @@ const GroceryPaymentmethod = () => {
                   color: "white",
                 }}
               >
-                {/* <Modal.Title className='w-100'>{isEditing ? 'Edit Address' : 'Add Address'}</Modal.Title> */}
                 <Modal.Title className="w-100">
                   {isGuestName(fullName) ? "Add Address" : "Edit Address"}
                 </Modal.Title>
@@ -1079,9 +1037,7 @@ const GroceryPaymentmethod = () => {
                 className="list-group-item d-flex justify-content-between align-items-center bg-white text-dark"
               >
                 <div>
-                  {/* <span className="m1-2">{address.id}</span>
-                                      <br /> */}
-                  <span className="ml-2">{address.fullName}</span>
+                 <span className="ml-2">{address.fullName}</span>
                   <br />
                   <span className="ml-2">{address.mobileNumber}</span>
                   <br />
@@ -1093,10 +1049,8 @@ const GroceryPaymentmethod = () => {
                   <br />
                   <span className="ml-2">{address.zipCode}</span>
                   <br />
-                  {/* <hr /> */}
                 </div>
                 <div className="text-end">
-                  {/* {addresses.map((address) => ( */}
                   <Button
                     key={address.id}
                     style={{
@@ -1165,7 +1119,6 @@ const GroceryPaymentmethod = () => {
                 </span>
               )}
             </div>
-            {/* {showSugarOffer && ( */}
             <div
               className="d-flex align-items-center justify-content-between p-2"
               style={{
@@ -1181,7 +1134,6 @@ const GroceryPaymentmethod = () => {
                 <div style={{ fontSize: "13px" }}>On orders above ₹499</div>
               </div>
             </div>
-            {/* )} */}
 
             <table className="grocery-table m-2">
               <tbody>
@@ -1348,7 +1300,6 @@ const GroceryPaymentmethod = () => {
                 </button>
               </div>
               {/* HANDYMAN */}
-              {/* Modal for Terms and Conditions */}
               {showModals && (
                 <div className="modal-overlay">
                   <div className="modal-content">
