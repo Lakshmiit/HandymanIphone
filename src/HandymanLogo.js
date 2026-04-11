@@ -2,7 +2,7 @@ import React, {useEffect, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import HandyManCharacter from "./img/hm_char.png";
-import HandyManLogo from "./img/Hm_Logo 1.png";
+import HandymanLogo from "./img/Hm_Logo 1.png";
 
 const LandingPage = () => {
 
@@ -41,7 +41,7 @@ const LandingPage = () => {
       <div className="row">
         <div className="col">
           <img 
-            src={HandyManLogo} 
+            src={HandymanLogo} 
             alt="Logo" 
             width="190" 
             height="90" 

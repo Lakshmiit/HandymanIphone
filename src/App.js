@@ -78,7 +78,7 @@ import TechnicianViewBookTechnician from './TechnicianViewBookTechnician.js';
 import BookTechnicianDetailsNotifications from './BookTechnicianDetailsNotifications.js';
 import BookTechnicianDetailsGrid from './BookTechnicianDetailsGrid.js';
 import RaiseTicketConfirmation from './RaiseTicketConfirmation.js';
-import HandyManLogo from './HandyManLogo.js';
+import HandymanLogo from './HandymanLogo.js'; 
 import LoginPage from './LoginPage.js';
 import UserIdLogin from './UserIdLogin.js';
 import CustomerRaiseTicketGridView from './CustomerRaiseTicketGridView.js';
@@ -209,7 +209,7 @@ function App() {
             {/* <Route path="/customerRegistration" element={<CustomerRegistration />} /> */}
             {/* <Route path="/technicianRegistration" element={<TechnicianRegistration />} /> */}
             <Route path="/profilePage/:userType/:userId" element={<ProfilePage />} />
-            <Route path="/" element={<HandyManLogo />} /> 
+            <Route path="/" element={<HandymanLogo />} /> 
             <Route path="/loginnew" element={<LoginPage />} />
             <Route path="/otpVerification" element={<OTPVerificationPage />} />
             <Route path="/userIdLogin" element={<UserIdLogin />} />
