@@ -10,9 +10,9 @@ import Header from "./Header";
 import Footer from "./Footer";
 import CloseIcon from '@mui/icons-material/Close';
 
-export default function HandymanTrackingMap() {  
+export default function HandymanTrackingMap() {
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyDpcQs7a9Gl4cX5UKJeHFcvgvBCHlv6SAs", 
+    googleMapsApiKey: "AIzaSyDpcQs7a9Gl4cX5UKJeHFcvgvBCHlv6SAs", // 🔑 Replace with your real key
   });
 
   const { id } = useParams();
@@ -40,7 +40,7 @@ const [deliveryPartnerUserId, setDeliveryPartnerUserId] = useState('');
     const fetchGroceryData = async () => {     
       try {
         const response = await fetch(
-          `https://handymanapiv2.azurewebsites.net/api/Mart/GetProductDetails?id=${id}`
+          `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/Mart/GetProductDetails?id=${id}`
         );
         if (!response.ok) throw new Error("Failed to fetch ticket data");
         const data = await response.json();
@@ -262,4 +262,3 @@ const [deliveryPartnerUserId, setDeliveryPartnerUserId] = useState('');
     </>
   );
 }
-

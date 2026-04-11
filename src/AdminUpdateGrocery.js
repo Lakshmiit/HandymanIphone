@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button } from 'react-bootstrap';
-import "./App.css"; // Add this for the required CSS.
+import "./App.css";
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import UpdateIcon from '@mui/icons-material/Update';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -37,7 +37,6 @@ const [manufactureDate,setManufactureDate] =useState('');
 const [expireDate,setExpireDate]=useState('');
 const [limit, setLimit] = useState();
 
-// const [gst, setGST] = useState('');
 useEffect(() => {
     console.log(grocery);
 }, [grocery]);
@@ -46,13 +45,12 @@ useEffect(() => {
           const fetchGroceryData = async () => {
               try {
                   setLoading(true);
-                  const groceryResponse = await fetch(`https://handymanapiv2.azurewebsites.net/api/UploadGrocery/GetGroceryItems/${id}`);
+                  const groceryResponse = await fetch(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItems/${id}`);
                   if (!groceryResponse.ok) {
                       throw new Error('Grocery not found');
                   }
                   const groceryData = await groceryResponse.json();
                   console.log("groceryData:", groceryData);
-                  // alert(JSON.stringify(productData));
                   setGrocery(groceryData);
                   setUniqueId(groceryData.id);
                   setGroceryName(groceryData.name);
@@ -153,7 +151,7 @@ const handleRemoveFile = (index) => {
       const formData = new FormData();
       formData.append('file', new Blob([byteArray], { type: mimeType }), fileName);
       formData.append('fileName', fileName);
-      const response = await fetch('https://handymanapiv2.azurewebsites.net/api/FileUpload/upload?filename=' + fileName, {
+      const response = await fetch('https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/FileUpload/upload?filename=' + fileName, {
         method: 'POST',
         headers: {
           'Accept': 'text/plain',
@@ -198,7 +196,7 @@ const handleRemoveFile = (index) => {
         Limit: limit,
     };
     try {
-      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/UploadGrocery/UpdateGroceryItems?id=${uniqueId}`, {
+      const response = await fetch(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadGrocery/UpdateGroceryItems?id=${uniqueId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
@@ -224,10 +222,6 @@ const handleRemoveFile = (index) => {
 if (error) {
     return <div>{error}</div>;
 }
-
-// if (!product) {
-//     return <div>No data available for the selected product.</div>;
-// }
 
   return (
     <div className="d-flex flex-row justify-content-start align-items-start mt-mob-50">
@@ -397,19 +391,7 @@ if (error) {
                 placeholder="If any Discount Enter Percentage"
               />
             </div>
-
-              {/* GST */}
-            {/* <div className="form-group">
-              <label>GST</label>
-              <input
-                type="text"
-                className="form-control"
-                value={gst}
-                onChange={(e) => setGST(e.target.value)}
-                placeholder="Enter GST Percentage"
-              />
-            </div> */}
-
+            
             {/* After Discount Price*/}
             <div className="form-group">
               <label>After Discount Price</label>

@@ -16,11 +16,6 @@ const LakshmiCollectionPaymentmethod = () => {
    const [isChecked, setIsChecked] = useState('');
 const [selectedPayment, setSelectedPayment] = useState(null);
 const [error, setError] = useState("");
-  // const [martId, setMartId] = useState('');
-  // const [totalItemsSelected, setTotalItemsSelected] = useState('');
-  // const [grandTotal, setGrandTotal] = useState('');
-  // const [customerName, setCustomerName] = useState('');
-  // const [cartData, setCartData] = useState(null);
 const [addressData, setAddressData] = useState({
 fullName  : '',
 mobileNumber: '',
@@ -29,7 +24,6 @@ state: '',
 district: '',
 zipCode: '',
 });
-// const [serviceUnavailable, setServiceUnavailable] = useState(false);
  const [addresses, setAddresses] = useState([]);
 const [newAddress, setNewAddress] = useState('');
 const [state, setState] = useState('');
@@ -49,7 +43,6 @@ const [mobileNumber, setMobileNumber] = useState('');
   const [shouldBlink,setShouldBlink] = useState(false);
   const [collectionDetails, setCollectionDetails] = useState('');
   const [collectionItems, setCollectionItems] = useState([]);
-//   const [imageLoading, setImageLoading] = useState(true);
  const [uploadItemsByName, setUploadItemsByName] = useState({});
 const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
 
@@ -58,7 +51,7 @@ useEffect(() => {
 }, [isChecked, editingAddressId]);
 
 const getUploadItemByProductName = useCallback(async (productName) => {
-    const url = `https://handymanapiv2.azurewebsites.net/api/UploadLakshmiCollection/GetLakshmiCollectionsItemByProductName?productName=${encodeURIComponent(productName)}`;
+    const url = `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadLakshmiCollection/GetLakshmiCollectionsItemByProductName?productName=${encodeURIComponent(productName)}`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`Failed to fetch UploadLakshmiCollection for ${productName}`);
     const arr = await res.json();
@@ -71,7 +64,7 @@ const getUploadItemByProductName = useCallback(async (productName) => {
       ...itemObj,
       stockLeft: newStockLeftStr,
     };
-    const url = `https://handymanapiv2.azurewebsites.net/api/UploadLakshmiCollection/UpdateLakshmiCollection?id=${encodeURIComponent(itemObj.id)}`;
+    const url = `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadLakshmiCollection/UpdateLakshmiCollection?id=${encodeURIComponent(itemObj.id)}`;
     const res = await fetch(url, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -91,7 +84,7 @@ const getUploadItemByProductName = useCallback(async (productName) => {
                 return;
                 }
                 const response = await fetch(
-                `https://handymanapiv2.azurewebsites.net/api/LakshmiCollection/GetLakshmiCollectionDetails/${collectionId}`
+                `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/LakshmiCollection/GetLakshmiCollectionDetails/${collectionId}`
                 );
                 if (!response.ok) throw new Error("Failed to fetch collection details");
                 const data = await response.json();
@@ -136,7 +129,7 @@ const getUploadItemByProductName = useCallback(async (productName) => {
 
  const fetchCustomerData = useCallback(async () => {
       try {
-        const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Address/GetAddressById/${userId}`);
+        const response = await fetch(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/Address/GetAddressById/${userId}`);
         if (!response.ok) {
           throw new Error('Failed to fetch customer profile data');
         }
@@ -162,22 +155,12 @@ const getUploadItemByProductName = useCallback(async (productName) => {
       }
   }, [userId]);
 
-//   useEffect(() => {
-//   const primary = addresses.find(addr => addr.type === "primary");
-//   const district = primary?.district?.toLowerCase();
-//   if (district && district !== "visakhapatnam") {
-//     setServiceUnavailable(true);  
-//   } else {
-//     setServiceUnavailable(false);
-//   }
-// }, [addresses]);
-
   useEffect(() => {
     fetchCustomerData();
   }, [fetchCustomerData]);
 
   useEffect(() => {
-    axios.get('https://handymanapiv2.azurewebsites.net/api/MasterData/getStates')
+    axios.get('https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/MasterData/getStates')
       .then(response => {
         const data = response.data;
         console.log("States API Response:", data); 
@@ -191,7 +174,7 @@ const getUploadItemByProductName = useCallback(async (productName) => {
   
    useEffect(() => {
     if (stateId) {
-      axios.get(`https://handymanapiv2.azurewebsites.net/api/MasterData/getDistricts/${stateId}`)
+      axios.get(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/MasterData/getDistricts/${stateId}`)
         .then(response => {
           setDistrictList(response.data);
         })
@@ -254,7 +237,7 @@ const getUploadItemByProductName = useCallback(async (productName) => {
       };
     
       try {
-        const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Customer/CustomerAddressEdit`, {
+        const response = await fetch(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/Customer/CustomerAddressEdit`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -371,44 +354,9 @@ const handleUpdatePaymentMethod = async (e) => {
         colour: item.colour,
       })),
     };
-
-  // try {
-  //   let response;
-  //   if (selectedPayment === 'online') {
-  //    response = await fetch(`https://handymanapiv2.azurewebsites.net/api/LakshmiCollection/UpdateLakshmiCollectionDetails/${collectionId}`, {
-  //     method: 'PUT',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify(payload),
-  //   });
-
-  //   if (!response.ok) {
-  //     throw new Error('Failed to Update Collection.');
-  //   }
-  //   // const data = await response.json();
-
-  //   // Store confirmation code in state
-  //   window.alert(`We are Redirecting to the Payment Page! Your reference number is ${collectionDetails.lakshmiCollectionId}.`);
-  //   window.location.href = `/lakshmiCollectionsOnlinePayment/${collectionId}`;
-  // } else if (selectedPayment === 'cash') {
-  //   response = await fetch(`https://handymanapiv2.azurewebsites.net/api/LakshmiCollection/UpdateLakshmiCollectionDetails/${collectionId}`, {
-  //     method: 'PUT',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify(payload),
-  //   });
-
-  //   if (!response.ok) {
-  //   }
-  //   window.alert(`Thank You for choosing the Lakshmi Collections! Your reference number is ${collectionDetails.lakshmiCollectionId}.`);
-  //   window.location.href = `/profilePage/${userType}/${userId}`;
-  //  }
-  // }
   try {
       // Step 1: Update the LakshmiCollection (as before)
-      let response = await fetch(`https://handymanapiv2.azurewebsites.net/api/LakshmiCollection/UpdateLakshmiCollectionDetails/${collectionId}`, {
+      let response = await fetch(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/LakshmiCollection/UpdateLakshmiCollectionDetails/${collectionId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -678,14 +626,7 @@ const handleUpdatePaymentMethod = async (e) => {
                                 Note: Please enter your address to Order a Collection.
                               </p>
                             )}
-                     {/* {serviceUnavailable && (
-                        <div className="alert alert-danger">
-                          <strong>Note:</strong> Currently, the options to Raise a Ticket, Book Technician, Lakshmi Mart or Lakshmi Collections services are unavailable in your district.
-                            You can still purchase products through the "Buy Product" section.
-                            For further assistance, please contact our customer support at 6281198953.
-                        </div>
-                      )}     */}
-    
+              
     <div className="collection-confirmation">
     <p className='text-center' style={{ fontSize: "13px" }}><span className='name'>{fullName}</span> Thank you for Choosing the Lakshmi Collections</p>
       <table className="collection-table m-2">
@@ -710,15 +651,7 @@ const handleUpdatePaymentMethod = async (e) => {
         <div className='d-flex flex-column m-1'>
         {isMobile ? (             
         <div className='d-flex flex-column'>
-        {/* <label style={{fontSize: "13px"}}>
-            <input 
-            type="radio" 
-            className="form-check-input border-dark m-1"
-            checked={selectedPayment === 'online'}
-            onChange={() => handleCheckboxChange('online')}/>
-            Pay Through Online
-          </label> */}
-          <label style={{fontSize: "18px"}}>
+        <label style={{fontSize: "18px"}}>
             <input 
             type="radio" 
             className="form-check-input border-dark m-1"
@@ -730,15 +663,6 @@ const handleUpdatePaymentMethod = async (e) => {
           </div>
         ) : (
           <div className="desktop-view d-flex flex-column ">
-      {/* <label style={{fontSize: "13px"}}>
-        <input 
-        type="radio" 
-        className="form-check-input border-dark me-2"
-        checked={selectedPayment === 'online'}
-        onChange={() => handleCheckboxChange('online')}
-        />
-        Pay Through Online
-      </label> */}
       <label style={{fontSize: "13px"}}>
         <input 
           type="radio" 

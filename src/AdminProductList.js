@@ -6,24 +6,22 @@ import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
 const AdminProductList = () => {
   const [productData, setProductData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
-  const [categories, setCategories] = useState([]); // State for categories
-  const [catalogues, setCatalogues] = useState([]); // State for catalogues
+  const [categories, setCategories] = useState([]);
+  const [catalogues, setCatalogues] = useState([]); 
   const [status, setStatus] = useState([]);
   const [category, setCategory] = useState("");
   const [productstatus, setproductstatus] = useState("");
   const [catalogue, setCatalogue] = useState("");
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const rowsPerPage = 15;
   const navigate = useNavigate();
-  // const {userType} = useParams();
-  // const {ProductOwnedBy} = useParams();
   
   // Fetch product data, categories, and catalogues
   useEffect(() => {
     setLoading(true);
-    const url = `https://handymanapiv2.azurewebsites.net/api/Product/GetAdminProductList?ProductOwnedBy=Admin`;
+    const url = `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/Product/GetAdminProductList?ProductOwnedBy=Admin`;
     axios.get(url)
       .then((response) => {
         const products = response.data.map((product) => ({
@@ -32,7 +30,6 @@ const AdminProductList = () => {
             ? product.rate - (product.rate * product.discount) / 100
             : product.rate,
         }));
-        // products.sort((a, b) => a.productName.localeCompare(b.productName));
         setProductData(products);
         setFilteredData(products);
   
@@ -56,7 +53,7 @@ const AdminProductList = () => {
   const handleDelete = (productId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this product?');
     if (confirmDelete) {
-      axios.delete(`https://handymanapiv2.azurewebsites.net/api/Product/${productId}`)
+      axios.delete(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/Product/${productId}`)
         .then(() => {
           setProductData(prevData => prevData.filter(product => product.id !== productId));
           setFilteredData(prevData => prevData.filter(product => product.id !== productId));
@@ -70,19 +67,15 @@ const AdminProductList = () => {
   // Filter data based on selected category and catalogue
   useEffect(() => {
   let filtered = productData;
-
   if (category) {
     filtered = filtered.filter(product => product.category === category);
   }
-
   if (catalogue) {
     filtered = filtered.filter(product => product.catalogue === catalogue);
   }
-
   if (productstatus) {
     filtered = filtered.filter(product => product.productStatus === productstatus);
   }
-
   if (searchTerm) {
     filtered = filtered.filter(product =>
       product.productName.toLowerCase().includes(searchTerm.toLowerCase())
@@ -92,10 +85,6 @@ const AdminProductList = () => {
   setCurrentPage(1); 
 }, [category, catalogue, productstatus, searchTerm, productData]);
 
-  // Handle page change
-  // const handlePageChange = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  // };
   const indexOfLastProduct = currentPage * rowsPerPage;
   const indexOfFirstProduct = indexOfLastProduct - rowsPerPage;
   const currentProducts = filteredData.slice(indexOfFirstProduct, indexOfLastProduct);
@@ -179,7 +168,6 @@ const AdminProductList = () => {
     Add New Product
   </button> 
 </div>
-
       </div> 
 
       {filteredData.length === 0 ? (

@@ -8,6 +8,7 @@ import AdminSidebar from './AdminSidebar';
 import { Dashboard as MoreVertIcon,} from '@mui/icons-material';
 import {  Button } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
+// import { appConfig } from "./config";
 
 const AdminUploadGrocery = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -28,7 +29,7 @@ const AdminUploadGrocery = () => {
   const [units, setUnits] = useState('');
   const [manufactureDate,setManufactureDate] =useState('');
   const [expireDate,setExpireDate]=useState('');
-  const [limit, setLimit] = useState('');
+  const [limit, setLimit] = useState("");
   const handleFileChange = (event) => {
     const selectedFiles = Array.from(event.target.files);
     if (selectedFiles.length + groceryPhotos.length > 1) {
@@ -90,7 +91,7 @@ useEffect(() => {
       formData.append('file', new Blob([byteArray], { type: mimeType }), fileName);
       formData.append('fileName', fileName);
      
-      const response = await fetch('https://handymanapiv2.azurewebsites.net/api/FileUpload/upload?filename=' + fileName, {
+      const response = await fetch(`https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/FileUpload/upload?filename=` + fileName, {
         method: 'POST',
         headers: {
           'Accept': 'text/plain',
@@ -146,11 +147,10 @@ useEffect(() => {
       Units: units,
       ManufactureDate: manufactureDate,
       ExpireDate : expireDate,
-      Limit: limit,    
+      Limit: limit ? limit.toString() : "",    
     };   
-// handymanapiv2.azurewebsites.net
     try {
-      const response = await fetch("https://handymanapiv2.azurewebsites.net/api/UploadGrocery/UploadGrocery", {
+      const response = await fetch(`https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/UploadGrocery/UploadGrocery`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -226,7 +226,7 @@ useEffect(() => {
                 <option>Offers</option>
                 <option>DWCRA</option>
                 <option>Christmas Offers</option>
-                <option>Grocery Offers</option>
+                <option>Unbeatable Offers</option>
                 <option>Chicken Offers</option>
                 <option>Vegetables</option>
                 <option>Fruits</option>
@@ -255,12 +255,8 @@ useEffect(() => {
                 <option>Kids Zone</option>
                 <option>Health Care</option>
                 <option>Kitchenware Appliances</option>
-                <option>Electrical</option>
-                <option>Sanitary</option>
                 <option>Home Decors</option>
-                {/* <option>Family Pack </option> */}
-                {/* <option>Staples & Grains</option> */}
-              </select>
+                </select>
             </div> 
 
             {/* Units */}
@@ -344,18 +340,6 @@ useEffect(() => {
               />
             </div>
 
-             {/* GST */}
-            {/* <div className="form-group">
-              <label>GST</label>
-              <input
-                type="text"
-                className="form-control"
-                value={gst}
-                onChange={(e) => setGST(e.target.value)}
-                placeholder="Enter GST Percentage"
-              />
-            </div> */}
-
              {/* After Discount Price */}
             <div className="form-group">
               <label>After Discount Price</label>
@@ -378,7 +362,6 @@ useEffect(() => {
               />
             </div>
 
-
             {/* Expire Date Left */}
             <div className="form-group">
               <label>Expire Date <span className="req_star">*</span></label>
@@ -393,7 +376,7 @@ useEffect(() => {
             
              {/* Limit */}
             <div className="form-group">
-              <label>Limit <span className="req_star">*</span></label>
+              <label>Limit</label>
               <input
                 type="text"
                 className="form-control"
@@ -445,7 +428,6 @@ useEffect(() => {
       <button
         type="button"
         className="btn btn-primary w-100 d-flex justify-content-center align-items-center p-3 shadow-lg"
-       
           onClick={() => navigate(`/adminGroceryList/Admin`)}
       >
         <VisibilityIcon className="me-2" />

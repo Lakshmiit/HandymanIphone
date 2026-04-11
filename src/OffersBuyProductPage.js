@@ -9,9 +9,10 @@ import { Dashboard as MoreVertIcon,} from '@mui/icons-material';
 import ViewOffersBuyProductPage from "./ViewOffersBuyProductPage.js";
 import { Button, Form, Modal } from 'react-bootstrap'; 
 import axios from "axios";
+// import { appConfig } from "./config";
 
 const OffersBuyProduct = () => { 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
   const {id} = useParams();
   const {userType} = useParams(); 
   const [loading, setLoading] = useState(true);
@@ -64,6 +65,7 @@ const OffersBuyProduct = () => {
   const [numberOfStockAvailable, setNumberOfStockAvailable] = useState('');
   const [disableBuy, setDisableBuy] = useState(false);
 const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
+const [isNewUser, setIsNewUser] = useState(true);
 
   useEffect(() => {
     console.log(loading, productOptions, editingAddressId, buyProductId, isEditing);
@@ -71,7 +73,7 @@ const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
   
     const fetchProfileType = useCallback(async () => {
       try {
-        const API_URL = "https://handymanapiv2.azurewebsites.net/api/Address/GetAddressById/";
+        const API_URL = `https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/Address/GetAddressById/`;
         const response = await fetch(`${API_URL}${userId}`);
         if (!response.ok) {
           throw new Error("Failed to fetch customer profile data");
@@ -93,6 +95,13 @@ const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
         }));
         
         setAddresses(formattedAddresses);
+        const apiFullName = addresses[0]?.fullName ?? "";
+        setFullName(apiFullName);
+        if (!apiFullName || isGuestName(apiFullName)) {
+          setIsNewUser(true);
+        } else {
+          setIsNewUser(false);
+        }
         const customerName = Array.isArray(data) ? data[0]?.fullName || '' : data.fullName || '';
         setFullName(customerName);
       } catch (error) {
@@ -105,7 +114,7 @@ const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
   }, [fetchProfileType]);
 
    useEffect(() => {
-     axios.get('https://handymanapiv2.azurewebsites.net/api/MasterData/getStates')
+     axios.get(`https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/MasterData/getStates`)
        .then(response => {
          const data = response.data;
          console.log("States API Response:", data); 
@@ -120,7 +129,7 @@ const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
     
     useEffect(() => {
      if (stateId) {
-       axios.get(`https://handymanapiv2.azurewebsites.net/api/MasterData/getDistricts/${stateId}`)
+       axios.get(`https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/MasterData/getDistricts/${stateId}`)
          .then(response => {
            setDistrictList(response.data);
          })
@@ -165,7 +174,6 @@ const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
     const district = primaryAddress?.district || "";
     const pincode = primaryAddress?.zipCode || "";
     const mobileNumber = primaryAddress?.mobileNumber || "";
-    // const emailAddress = primaryAddress?.emailAddress || "";
   
     const payload = {
       BuyProductId:"string",
@@ -216,7 +224,7 @@ const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
     };
   
     try {
-      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/BuyProduct/BuyProductUpload`,{
+      const response = await fetch(`https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/BuyProduct/BuyProductUpload`,{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -293,7 +301,7 @@ const isGuestName = (name) => (name ?? '').trim().toLowerCase() === 'guest';
   // Detect screen size for responsiveness
 useEffect(() => {
   const handleResize = () => setIsMobile(window.innerWidth <= 768);
-  handleResize(); // Set initial state
+  handleResize(); 
   window.addEventListener('resize', handleResize);
 
   return () => window.removeEventListener('resize', handleResize);
@@ -356,10 +364,11 @@ useEffect(() => {
       firstName: fullName,
       lastName: "lastName",
       fullName: fullName,
+       walletAmount: "0",
     };
   
     try {
-      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Customer/CustomerAddressEdit`, {
+      const response = await fetch(`https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/Customer/CustomerAddressEdit`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -394,7 +403,7 @@ useEffect(() => {
 const fetchProducts = async () => {
   try {
     const response = await fetch(
-      `https://handymanapiv2.azurewebsites.net/api/Product/${id}`
+      `https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/Product/${id}`
     );
     if (!response.ok) {
       throw new Error("Failed to fetch products");
@@ -411,7 +420,6 @@ const fetchProducts = async () => {
       setDiscount(data.discount);
       setCategory(data.category);
       setNumberOfStockAvailable(data.numberOfStockAvailable);
-      // setPriceAfterDiscount(data.priceAfterDiscount);
 
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -470,15 +478,19 @@ useEffect(() => {
           <form className="form" onSubmit={handleSubmit}>
            <div className="d-flex justify-content-between align-items-center">
                                <label className="mt-2">Address <span className="req_star">*</span></label>
-                               {/* <Button variant="success m-1 text-white" onClick={() => setShowModal(true)}>
-                                 Add Address
-                               </Button> */}    
-                    
                      {/* Modal */}
-                           <Modal show={showModal} onHide={() => setShowModal(false)}>
-                       <Modal.Header closeButton>
-                           <Modal.Title>{isGuestName(fullName) ? 'Add Address' : 'Edit Address'}</Modal.Title>
-                         </Modal.Header>
+                          <Modal show={showModal} onHide={() => setShowModal(false)}>
+                            <Modal.Header
+                              closeButton
+                              style={{
+                                backgroundColor: isEditing ? "#008000" : "#008000",
+                                color: "white",
+                              }}
+                            >
+                              <Modal.Title className="w-100">
+                                {isNewUser ? "Add Address" : "Edit Address"}
+                              </Modal.Title>
+                            </Modal.Header>
                        <Modal.Body>
                          <Form>
                            <Form.Group className="mb-3">
@@ -587,9 +599,17 @@ useEffect(() => {
                                  required
                              />
                            </Form.Group>
-                           <Button type="button" variant="primary" onClick={handleAddressEdit}>
-                             {isGuestName(fullName) ? 'Add Address' : 'Edit Address'}
-                           </Button>
+                          <Button
+                            type="button"
+                            style={{
+                              backgroundColor: isAddressInvalid ? "#008000" : "#008000",
+                              borderColor: isAddressInvalid ? "#008000" : "#008000",
+                              color: "white",
+                            }}
+                            onClick={handleAddressEdit}
+                          >
+                            {isNewUser ? "Add Address" : "Edit Address"}
+                          </Button>
                          </Form>
                        </Modal.Body>
                      </Modal> 
@@ -603,8 +623,6 @@ useEffect(() => {
                                  className="list-group-item d-flex justify-content-between align-items-center bg-white text-dark"
                                >
                                  <div>
-                                   {/* <span className="m1-2">{address.id}</span>
-                                   <br /> */}
                                    <span className="ml-2">{address.fullName}</span>
                                    <br />
                                    <span className="ml-2">{address.mobileNumber}</span>
@@ -617,7 +635,6 @@ useEffect(() => {
                                    <br />
                                    <span className="ml-2">{address.zipCode}</span> 
                                    <br />
-                                   {/* <hr /> */}
                                  </div>
                                  <div className="text-end">
                                  {addresses.map((address) => (
@@ -657,7 +674,6 @@ useEffect(() => {
                 type="text"
                 className="form-control"
                 value={category}
-                // onChange={handleCategoryChange}
                 readOnly
               />
             </div>
@@ -670,7 +686,6 @@ useEffect(() => {
         type="text"
         className="form-control"
         value={productName}
-        // onChange={handleProductChange}
         placeholder="Choose Product Ceiling Fan, Air Conditioner"
         readOnly
         />
@@ -684,7 +699,6 @@ useEffect(() => {
                 type="text"
                 className="form-control"
                 value={productCatalogue}
-                //  onChange={(e) => setProductCatalogue(e.target.value)}
                 placeholder="Product Catalogue"
                 readOnly
               />
@@ -698,7 +712,6 @@ useEffect(() => {
                 type="text"
                 className="form-control"
                 value={productSize}
-                // onChange={(e) => setProductSize(e.target.value)}
                 placeholder="Product Size"
                 readOnly
               />
@@ -710,7 +723,6 @@ useEffect(() => {
                   type="text"
                   className="form-control"
                   value={rate}
-                  // onChange={rate}
                   placeholder="Rate"
                   readOnly
                 />
@@ -721,7 +733,6 @@ useEffect(() => {
                   type="text"
                   className="form-control"
                   value={discount}
-                  // onChange={(e) => setDiscount(e.target.value)}
                   placeholder="Discount"
                   readOnly
                 />
@@ -732,7 +743,6 @@ useEffect(() => {
                   type="text"
                   className="form-control"
                   value={afterDiscountPrice}
-                  // onChange={(e) => setAfterDiscount(e.target.value)}
                   placeholder="After Discount"
                   readOnly
                 />
@@ -784,30 +794,6 @@ useEffect(() => {
   {colorError && <p style={{ color: "red" }}>{colorError}</p>}
 </div>
 
-              {/* <div className="col-md-6">
-                <label>
-                  Required Quantity <span className="req_star">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={requiredQuality}
-                  onChange={handleQuantityChange}
-                  placeholder="Enter Required Quantity"
-                  required
-                  disabled={numberOfStockAvailable === 0}
-                />
-                {/* <input
-                  type="text"
-                  className="form-control"
-                  value={requiredQuality}
-                  onChange={handleQuantityChange}
-                  placeholder="Enter Required Quantity"
-                  required
-                /> 
-                {quantityError && <p style={{ color: "red" }}>{quantityError}</p>}
-              </div> */}
-
               <div className="col-md-6">
               <label>
                 Required Quantity <span className="req_star">*</span>
@@ -819,7 +805,6 @@ useEffect(() => {
                 disabled={isAddressInvalid || Number(numberOfStockAvailable) === 0}
                 required
               >
-                {/* <option value="">Select Quantity</option> */}
                 {[1, 2, 3, 4, 5].map((qty) => (
                   <option key={qty} value={qty}>
                     {qty}
@@ -837,8 +822,6 @@ useEffect(() => {
                   type="text"
                   className="form-control"
                   value={totalAmount}
-                  // onChange={(e) => setTotalAmounts(e.target.value)}
-                  // placeholder="Enter Total Amount"
                   readOnly
                 />
               </div>
@@ -1207,13 +1190,6 @@ useEffect(() => {
               >
                 Buy Product
               </button> 
-              {/* <button
-                type="button"
-                className="text-white text-end btn btn-success"
-                onClick={handleGetQuotation} disabled={isAddressInvalid}
-              >
-                Add to Cart
-              </button> */}   
               <Button 
                 type="button"
                 className="back-btn"

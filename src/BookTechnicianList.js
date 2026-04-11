@@ -6,33 +6,22 @@ import AdminSidebar from './AdminSidebar';
 import { Dashboard as MoreVertIcon} from '@mui/icons-material';
 import { Button } from 'react-bootstrap'; 
 import { FaEdit, FaTrash } from 'react-icons/fa';
-// import { useParams } from 'react-router-dom';
 const BookTechnicianList = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [technicianData, setTechnicianData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [categories, setCategories] = useState([]); 
-//   const [catalogues, setCatalogues] = useState([]); 
-//   const [status, setStatus] = useState([]);
   const [category, setCategory] = useState("");
-//   const [productstatus, setproductstatus] = useState("");
-//   const [catalogue, setCatalogue] = useState("");
   const [loading, setLoading] = useState(true); 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 15;
-//   const {id} = useParams();
   const navigate = useNavigate();
  
-  // Define dynamic parameters for the URL
- 
-
-//   const { ProductOwnedBy } = useParams(); 
-
   // Fetch product data, categories, and catalogues
   useEffect(() => {
     setLoading(true);
-    const url = `https://handymanapiv2.azurewebsites.net/api/UploadJobDescriptionBookTechnician/GetUploadJobDescriptionDetails`
+    const url = `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadJobDescriptionBookTechnician/GetUploadJobDescriptionDetails`
     axios.get(url)
       .then(response => {
         const technicians = response.data.map(technician => {
@@ -67,7 +56,7 @@ const BookTechnicianList = () => {
   const handleDelete = (technicianId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this Job Description?');
     if (confirmDelete) {
-      axios.delete(`https://handymanapiv2.azurewebsites.net/api/UploadJobDescriptionBookTechnician/${technicianId}`)
+      axios.delete(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadJobDescriptionBookTechnician/${technicianId}`)
         .then(() => {
           setTechnicianData(prevData => prevData.filter(technician => technician.id !== technicianId));
           setFilteredData(prevData => prevData.filter(technician => technician.id !== technicianId));
@@ -81,13 +70,11 @@ const BookTechnicianList = () => {
   // Filter data based on selected category and catalogue
   useEffect(() => {
     let filtered = technicianData;
-
     if (category) {
       filtered = filtered.filter(technician => technician.category === category);
     }
-
     setFilteredData(filtered);
-    setCurrentPage(1); // Reset to first page when filter changes
+    setCurrentPage(1); 
   }, [category, technicianData]);
 
   // Handle page change
@@ -98,9 +85,8 @@ const BookTechnicianList = () => {
   // Detect screen size for responsiveness
 useEffect(() => {
   const handleResize = () => setIsMobile(window.innerWidth <= 768);
-  handleResize(); // Set initial state
+  handleResize(); 
   window.addEventListener('resize', handleResize);
-
   return () => window.removeEventListener('resize', handleResize);
 }, []);
 
@@ -163,7 +149,6 @@ useEffect(() => {
             </select>
         </div>
 
-       
         {/* Add New Product Button */}
         <div className="text-end col-md-3 mb-1">
   <button

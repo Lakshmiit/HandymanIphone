@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import './App.css';
-import {  Button } from 'react-bootstrap'; // Import Bootstrap components for modal
+import {  Button } from 'react-bootstrap';
 import { Dashboard as MoreVertIcon,} from '@mui/icons-material';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
@@ -16,18 +16,17 @@ const ProductAdmin = () => {
   const [productType, setProductType] = useState("Approved");
   const [comments, setComments] = useState("");
   const { id } = useParams();
-  const navigate = useNavigate(); // Hook to programmatically navigate
-  //const {userType} = useParams();
+  const navigate = useNavigate(); 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Product/${id}`);
+        const response = await fetch(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/Product/${id}`);
         const data = await response.json();
         setProductData(data);
         const imageRequests =
           data.productPhotos?.map((photo) =>
             fetch(
-              `https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${photo}`
+              `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${photo}`
             )
               .then((res) => res.json())
               .then((data) => ({
@@ -47,7 +46,7 @@ const ProductAdmin = () => {
   // Detect screen size for responsiveness
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
-    handleResize(); // Set initial state
+    handleResize(); 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []); 
@@ -65,7 +64,7 @@ const ProductAdmin = () => {
       numberOfStockAvailable,
     };
     try {
-      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/Product/${id}`, {
+      const response = await fetch(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/Product/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

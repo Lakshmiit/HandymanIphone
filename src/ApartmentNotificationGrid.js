@@ -32,7 +32,7 @@ const AartmentRaiseTicketNotification = () => {
 
   useEffect(() => {
     setLoading(true);
-    const url = `https://handymanapiv2.azurewebsites.net/api/ApartmentRaiseTicket/GetGetApartmentMaintenanceForAdminList`
+    const url = `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/ApartmentRaiseTicket/GetGetApartmentMaintenanceForAdminList`
  
     axios.get(url)
       .then(response => {
@@ -63,7 +63,7 @@ const AartmentRaiseTicketNotification = () => {
   const handleDelete = (ticketId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this ticket?');
     if (confirmDelete) {
-      axios.delete(`https://handymanapiv2.azurewebsites.net/api/RaiseTicket/${ticketId}`)
+      axios.delete(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/RaiseTicket/${ticketId}`)
         .then(() => {
           setTicketData(prevData => prevData.filter(ticket => ticket.id !== ticketId));
           setFilteredData(prevData => prevData.filter(ticket => ticket.id !== ticketId));
@@ -100,7 +100,6 @@ const AartmentRaiseTicketNotification = () => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -114,7 +113,7 @@ const AartmentRaiseTicketNotification = () => {
  const currentRaiseTicket = filteredData.slice(indexOfFirstTicket, indexOfLastTicket);
  
  if (loading) {
-   return <div>Loading...</div>; // Show loading message while data is fetching
+   return <div>Loading...</div>;
  }
 
   return (
@@ -136,7 +135,6 @@ const AartmentRaiseTicketNotification = () => {
           >
             <MoreVertIcon />
           </Button>
-
           {showMenu && (
               <div className="sidebar-container">
                 <AdminSidebar />

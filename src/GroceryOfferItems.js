@@ -15,21 +15,24 @@ import ImageCache from "./utils/ImageCache";
 import Footer from "./Footer.js";
 
 const normalizeName = (s) =>
-  String(s || "").toLowerCase().replace(/\s+/g, " ").trim();
+  String(s || "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
 
 const getLimit = (product) => {
   if (!product) return Infinity;
-   const apiLimit = Number(product.limit);
-     if (Number.isFinite(apiLimit) && apiLimit > 0) {
+  const apiLimit = Number(product.limit);
+  if (Number.isFinite(apiLimit) && apiLimit > 0) {
     return apiLimit;
   }
   return Infinity;
 };
 
 const clampQtyFor = (product, qty) => {
-   const n = Math.max(0, Number(qty) || 0);
+  const n = Math.max(0, Number(qty) || 0);
   const limit = getLimit(product);
- const stock = Number(product?.stockLeft || 0);
+  const stock = Number(product?.stockLeft || 0);
   return Math.min(n, limit, stock);
 };
 
@@ -50,8 +53,8 @@ const GroceryOfferItems = () => {
   const [zoomProduct, setZoomProduct] = useState(null);
   const [grandSummary, setGrandSummary] = useState({ items: 0, total: 0 });
   const location = useLocation();
-const mobileNumber = localStorage.getItem("customerMobileNumber");
-console.log("Mobile Number from localStorage:", mobileNumber);
+  const mobileNumber = localStorage.getItem("customerMobileNumber");
+  console.log("Mobile Number from localStorage:", mobileNumber);
 
   const getInitialCategory = () => {
     const encodedFromState = location?.state?.encodedCategory;
@@ -61,7 +64,7 @@ console.log("Mobile Number from localStorage:", mobileNumber);
       } catch {
         return encodedFromState;
       }
-    } 
+    }
     const stored = localStorage.getItem("encodedCategory");
     if (stored) {
       try {
@@ -79,7 +82,10 @@ console.log("Mobile Number from localStorage:", mobileNumber);
     console.log(imageLoading, checked, grandSummary);
   }, [imageLoading, checked, grandSummary]);
 
-  const MIN_ORDER_TOTAL = normalizeName(selectedCategory) === normalizeName("Grocery Offers") ? 100 : 100;
+  const MIN_ORDER_TOTAL =
+    normalizeName(selectedCategory) === normalizeName("Unbeatable Offers")
+      ? 100
+      : 100;
   const OFFERS = "Offers";
   const encodedCategory = OFFERS;
 
@@ -120,51 +126,51 @@ console.log("Mobile Number from localStorage:", mobileNumber);
   }, [cart, selectedCategory, products]);
 
   useEffect(() => {
-  if (!products.length) return;
+    if (!products.length) return;
 
-  setCart((prev) => {
-    let changed = false;
-    const next = { ...prev };
-    for (const [pid, qty] of Object.entries(prev)) {
-      const product = products.find((p) => String(p.id) === String(pid));
-      if (!product) continue;
-      const clamped = clampQtyFor(product, qty);
-      if (clamped !== qty) {
-        if (clamped <= 0) delete next[pid];
-        else next[pid] = clamped;
-        changed = true;
+    setCart((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const [pid, qty] of Object.entries(prev)) {
+        const product = products.find((p) => String(p.id) === String(pid));
+        if (!product) continue;
+        const clamped = clampQtyFor(product, qty);
+        if (clamped !== qty) {
+          if (clamped <= 0) delete next[pid];
+          else next[pid] = clamped;
+          changed = true;
+        }
       }
-    }
-    return changed ? next : prev;
-  });
-}, [products]);
+      return changed ? next : prev;
+    });
+  }, [products]);
 
   const handleIncrement = (productId) =>
-  setCart((prev) => {
-    const product = products.find((p) => String(p.id) === String(productId));
-    if (!product) return prev;
-    const nextQty = clampQtyFor(product, (prev[productId] || 0) + 1);
-    if (nextQty === prev[productId]) return prev;
-    return { ...prev, [productId]: nextQty };
-  });
+    setCart((prev) => {
+      const product = products.find((p) => String(p.id) === String(productId));
+      if (!product) return prev;
+      const nextQty = clampQtyFor(product, (prev[productId] || 0) + 1);
+      if (nextQty === prev[productId]) return prev;
+      return { ...prev, [productId]: nextQty };
+    });
 
-    const handleAddClick = (id) => {
-  const product = products.find((p) => String(p.id) === String(id));
-  if (!product) return;
-  const qty = clampQtyFor(product, 1);
-  if (qty <= 0) return;
-  setCart((prev) => ({ ...prev, [id]: qty }));
-  setChecked(true);
-};
+  const handleAddClick = (id) => {
+    const product = products.find((p) => String(p.id) === String(id));
+    if (!product) return;
+    const qty = clampQtyFor(product, 1);
+    if (qty <= 0) return;
+    setCart((prev) => ({ ...prev, [id]: qty }));
+    setChecked(true);
+  };
 
   const getQty = (id) => Number(cart?.[id] || 0);
   const canAddMore = (id) => {
-  const product = products.find((p) => String(p.id) === String(id));
-  if (!product) return false;
-  const current = getQty(id);
-  const maxAllowed = clampQtyFor(product, Infinity);
-  return current < maxAllowed;
-};
+    const product = products.find((p) => String(p.id) === String(id));
+    if (!product) return false;
+    const current = getQty(id);
+    const maxAllowed = clampQtyFor(product, Infinity);
+    return current < maxAllowed;
+  };
 
   const handleDecrementClick = (productId) =>
     setCart((prev) => {
@@ -187,12 +193,12 @@ console.log("Mobile Number from localStorage:", mobileNumber);
   };
 
   useEffect(() => {
-      const handleResize = () => setIsMobile(window.innerWidth <= 768);
-      handleResize();
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    }, []);
-    
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const handleImageClick = (imageSrc, product) => {
     setZoomImage(imageSrc);
     setZoomProduct(product);
@@ -216,7 +222,7 @@ console.log("Mobile Number from localStorage:", mobileNumber);
       p.addedDate,
       p.added_at,
       p.timestamp,
-      p.timeStamp,  
+      p.timeStamp,
     ];
     for (const c of candidates) {
       const t = Date.parse(c);
@@ -237,22 +243,22 @@ console.log("Mobile Number from localStorage:", mobileNumber);
     async function fetchProductsAndFirstImages(warm = false, signal) {
       try {
         if (!warm) setImageLoading(true);
-        const url = `https://handymanapiv2.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(
-          selectedCategory
+        const url = `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(
+          selectedCategory,
         )}`;
         const { data: items } = await axios.get(url, { signal });
         const safeItems = Array.isArray(items) ? items : [];
         if (cancelled) return;
-       const sorted = [...safeItems].sort((a, b) => {
-        const stockA = Number(a.stockLeft || 0);
-        const stockB = Number(b.stockLeft || 0);
-        if (stockA <= 0 && stockB > 0) return 1;
-        if (stockA > 0 && stockB <= 0) return -1;
-        const timeA = getItemTime(a);
-        const timeB = getItemTime(b);
-        if (timeA !== timeB) return timeB - timeA;
-        return String(b.id).localeCompare(String(a.id));
-      });
+        const sorted = [...safeItems].sort((a, b) => {
+          const stockA = Number(a.stockLeft || 0);
+          const stockB = Number(b.stockLeft || 0);
+          if (stockA <= 0 && stockB > 0) return 1;
+          if (stockA > 0 && stockB <= 0) return -1;
+          const timeA = getItemTime(a);
+          const timeB = getItemTime(b);
+          if (timeA !== timeB) return timeB - timeA;
+          return String(b.id).localeCompare(String(a.id));
+        });
         setProducts(sorted);
         if (warm) return;
         const firstImages = safeItems
@@ -278,10 +284,10 @@ console.log("Mobile Number from localStorage:", mobileNumber);
         const fetchOne = async ({ productId, photo }) => {
           try {
             const res = await fetch(
-              `https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(
-                photo
+              `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(
+                photo,
               )}`,
-              { signal }
+              { signal },  
             );
             const json = await res.json();
             const b64 = json?.imageData || "";
@@ -337,7 +343,7 @@ console.log("Mobile Number from localStorage:", mobileNumber);
 
     const currentCategory = decodeURIComponent(encodedCategory);
     const existingCategory = savedCategories.find(
-      (c) => c.categoryName === currentCategory
+      (c) => c.categoryName === currentCategory,
     );
     if (existingCategory) {
       const restoredCart = {};
@@ -477,10 +483,7 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                   <span className="text-success text-xs">
                     Selected Qty:{" "}
                     <span className="text-danger fw-bold">
-                      {Object.values(cart).reduce(
-                        (sum, qty) => sum + qty,
-                        0
-                      )}
+                      {Object.values(cart).reduce((sum, qty) => sum + qty, 0)}
                     </span>
                   </span>
 
@@ -488,20 +491,15 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                     Total Price: Rs{" "}
                     <span className="text-danger fw-bold">
                       {Math.round(
-                        Object.entries(cart).reduce(
-                          (sum, [productId, qty]) => {
-                            const product = products.find(
-                              (p) => String(p.id) === String(productId)
-                            );
-                            return (
-                              sum +
-                              (product
-                                ? Number(product.afterDiscount) * qty
-                                : 0)
-                            );
-                          },
-                          0
-                        )
+                        Object.entries(cart).reduce((sum, [productId, qty]) => {
+                          const product = products.find(
+                            (p) => String(p.id) === String(productId),
+                          );
+                          return (
+                            sum +
+                            (product ? Number(product.afterDiscount) * qty : 0)
+                          );
+                        }, 0),
                       )}
                     </span>
                     /-
@@ -522,7 +520,7 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                         (searchQuery === "" ||
                           p.name
                             ?.toLowerCase()
-                            .includes(searchQuery.toLowerCase()))
+                            .includes(searchQuery.toLowerCase())),
                     )
                     .map((product) => {
                       const stock = Number(product.stockLeft || 0);
@@ -540,10 +538,7 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                           <div className="d-flex flex-row justify-content-between absolute top-0 left-0 w-full">
                             {Number(product.discount) > 0 && !isOutOfStock && (
                               <span className="discount-badge">
-                                {Math.round(
-                                  Number(product.discount)
-                                )}
-                                %
+                                {Math.round(Number(product.discount))}%
                               </span>
                             )}
 
@@ -593,7 +588,7 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                                   !isOutOfStock &&
                                   handleImageClick(
                                     imageUrls[product.id][0],
-                                    product
+                                    product,
                                   )
                                 }
                               />
@@ -658,16 +653,11 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                             >
                               {product.afterDiscount != null && (
                                 <b className="text-success me-2">
-                                  ₹
-                                  {Math.round(
-                                    Number(product.afterDiscount)
-                                  )}
+                                  ₹{Math.round(Number(product.afterDiscount))}
                                 </b>
                               )}
                               {product.mrp != null && (
-                                <s className="text-muted">
-                                  ₹{product.mrp}
-                                </s>
+                                <s className="text-muted">₹{product.mrp}</s>
                               )}
                               {product.units && (
                                 <b
@@ -757,9 +747,7 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                                       fontWeight: "bold",
                                       width: "25px",
                                       height: "25px",
-                                      opacity: canAddMore(product.id)
-                                        ? 1
-                                        : 0.5,
+                                      opacity: canAddMore(product.id) ? 1 : 0.5,
                                       cursor: canAddMore(product.id)
                                         ? "pointer"
                                         : "not-allowed",
@@ -771,15 +759,14 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                                     disabled={!canAddMore(product.id)}
                                     title={
                                       !canAddMore(product.id)
-                                        ? Number(
-                                            product.stockLeft || 0
-                                          ) <= getQty(product.id)
+                                        ? Number(product.stockLeft || 0) <=
+                                          getQty(product.id)
                                           ? "No more stock"
                                           : getLimit(product) === Infinity
-                                          ? "No more stock"
-                                          : `Limit ${getLimit(
-                                              product
-                                            )} per customer`
+                                            ? "No more stock"
+                                            : `Limit ${getLimit(
+                                                product,
+                                              )} per customer`
                                         : "Add one"
                                     }
                                   >
@@ -797,9 +784,7 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                                     padding: "2px 12px",
                                     fontSize: "13px",
                                   }}
-                                  onClick={() =>
-                                    handleAddClick(product.id)
-                                  }
+                                  onClick={() => handleAddClick(product.id)}
                                 >
                                   ADD
                                 </button>
@@ -818,22 +803,15 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                         const raw = localStorage.getItem("allCategories");
                         if (!raw) return [];
                         const parsed = JSON.parse(raw);
-                        const arr = Array.isArray(parsed)
-                          ? parsed
-                          : [parsed];
-                        return arr
-                          .filter(Boolean)
-                          .map((cat) => ({
-                            ...cat,
-                            products: Array.isArray(cat?.products)
-                              ? cat.products
-                              : [],
-                          }));
+                        const arr = Array.isArray(parsed) ? parsed : [parsed];
+                        return arr.filter(Boolean).map((cat) => ({
+                          ...cat,
+                          products: Array.isArray(cat?.products)
+                            ? cat.products
+                            : [],
+                        }));
                       } catch (e) {
-                        console.error(
-                          "Invalid JSON in allCategories:",
-                          e
-                        );
+                        console.error("Invalid JSON in allCategories:", e);
                         return [];
                       }
                     };
@@ -842,22 +820,21 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                     const summary = allCategories.reduce(
                       (acc, cat) => {
                         for (const p of cat.products) {
-                          const qty =
-                            Number(p?.qty) || 0;
+                          const qty = Number(p?.qty) || 0;
                           if (!qty) continue;
                           const price =
                             Number(
                               p?.afterDiscountPrice ??
                                 p?.price ??
                                 p?.finalPrice ??
-                                0
+                                0,
                             ) || 0;
                           acc.items += qty;
                           acc.total += price * qty;
                         }
                         return acc;
                       },
-                      { items: 0, total: 0 }
+                      { items: 0, total: 0 },
                     );
 
                     const items = summary.items;
@@ -919,9 +896,8 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                                   fontWeight: "bold",
                                 }}
                               >
-                                Add ₹
-                                {MIN_ORDER_TOTAL - total} more to
-                                reach Minimum Order
+                                Add ₹{MIN_ORDER_TOTAL - total} more to reach
+                                Minimum Order
                               </span>
                             )}
                           </div>
@@ -938,15 +914,16 @@ console.log("Mobile Number from localStorage:", mobileNumber);
                                 : "pointer",
                             background: "transparent",
                             border: "none",
-                            opacity:
-                              total < MIN_ORDER_TOTAL ? 0.7 : 1,
+                            opacity: total < MIN_ORDER_TOTAL ? 0.7 : 1,
                           }}
                           onClick={() => {
                             if (total < MIN_ORDER_TOTAL) return;
                             navigate(
-                              `/groceryOffersCart/${userType}/${userId}`, {
-                              state: { mobileNumber },
-                            });
+                              `/groceryOffersCart/${userType}/${userId}`,
+                              {
+                                state: { mobileNumber },
+                              },
+                            );
                           }}
                         >
                           View Cart →
@@ -987,27 +964,16 @@ console.log("Mobile Number from localStorage:", mobileNumber);
               className="zoom-image"
             />
           </div>
-          <h6
-            className="text-start fw-bold m-0"
-            style={{ fontSize: "12px" }}
-          >
+          <h6 className="text-start fw-bold m-0" style={{ fontSize: "12px" }}>
             {zoomProduct?.name || ""}
           </h6>
           {zoomProduct?.afterDiscount != null && (
-            <p
-              className="text-start m-0"
-              style={{ fontSize: "12px" }}
-            >
+            <p className="text-start m-0" style={{ fontSize: "12px" }}>
               <b className="text-success me-2">
-                ₹
-                {Math.round(
-                  Number(zoomProduct.afterDiscount)
-                )}
+                ₹{Math.round(Number(zoomProduct.afterDiscount))}
               </b>
               {zoomProduct?.mrp ? (
-                <s className="text-muted">
-                  ₹{zoomProduct.mrp}
-                </s>
+                <s className="text-muted">₹{zoomProduct.mrp}</s>
               ) : null}
             </p>
           )}

@@ -57,7 +57,7 @@ const DeliveryPartner = () => {
   }, []);
 
   useEffect(() => {
-    axios.get("https://handymanapiv2.azurewebsites.net/api/MasterData/getStates")
+    axios.get("https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/MasterData/getStates")
       .then((res) => {
         setStateList(res.data || []);
         setStateId("");
@@ -67,7 +67,7 @@ const DeliveryPartner = () => {
 
   useEffect(() => {
     if (!stateId) { setDistrictList([]); return; }
-    axios.get(`https://handymanapiv2.azurewebsites.net/api/MasterData/getDistricts/${stateId}`)
+    axios.get(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/MasterData/getDistricts/${stateId}`)
       .then((res) => setDistrictList(res.data || []))
       .catch((err) => console.error("Error fetching districts:", err));
   }, [stateId]);
@@ -161,7 +161,7 @@ const DeliveryPartner = () => {
       fd.append("file", f, f.name);
       fd.append("fileName", f.name);
       const resp = await fetch(
-        `https://handymanapiv2.azurewebsites.net/api/FileUpload/upload?filename=${f.name}`,
+        `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/FileUpload/upload?filename=${f.name}`,
         { method: "POST", headers: { Accept: "text/plain" }, body: fd }
       );
       if (!resp.ok) {
@@ -217,7 +217,7 @@ const DeliveryPartner = () => {
         pancardAttachment: uploadedNames.panCard ? [uploadedNames.panCard] : [],
       };
 
-      const { status } = await axios.post(`https://handymanapiv2.azurewebsites.net/api/DeliveryPartner/UploadDeliveryPartnerDetails`,
+      const { status } = await axios.post(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/DeliveryPartner/UploadDeliveryPartnerDetails`,
         payload,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -229,7 +229,6 @@ const DeliveryPartner = () => {
       }
     } catch (err) {
       console.error("Submit error:", err);
-      // alert("Failed to submit.");
     } finally {
       setSubmitting(false);
     }
@@ -430,12 +429,6 @@ const DeliveryPartner = () => {
                 >
                   {loading[name] ? "Uploading..." : `Upload ${label}`}
                 </button>
-                {/* Show uploaded filename */}
-                {/* {uploadedNames[name] && (
-                  <div className="mt-2 small text-muted">
-                    Uploaded as: <code>{uploadedNames[name]}</code>
-                  </div>
-                )} */}
               </div>       
             ))}
           </div>

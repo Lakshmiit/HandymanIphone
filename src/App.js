@@ -78,21 +78,20 @@ import TechnicianViewBookTechnician from './TechnicianViewBookTechnician.js';
 import BookTechnicianDetailsNotifications from './BookTechnicianDetailsNotifications.js';
 import BookTechnicianDetailsGrid from './BookTechnicianDetailsGrid.js';
 import RaiseTicketConfirmation from './RaiseTicketConfirmation.js';
-import HandyManLogo from './HandymanLogo.js';
-import LoginPage from './LoginPage.js';     
+import HandyManLogo from './HandyManLogo.js';
+import LoginPage from './LoginPage.js';
 import UserIdLogin from './UserIdLogin.js';
 import CustomerRaiseTicketGridView from './CustomerRaiseTicketGridView.js';
 import OTPVerificationPage from './OTPVerificationPage.js';
 import ApartmentRaiseTicket from './ApartmentRaiseTicket.js';
-import ApartmentRaiseActionView from './ApartmentRaiseActionView.js';     
-import ApartmentNotificationGrid from './ApartmentNotificationGrid.js';   
+import ApartmentRaiseActionView from './ApartmentRaiseActionView.js';
+import ApartmentNotificationGrid from './ApartmentNotificationGrid.js';
 import AboutApartmentRaiseTicket from './AboutApartmentRaiseTicket.js';
 import ChatPage from './ChatPage.js';
 // import BuyProductOnlinePaymentPage from './BuyProductOnlinePaymentPage.js';
 // import BuyProductPaymentSuccess from './BuyProductPaymentSuccess.js';
 // import BookTechnicianOnlinePayment from './BookTechnicianOnlinePayment.js'
 // import BookTechnicianPaymentSuccess from './BookTechnicianPaymentSuccess.js';
-// New Pages  
 import GroceryOfferItems from './GroceryOfferItems.js';
 import GroceryOffersCartPage from './GroceryOffersCartPage.js';
 import GroceryItems from './GroceryItems.js';
@@ -125,7 +124,9 @@ import TermsAndConditions from './TermsandConditions.js';
 import PrivacyPolicy from './PrivacyPolicy.js';
 import { getLoginData } from "./utils/auth";
 import RoyalUpmaMix250g from './RoyalUpmaMix250g.js';
-// import MartHomeAppliances from './MartHomeAppliances.js';
+import MartHomeAppliances from './MartHomeAppliances.js';
+import AdminOfferForm from './AdminOfferForm.js';
+
 // import CustomerLocation from "./CustomerLocation.js";
 const PreventBackNavigation = () => {
    const navigate = useNavigate();
@@ -165,7 +166,8 @@ function App() {
         <main>
           {/* className="mt-100" */}       
           <Routes>
-            {/* <Route path="/martHomeAppliances/:userType/:userId" element={<MartHomeAppliances />} />  */}
+            <Route path="/adminOfferModal/Admin" element={<AdminOfferForm />} /> 
+            <Route path="/martHomeAppliances/:userType/:userId" element={<MartHomeAppliances />} /> 
             <Route path="/RoyalUpmaMix" element={<RoyalUpmaMix250g />} />
             <Route path="/termsandConditions" element={<TermsAndConditions />} />
             <Route path="/privacyPolicy" element={<PrivacyPolicy />} />
@@ -173,7 +175,6 @@ function App() {
             <Route path="/chatPage/:userType/:userId" element={<ChatPage />} />
             <Route path="/groceryOffers/:userType/:userId" element={<GroceryOfferItems />} />
             <Route path="/groceryOffersCart/:userType/:userId" element={<GroceryOffersCartPage />} />
-            {/* New Pages */}      
             <Route path="/deliveryPartner/:userType/:userId" element={<DeliveryPartner />} />
             <Route path="/deliveryTracking/:id" element={<DeliveryTracking />} />   
             {/* <Route path="/deliveryPartnerDirectory" element={<DeliveryPartnerDirectory />} /> */}
@@ -205,8 +206,6 @@ function App() {
             {/* <Route path="/lakshmiCollectionPaymentSuccess" element={<LakshmiCollectionPaymentSuccess />} /> */}
             <Route path='/adminLakshmiCollectionsOrders/:collectionId' element={<AdminLakshmiCollectionsPage />} /> 
             <Route path='/lakshmiCollectionsNotificationGrid' element={<AdminCollectionNotificationGrid />} /> 
-            
-
             {/* <Route path="/customerRegistration" element={<CustomerRegistration />} /> */}
             {/* <Route path="/technicianRegistration" element={<TechnicianRegistration />} /> */}
             <Route path="/profilePage/:userType/:userId" element={<ProfilePage />} />

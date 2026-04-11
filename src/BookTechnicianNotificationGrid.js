@@ -13,9 +13,6 @@ import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
 import "./App.css";
  
 const BookTechnicianNotification = () => {
-  // const navigate = useNavigate();
-  //const [status, setStatus] = useState("");
-//   const {raiseTicketId} = useParams();
   const [assignedTo, setAssignedTo] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
@@ -33,17 +30,15 @@ const BookTechnicianNotification = () => {
 
   useEffect(() => {
     setLoading(true);
-    const url = `https://handymanapiv2.azurewebsites.net/api/BookTechnician/GetBookTechnicianForAdminList`
+    const url = `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/BookTechnician/GetBookTechnicianForAdminList`
     axios.get(url)
       .then(response => {
         const technicians = response.data.map((technician) => ({
           ...technician,
         }));
         const assignedTechnicians = technicians.filter((technician) =>  (technician.status === "Assigned" && technician.assignedTo === "Customer") || (technician.status === "Closed" && technician.assignedTo === "Customer Care") || (technician.transactionStatus === "Success" && technician.assignedTo !== "") || (technician.status === "Assigned" && technician.assignedTo === "Technician"));
-          // technician.status === "Assigned" && technician.assignedTo === "Customer Care");
         setFilteredData(assignedTechnicians);
         setTechnicianData(assignedTechnicians);
-//alert(JSON.stringify(assignedTechnicians));
 
         const uniqueStates = [...new Set(technicians.map(technician => technician.state))];
         const uniqueDistricts = [...new Set(technicians.map(technician => technician.district))];
@@ -65,7 +60,7 @@ const BookTechnicianNotification = () => {
   const handleDelete = (technicianId) => {
     const confirmDelete = window.confirm('Are you sure you want to delete this ticket?');
     if (confirmDelete) {
-      axios.delete(`https://handymanapiv2.azurewebsites.net/api/RaiseTicket/${technicianId}`)
+      axios.delete(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/RaiseTicket/${technicianId}`)
         .then(() => {
           setTechnicianData(prevData => prevData.filter(technician => technician.id !== technicianId));
           setFilteredData(prevData => prevData.filter(technician => technician.id !== technicianId));
@@ -78,22 +73,18 @@ const BookTechnicianNotification = () => {
 
   useEffect(() => {
     let filtered = technicianData;
-
     if (state) {
       filtered = filtered.filter((technician) => technician.state === state);
     }
-
     if (district) {
       filtered = filtered.filter((technician) => technician.district === district);
     }
-
     if (zipCode) {
       filtered = filtered.filter((technician) => technician.zipCode === zipCode);
     }
     if (assignedTo) {
       filtered = filtered.filter((technician) =>technician.assignedTo === assignedTo);
     }
-
     setFilteredData(filtered);
     setCurrentPage(1);
   }, [state, district, zipCode, assignedTo, technicianData]);
@@ -102,13 +93,8 @@ const BookTechnicianNotification = () => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize();
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-
-  // const handlePageChange = (pageNumber) => {
-  //   setCurrentPage(pageNumber);
-  // };
 
  // Get paginated data
  const indexOfLastTicket = currentPage * rowsPerPage;
@@ -116,7 +102,7 @@ const BookTechnicianNotification = () => {
  const currentBookTechnician = filteredData.slice(indexOfFirstTicket, indexOfLastTicket);
 
  if (loading) {
-   return <div>Loading...</div>; // Show loading message while data is fetching
+   return <div>Loading...</div>; 
  }
 
   return (
@@ -217,7 +203,6 @@ const BookTechnicianNotification = () => {
               <th>Ticket ID</th>
               <th>Category</th>
               <th>Job Description</th>
-              {/* <th>Status</th> */}
               <th>Assigned To</th>
               <th>Actions</th>
             </tr>
@@ -229,7 +214,6 @@ const BookTechnicianNotification = () => {
                 <td>{technician.bookTechnicianId}</td>
                 <td>{technician.category}</td>
                 <td>{technician.jobDescription}</td>
-                {/* <td>{ticket.status}</td> */}
                 <td>{technician.assignedTo}</td>
                 <td className="d-flex align-items-center">
                   <Link
@@ -261,7 +245,6 @@ const BookTechnicianNotification = () => {
       <strong>Ticket ID:</strong> {technician.bookTechnicianId}
         <p><strong>Category:</strong> {technician.category}</p>
         <p><strong>Description:</strong> {technician.jobDescription}</p>
-        {/* <p><strong>Status:</strong> {technician.status}</p> */}
         <p><strong>Assigned To:</strong> {technician.assignedTo}</p>
       </div>
       <div className="ticket-actions">

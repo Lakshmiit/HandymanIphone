@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef} from 'react';
 import { useParams } from 'react-router-dom';
 import './App.css';
-import {  Button } from 'react-bootstrap'; // Import Bootstrap components for modal
+import {  Button } from 'react-bootstrap'; 
 import { Dashboard as MoreVertIcon,} from '@mui/icons-material';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
@@ -30,12 +30,12 @@ const AdminLakshmiCollectionsApproval = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/UploadLakshmiCollection/GetLakshmiCollections?id=${id}`);
+        const response = await fetch(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadLakshmiCollection/GetLakshmiCollections?id=${id}`);
         const data = await response.json();
         setCollectionData(data);
          const imagePromises = (data.images ?? []).map(async (file) => {
           const r = await fetch(
-            `https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(file)}`
+            `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(file)}`
           );
           const j = await r.json();
           const b64 = j.imageData || j.fileData || j.videoData; 
@@ -48,7 +48,7 @@ const AdminLakshmiCollectionsApproval = () => {
         });
         const videoPromises = (data.videos ?? []).map(async (file) => {
           const r = await fetch(
-            `https://handymanapiv2.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(file)}`
+            `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(file)}`
           );
           const j = await r.json();
           const b64 = j.videoData || j.fileData || j.imageData; 
@@ -103,7 +103,6 @@ const AdminLakshmiCollectionsApproval = () => {
     };
   }, [mediaItems]);
 
-  // Detect screen size for responsiveness
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     handleResize(); 
@@ -124,7 +123,7 @@ const AdminLakshmiCollectionsApproval = () => {
       stockLeft,
     };
     try {
-      const response = await fetch(`https://handymanapiv2.azurewebsites.net/api/UploadLakshmiCollection/UpdateLakshmiCollection?id=${id}`, {
+      const response = await fetch(`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadLakshmiCollection/UpdateLakshmiCollection?id=${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -293,11 +292,9 @@ const AdminLakshmiCollectionsApproval = () => {
                   <p><strong>Catalogue:</strong> {catalogue}</p>
                   <p><strong>Size:</strong> {size}</p>
                   <p><strong>Color:</strong> {colour}</p>
-                  {/* <p><strong>Units:</strong> {units}</p> */}
                   <p><strong>Rate:</strong> Rs {rate}</p>
                   <p><strong>Discount:</strong> {discount}%</p>
                   <p><strong>Price After Discount:</strong> Rs {afterDiscount}</p>
-                 {/* <p><strong>Warranty:</strong> {warranty}</p> */}
                   </div>
                 <div className="col-md-6">
                   <h5>Description</h5>

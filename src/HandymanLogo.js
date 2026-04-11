@@ -2,11 +2,9 @@ import React, {useEffect, useRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import './App.css';
 import HandyManCharacter from "./img/hm_char.png";
-import HandymanLogo from "./img/Hm_Logo 1.png";
-// import { useNavigate } from 'react-router-dom';
+import HandyManLogo from "./img/Hm_Logo 1.png";
 
 const LandingPage = () => {
-  // const navigate = useNavigate();
 
   const wordRefs = useRef([]);
 
@@ -34,7 +32,7 @@ const LandingPage = () => {
           <img 
             src={HandyManCharacter} 
             alt="Character" 
-            width="200"        
+            width="200" 
             height="200" 
             className="img-fluid"
           />
@@ -43,7 +41,7 @@ const LandingPage = () => {
       <div className="row">
         <div className="col">
           <img 
-            src={HandymanLogo} 
+            src={HandyManLogo} 
             alt="Logo" 
             width="190" 
             height="90" 
