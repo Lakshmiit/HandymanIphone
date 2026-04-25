@@ -102,7 +102,7 @@ useEffect(() => {
       const formData = new FormData();
       formData.append('file', new Blob([byteArray], { type: mimeType }), fileName);
       formData.append('fileName', fileName);
-      const response = await fetch('https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/FileUpload/upload?filename=' + fileName, {
+      const response = await fetch('https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/upload?filename=' + fileName, {
         method: 'POST',
         headers: {
           'Accept': 'text/plain',
@@ -149,7 +149,7 @@ useEffect(() => {
     };
 
     try {
-      const response = await fetch("https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/Product/ProductUpload", {
+      const response = await fetch("https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Product/ProductUpload", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"

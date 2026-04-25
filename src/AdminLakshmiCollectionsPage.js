@@ -50,7 +50,7 @@ const AdminLakshmiCollectionsPage = () => {
   const downloadImage = async (fileName) => {
     if (!fileName) return null;
     const res = await fetch(
-      `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(
+      `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(
         fileName
       )}`
     );
@@ -85,7 +85,7 @@ const AdminLakshmiCollectionsPage = () => {
         }
         setImageLoading(true);
         const response = await fetch(
-          `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/LakshmiCollection/GetLakshmicollectionsById?id=${collectionId}`
+          `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/LakshmiCollection/GetLakshmicollectionsById?id=${collectionId}`
         );
         if (!response.ok) throw new Error("Failed to fetch collection details");
         const data = await response.json();

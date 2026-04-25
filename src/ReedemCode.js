@@ -78,7 +78,7 @@ function ReedemCode({
   const checkNewOrExisting = useCallback(async (num) => {
     try {
       const res = await fetch(
-        `https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/UserOnBoarding/GuestUserVerificationByMobileNo?mobileNo=${encodeURIComponent(
+        `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UserOnBoarding/GuestUserVerificationByMobileNo?mobileNo=${encodeURIComponent(
           num
         )}`
       );
@@ -100,7 +100,7 @@ function ReedemCode({
 
   const getReferralRecord = async (userId) => {
   if (!userId) return null;
-  const url = `https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/ReferralPoints/GetReferralPointsByUserId?referreId=${encodeURIComponent(
+  const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/ReferralPoints/GetReferralPointsByUserId?referreId=${encodeURIComponent(
     userId
   )}`;
   const res = await fetch(url);
@@ -271,7 +271,7 @@ useEffect(() => {
     };
 
     if (record?.id) {
-      const putUrl = `https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/ReferralPoints/UpdateReferralPoints?id=${encodeURIComponent(
+      const putUrl = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/ReferralPoints/UpdateReferralPoints?id=${encodeURIComponent(
         record.id
       )}`;
       const r = await fetch(putUrl, {
@@ -285,7 +285,7 @@ useEffect(() => {
       if (!r.ok) throw new Error(d?.message || `PUT failed: ${r.status}`);
       return d || { ok: true };
     } else {
-      const postUrl = `https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/ReferralPoints/UploadReferralPoints`;
+      const postUrl = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/ReferralPoints/UploadReferralPoints`;
       const r = await fetch(postUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json; charset=utf-8" },
@@ -324,7 +324,7 @@ useEffect(() => {
       const numbersArr = splitCsvNumbers(numbersCsv);
       await upsertReferral({ record, numbersCsv: fixed4(numbersArr), userId: referrerId });
       // 2) Send promo SMS to all 3 new numbers
-     await fetch(`https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/Auth/sendpromosms`, {
+     await fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Auth/sendpromosms`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mobile: numbersArr.join(","), name: customerName }),

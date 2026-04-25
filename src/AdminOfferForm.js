@@ -62,7 +62,7 @@ const uploadFile = async (byteArray, fileName, mimeType) => {
     formData.append("fileName", fileName);
 
     const response = await fetch(
-      `https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/FileUpload/upload?filename=` +
+      `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/upload?filename=` +
         fileName,
       {
         method: "POST",
@@ -80,11 +80,17 @@ const uploadFile = async (byteArray, fileName, mimeType) => {
   }
 };
 
+const convertToIST = (dateString) => {
+  const date = new Date(dateString);
+  const pad = (n) => n.toString().padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:00`;
+};
+
   // Submit Form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
+    try {    
       const uploadedImages = [];
 
 for (let file of formData.files) {
@@ -103,8 +109,8 @@ for (let file of formData.files) {
         id: formData.id || "",
         title: formData.title,
         date: "string",
-        startDate: new Date(formData.startDate).toISOString(),
-        endDate: new Date(formData.endDate).toISOString(),
+        startDate: convertToIST(formData.startDate),
+        endDate: convertToIST(formData.endDate),
         description: formData.description,
         image: uploadedImages.map(url => ({
           images: url
@@ -114,7 +120,7 @@ for (let file of formData.files) {
       console.log("Sending Payload:", payload);
 
       await axios.post(
-        "https://handymanwebapp1-ezgyf8bxf4dtcqd2.z01.azurefd.net/api/UpLoadBannners/UploadBanners",
+        "https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UpLoadBannners/UploadBanners",
          payload
       );
       alert("Offer Uploaded Successfully!");

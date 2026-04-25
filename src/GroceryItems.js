@@ -180,7 +180,7 @@ return idNum;
 //   async function fetchProductsAndFirstImages() {
 //     try {
 //       setImageLoading(true);
-//       const url = `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(decodedCat)}`;
+//       const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(decodedCat)}`;
 //       const { data: items } = await axios.get(url, { signal: controller.signal });
 //       const safeItems = Array.isArray(items) ? items : [];
 //       if (cancelled) return;
@@ -209,7 +209,7 @@ return idNum;
 //       const fetchOne = async ({ productId, photo }) => {
 //         try {
 //           const res = await fetch(
-//             `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
+//             `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
 //             { signal: controller.signal }
 //           );
 //           const json = await res.json();
@@ -256,7 +256,7 @@ let pollId = null;
 async function fetchProductsAndFirstImages(warm = false, signal) {
 try {
 if (!warm) setImageLoading(true);
-const url = `https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(decodedCat)}`;
+const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(decodedCat)}`;
 const { data: items } = await axios.get(url, { signal });
 const safeItems = Array.isArray(items) ? items : [];
 if (cancelled) return;
@@ -294,7 +294,7 @@ if (cancelled) return;
 const fetchOne = async ({ productId, photo }) => {
 try {
 const res = await fetch(
-`https://handymanapiv6-g7dfa4fgcrd7f3h2.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
+`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
               { signal }     
 );
 const json = await res.json();
