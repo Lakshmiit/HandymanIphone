@@ -6,7 +6,7 @@ import Footer from './Footer.js';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowBack} from '@mui/icons-material';
-// import ForwardIcon from '@mui/icons-material/Forward';
+import ForwardIcon from '@mui/icons-material/Forward';
 import { Button, Form, Row, Col, Modal } from 'react-bootstrap';
 import axios from "axios";
 // import { appConfig } from "./config";
@@ -23,7 +23,6 @@ const AdminGroceryOrderPage = () => {
   const [pincode, setPincode] = useState('');
   const [address, setAddress] = useState(''); 
   const [id, setId] = useState("");  
-const [assignedTo, setAssignedTo] = useState('');
 const [loading, setLoading] = useState(true);
 const [paymentMode, setPaymentMode] = useState('');
 const [transactionDetails, setTransactionDetails] = useState('');
@@ -31,7 +30,6 @@ const [customerId, setCustomerId] = useState('');
 const [mobileNumber, setMobileNumber] = useState('');
 const [customerName, setCustomerName] = useState('');
 const [date, setDate] = useState('');
-const [error, setError] = useState('');
 const [items, setItems] = useState([]);
 const [deliveryPartners, setDeliveryPartners] = useState([]);
 const [selectedPartner, setSelectedPartner] = useState(""); 
@@ -48,14 +46,15 @@ const [units, setUnits] = useState("");
  const [groceryData, setgroceryData] = useState();
   const [groceryId, setgroceryId] = useState();
 const [cashbackAmount, setCashbackAmount] = useState(0);
-const showFreeSugar = Number(grandTotal) > 599 && Number(grandTotal) < 998;
-// const showAttaSugar = Number(grandTotal) > 499 && Number(grandTotal) < 999;
+const [status, setStatus] = useState();
  const [showZoomModal, setShowZoomModal] = useState(false);
+ const [remainingAmount,setRemainingAmount] =useState('');
   const [zoomImage, setZoomImage] = useState("");
   const [zoomProduct, setZoomProduct] = useState(null);
-  // const [giftName, setGiftName] = useState("");
-// const [freeItemImage, setFreeItemImage] = useState(null);
-// const [freeItemName, setFreeItemName] = useState("");
+  useEffect(() => {
+  console.log(status,groceryData,groceryId, id, customerId, loading, longitude, latitude, grandTotal, paidAmount, transactionNumber, transactionStatus, totalItemsSelected, cartData, code, units);
+}, [status,groceryData, groceryId,id,customerId, loading, longitude, latitude, grandTotal, paidAmount, transactionNumber, transactionStatus, totalItemsSelected, cartData, code, units]);
+
 useEffect(() => {
     const fetchCart = async () => {
       if (!groceryItemId) return;
@@ -63,7 +62,7 @@ useEffect(() => {
       const ctrl = new AbortController();
       try {
         const res1 = await fetch(
-          `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Mart/GetProductDetails?id=${groceryItemId}`,
+          `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/GetProductDetails?id=${groceryItemId}`,
           { signal: ctrl.signal }
         );
         if (!res1.ok) throw new Error("Failed to fetch product details");
@@ -71,9 +70,10 @@ useEffect(() => {
         setCartData(data);
         setMartId(data.martId);
         setGrandTotal(data.grandTotal);
+        setRemainingAmount(data.remainingAmount);
         setTotalItemsSelected(data.totalItemsSelected);
         setCustomerName(data.customerName);
-        setDate(data.date);
+        setStatus(data.status);
         const products = (data?.categories ?? []).flatMap(
           (c) => c?.products ?? []
         );
@@ -94,7 +94,7 @@ useEffect(() => {
         }
 
         const requests = productNames.map(async (name) => {
-          const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsByProductName?productName=${encodeURIComponent(
+          const url = `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsByProductName?productName=${encodeURIComponent(
             name
           )}`;
           const res = await fetch(url, { signal: ctrl.signal });
@@ -125,7 +125,6 @@ useEffect(() => {
         console.log("✅ First grocery id:", firstId);
       } catch (err) {
         if (err?.name === "AbortError") return;
-        setError(err.message || String(err));
         console.error("Error fetching cart data:", err);
       }
       return () => ctrl.abort();
@@ -133,14 +132,11 @@ useEffect(() => {
     fetchCart();
   }, [groceryItemId]);
 
-useEffect(() => {
-  console.log(groceryData,groceryId, id, customerId, loading, longitude, latitude, grandTotal, paidAmount, transactionNumber, transactionStatus, totalItemsSelected, cartData, code, units);
-}, [groceryData, groceryId,id,customerId, loading, longitude, latitude, grandTotal, paidAmount, transactionNumber, transactionStatus, totalItemsSelected, cartData, code, units]);
 
 useEffect(() => {
   const fetchDeliveryPartners = async () => {
     try {
-      const response = await axios.get(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/DeliveryPartner/GetAllDeliveryPartners`);
+      const response = await axios.get(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/DeliveryPartner/GetAllDeliveryPartners`);
       const partners = response.data.filter(partner => partner.status === "open");
       setDeliveryPartners(partners);
     } catch (error) {
@@ -154,7 +150,7 @@ useEffect(() => {
   const fetchGroceryData = async () => {
     try {
       const response = await fetch(
-        `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Mart/GetProductDetails?id=${groceryItemId}`
+        `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/GetProductDetails?id=${groceryItemId}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch grocery product data");
@@ -176,13 +172,15 @@ useEffect(() => {
       setLongitude(data.longitude);
       setLatitude(data.latitude);
       setGrandTotal(data.grandTotal);
+      setRemainingAmount(data.remainingAmount);
       setPaymentMode(data.paymentMode);
       setTotalItemsSelected(data.totalItemsSelected);
       setTransactionStatus(data.transactionStatus);
       setPaidAmount(data.paidAmount);
       setTransactionNumber(data.transactionNumber);
-      
+        setDate(data.date);
       let allProducts = [];
+      // eslint-disable-next-line 
       let totalAmountFromApi = 0;
 
       if (data.categories && Array.isArray(data.categories)) {
@@ -211,54 +209,10 @@ useEffect(() => {
         setUnits(allProducts[0].units || "");
         }
       }
-      const grandTotalNumeric = Number(data.grandTotal) || 0;
-      const cashback = totalAmountFromApi - grandTotalNumeric;
-        
-      if ((cashback >= 49 && cashback <= 51) ||(cashback >= 29 && cashback <= 31) || (cashback >= 99 && cashback <= 101) || (cashback >= 149 && cashback <= 151) || (cashback >= 199 && cashback <= 201))
-      {
-        setCashbackAmount(cashback);                       
-      } else {
-        setCashbackAmount(0);        
-      }
+       const itemsTotal = items.reduce((sum, item) => sum + Number(item.total), 0);
+      const cashbackAmount = Math.max(0, itemsTotal - Number(grandTotal));
+            setCashbackAmount(cashbackAmount);
 
-      // const numericGrandTotal = Number(data.grandTotal) || 0;
-      // let gift = "";
-      // if (numericGrandTotal >= 1699 && numericGrandTotal <= 1998) {
-      //   gift = "Paras Miracle Pedal Dustbin";
-      // } 
-      // else if (numericGrandTotal >= 2499) {
-      //   gift = "Oliveware Easy Meal Lunch Box";
-      // }
-      // setGiftName(gift);
-
-//       let offerImage = null;
-// let offerName = "";
-
-// if (grandTotal >= 199 && grandTotal <= 298) {
-//   offerImage = Container1Img;
-//   offerName = "Masti Oye Masala Noodles 60 g + Thums Up Soft Drink 250 ml";
-// }
-// else if (grandTotal >= 299 && grandTotal <= 398) {
-//   offerImage = Container2Img;
-//   offerName = "Nayasa Use Max Plastic Storage Container Pack 1";
-// }
-// else if (grandTotal >= 399 && grandTotal <= 498) {
-//   offerName = "₹50 Cashback";
-// }
-// else if (grandTotal >= 499 && grandTotal <= 598) {
-//   offerImage = Container3Img;
-//   offerName = "Home One Plastic Container 550 ml";
-// }
-// else if (grandTotal >= 599 && grandTotal <= 698) {
-//   offerImage = Container4Img;
-//   offerName = "Max Store Food Storage Container Pack 3";
-// }
-// else if (grandTotal >= 699) {
-//   offerImage = Container5Img;
-//   offerName = "Nayasa Use Max Plastic Storage Container Pack 3";
-// }
-// setFreeItemImage(offerImage);
-// setFreeItemName(offerName);
     } catch (error) {
       console.error("Error fetching grocery product data:", error);
     } finally {
@@ -268,63 +222,126 @@ useEffect(() => {
   if (groceryItemId) {
     fetchGroceryData();
   }
-}, [groceryItemId, grandTotal]);
+}, [groceryItemId, grandTotal, items]);    
    
-const handleAssignedToChange = (e) => {
-  const selectedAssignedTo = e.target.value;
-  setAssignedTo(selectedAssignedTo);
-  setError({});
-};
+// const handleAssignedToChange = (e) => {
+//   const selectedAssignedTo = e.target.value;
+//   setAssignedTo(selectedAssignedTo);
+// };
 
 // ForwardIcon 
-//   const handleUpdatePaymentMethod = async () => {
-//     try {   
-//       const partner = deliveryPartners.find(p => p.deliveryPartnerId === selectedPartner);
-//   const payload = {
-//     ...cartData,
-//     customerName: customerName,
-//     address: address, 
-//     state: state,
-//     district: district,
-//     zipCode: pincode,
-//     customerPhoneNumber: mobileNumber,
-//     id: groceryItemId,
-//     userId: customerId, 
-//     martId: martId,
-//     date: new Date(),
-//     grandTotal: grandTotal,
-//     totalItemsSelected: totalItemsSelected,
-//     status: "In Progress", 
-//     paymentMode: paymentMode,
-//     utrTransactionNumber: transactionDetails,
-//     transactionNumber: transactionNumber,
-//     transactionStatus: transactionStatus,
-//     paidAmount: paidAmount,
-//     AssignedTo: partner? partner.deliveryPartnerName: "",
-//     DeliveryPartnerUserId: partner? partner.userId: "",
-//     latitude: latitude,
-//     longitude: longitude,
-//     code: code,
-//     units: units,
-//   };
+  const handleUpdatePaymentMethod = async () => {
+    try {   
+      const partner = deliveryPartners.find(p => p.deliveryPartnerId === selectedPartner);
+  const payload = {
+    ...cartData,
+    customerName: customerName,
+    address: address, 
+    state: state,
+    district: district,
+    zipCode: pincode,
+    customerPhoneNumber: mobileNumber,
+    id: groceryItemId,
+    userId: customerId, 
+    martId: martId,
+    date: date,
+    grandTotal: grandTotal,
+    totalItemsSelected: totalItemsSelected,
+    status: "In Progress", 
+    paymentMode: paymentMode,
+    utrTransactionNumber: transactionDetails,
+    transactionNumber: transactionNumber,
+    transactionStatus: transactionStatus,
+    paidAmount: paidAmount,
+    AssignedTo: partner? partner.deliveryPartnerName: "",
+    DeliveryPartnerUserId: partner? partner.userId: "",
+    deliveryAssignedTime: new Date().toISOString(),
+    deliverySubmitTime: "",
+    latitude: latitude,
+    longitude: longitude,
+    code: code,
+    units: units,
+  };
 
-//     let response = await fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Mart/UpdateProductDetails/${groceryItemId}`, {
-//       method: 'PUT',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify(payload),
-//     });
-//     if (!response.ok) {
-//       throw new Error('Failed to Update Delivery Partner.');
-//     }
-//     alert(`Ticket has been assigned to ${partner ? partner.deliveryPartnerName : ""}`);
-//     navigate(`/adminNotifications`);
-//   } catch (error) {
-//     console.error('Error:', error);
-//     window.alert('Failed to Update Delivery Partner. Please try again later.');
-//   }
-// };
+    let response = await fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/UpdateProductDetails/${groceryItemId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to Update Delivery Partner.');
+    }
+    alert(`Ticket has been assigned to ${partner ? partner.deliveryPartnerName : ""}`);
+    navigate(`/adminGroceryZoneDashboard`);
+  } catch (error) {
+    console.error('Error:', error);
+    window.alert('Failed to Update Delivery Partner. Please try again later.');
+  }
+};
+
+const handleCancelOrder = async () => {
+  try {
+    const detailsResponse = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/GetProductDetails?id=${groceryItemId}`
+    );
+    if (!detailsResponse.ok) {
+      throw new Error("Failed to fetch latest order details");
+    }
+    const latestData = await detailsResponse.json();
+     const payload = {
+      ...latestData,
+      id: groceryItemId,
+      userId: latestData.userId,
+      martId: latestData.martId,
+      date: latestData.date,
+      customerName: latestData.customerName,
+      address: latestData.address,
+      state: latestData.state,
+      district: latestData.district,
+      zipCode: latestData.zipCode,
+      customerPhoneNumber: latestData.customerPhoneNumber,
+      grandTotal: latestData.grandTotal,
+      totalItemsSelected: latestData.totalItemsSelected,
+      status: "Cancel",
+      paymentMode: latestData.paymentMode,
+      utrTransactionNumber:
+        latestData.utrTransactionNumber || "",
+      transactionNumber:
+        latestData.transactionNumber || "",
+      transactionStatus:
+        latestData.transactionStatus || "",
+      paidAmount: latestData.paidAmount || "",
+      AssignedTo: "",
+      DeliveryPartnerUserId: "",
+      deliveryAssignedTime: "",
+      deliverySubmitTime: "",
+      latitude: latestData.latitude,
+      longitude: latestData.longitude,
+      code: latestData.code,
+      units: latestData.units,
+    };
+    const response = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/UpdateProductDetails/${groceryItemId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to cancel order");
+    }
+    alert("Order has been cancelled successfully");
+    navigate(`/adminGroceryZoneDashboard`);
+  } catch (error) {
+    console.error("Cancel Error:", error);
+    alert("Failed to cancel order. Try again.");
+  }
+};
 
   // Detect screen size for responsiveness
 useEffect(() => {
@@ -457,85 +474,52 @@ const handleDownloadPDF = () => {
   doc.setFont("Roboto", "normal");
   doc.setTextColor(0, 0, 0);
 
-  const uiGrandTotal = Math.round(    
-    items.reduce((sum, item) => sum + Number(item.total), 0)
-  );
-
-  let pdfCashback = 0;
-  if (
-    (cashbackAmount >= 49 && cashbackAmount <= 51) ||
-    (cashbackAmount >= 29 && cashbackAmount <= 31) ||
-    (cashbackAmount >= 99 && cashbackAmount <= 101) ||
-    (cashbackAmount >= 149 && cashbackAmount <= 151)||
-    (cashbackAmount >= 199 && cashbackAmount <= 201)
-  ) {
-    pdfCashback = cashbackAmount;
-  }
-
-  const pdfShowFreeSugar =
-    Number(grandTotal) > 599 && Number(grandTotal) < 998;
-  //   const pdfshowAttaSugar =
-  //   Number(grandTotal) > 499 && Number(grandTotal) < 999;
-  let currentY = doc.lastAutoTable.finalY + 10;
+let currentY = doc.lastAutoTable.finalY + 10;
 
   let requiredHeight = 12;
-  if (pdfCashback > 0) requiredHeight += 6;
-  if (pdfShowFreeSugar) requiredHeight += 6;
-  // if (pdfshowAttaSugar) requiredHeight += 6;
   if (currentY + requiredHeight > PAGE_HEIGHT - FOOTER_SPACE) {
     doc.addPage();
     addHeader(doc, martId);
     addFooter(doc);
     currentY = TOP_MARGIN + 10;
   }
-  if (pdfCashback > 0) {
-    doc.setFontSize(10);
-    doc.setTextColor(0, 0, 0);
-    doc.text(
-      `Cashback Applied : Rs. ${pdfCashback}`,
-      195,
-      currentY,
-      { align: "right" }
-    );
-    currentY += 6;
-  }
-
- if (pdfShowFreeSugar) {
-  doc.setFontSize(10);
-  doc.setTextColor(0, 128, 0);
-  doc.setFont("Roboto", "bold");
-  doc.text(
-    "🎁 Give Customer Sugar 1 Kg FREE",
-    195,
-    currentY,
-    { align: "right" }
-  );
-  currentY += 8;
-}
-
-//   if (pdfshowAttaSugar) {
-//   doc.setFontSize(10);
-//   doc.setTextColor(0, 128, 0);
-//   doc.setFont("Roboto", "bold");
-//   doc.text(
-//     "🎁 Give Customer Sugar 1 Kg FREE",
-//     195,
-//     currentY,
-//     { align: "right" }
-//   );
-//   currentY += 8;
-// }
-
   doc.setFont("Roboto", "bold");
   doc.setFontSize(11);
-  doc.setTextColor(200, 0, 0); 
+  doc.setTextColor(200, 0, 0);
   doc.text(
-    `Grand Total : Rs. ${uiGrandTotal}`,
+    `Cashback Earned : Rs. ${cashbackAmount}`,
     195,
     currentY,
     { align: "right" }
   );
-  doc.save(`Grocery_Order_${martId}.pdf`);
+
+  currentY += 6; 
+  doc.text(
+    `Grand Total : Rs. ${grandTotal}`,
+    195,
+    currentY,
+    { align: "right" }
+  );
+  currentY += 6; 
+  doc.text(
+    `Remaining Wallet Balance : Rs. ${remainingAmount}`,
+    195,
+    currentY,
+    { align: "right" }
+  );
+
+  currentY += 6;
+
+  doc.setFontSize(10);
+doc.setTextColor(200, 0, 0);
+
+  doc.text(
+    "For every Rs.100 order value, Rs.10 will be used from wallet on next order.",
+    105, 
+    currentY,
+    { align: "center" }
+  );
+    doc.save(`Grocery_Order_${martId}.pdf`);
 };
 
 useEffect(() => {
@@ -548,7 +532,7 @@ useEffect(() => {
         if (!item.image) return;
         try {
           const res = await fetch(
-            `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(
+            `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(
               item.image
             )}`,
             { signal: controller.signal }
@@ -573,6 +557,12 @@ const handleImageClick = (imageSrc, product) => {
     setShowZoomModal(true);
   };
   
+   const itemsTotal = items.reduce((sum, item) => sum + Number(item.total), 0);
+
+  const deliveryCharge = itemsTotal >= 150 ? 0 : 15;
+
+  const handlingCharge = itemsTotal >= 150 ? 0 : 5;
+
   return (
   <>
 <div className="d-flex flex-row justify-content-start align-items-start" style={{marginTop: "130px"}}>
@@ -622,28 +612,32 @@ const handleImageClick = (imageSrc, product) => {
               />
             </div>
             
-             <div className="col-md-6 form-group">
-            <label>
-              Customer Address <span className="req_star">*</span>
-            </label>
-            <textarea
-              className="form-control"
-              style={{
-                overflow: "hidden",
-                resize: "none",
-                minHeight: "80px",
-              }}
-              value={[address, district, state, pincode, mobileNumber]
-                .filter(Boolean)
-                .join(", ")}
-              onInput={(e) => {
-                e.target.style.height = "auto";
-                e.target.style.height = e.target.scrollHeight + "px";
-              }}
-              placeholder="Customer Address"
-              readOnly
-            ></textarea>
-          </div>
+            <div className="col-md-6 form-group">
+          <label>
+            Customer Address <span className="req_star">*</span>
+          </label>
+          <textarea
+            className="form-control"
+            style={{
+              overflow: "hidden",
+              resize: "none",
+              minHeight: "80px",
+            }}
+            value={[address, district, state, pincode, mobileNumber]
+              .filter(Boolean)
+              .join(", ")}
+            onInput={(e) => {
+              e.target.style.height = "auto";
+              e.target.style.height = e.target.scrollHeight + "px";
+            }}
+            onFocus={(e) => {
+              e.target.style.height = "auto";
+              e.target.style.height = e.target.scrollHeight + "px";
+            }}
+            placeholder="Customer Address"
+            readOnly
+          ></textarea>
+        </div>
           <div className="col-md-6 form-group">Date: {date ? date.split("T")[0] : ""}</div> 
                </div>     
       <h4 className="m-0">Grocery Items</h4>
@@ -700,34 +694,25 @@ const handleImageClick = (imageSrc, product) => {
     ))}
   </tbody>
   <tfoot>
-     {cashbackAmount > 0 && (
-    <tr>
-      <td colSpan="9" className="text-end fw-bold text-danger">
-        Cashback Applied:
-      </td>
-      <td className="fw-bold text-success">
-        ₹{cashbackAmount}
-      </td>
-    </tr> 
-  )}
-  {showFreeSugar && (
-    <tr>
-      <td colSpan="10" className="text-end fw-bold text-danger">
-        🎁 Give Customer <strong> Sugar 1 Kg FREE</strong>
-      </td>    
-    </tr>
-  )} 
+     <tr>
+  <td colSpan="5" className="text-end fw-bold text-danger">
+    Delivery Charge: {deliveryCharge === 0 ? "FREE" : `₹${deliveryCharge}`}
+  </td>
   
-{/* {giftName && (
+  <td colSpan="5" className="text-end fw-bold text-danger">
+    Handling Charge: {handlingCharge === 0 ? "FREE" : `₹${handlingCharge}`}
+  </td>      
+</tr>
+{cashbackAmount > 0 && (
 <tr>
   <td colSpan="9" className="text-end fw-bold text-success">
-    🎁 Free Gift:
+    Cashback Earned:
   </td>
-  <td className="fw-bold text-danger">
-    {giftName}
+  <td className="fw-bold text-success">
+    ₹{cashbackAmount}
   </td>
 </tr>
-)} */}
+)}
     <tr>
       <td colSpan="9" className="text-end fw-bold">
         Grand Total:
@@ -735,16 +720,24 @@ const handleImageClick = (imageSrc, product) => {
       <td className="fw-bold">     
         ₹{grandTotal}
       </td>
-    </tr>   
+    </tr> 
+ <tr>
+      <td colSpan="9" className=" text-danger text-end fw-bold">
+        Your's current wallet balance :
+      </td>
+      <td className="fw-bold">     
+        ₹{remainingAmount}
+      </td>  
+      </tr>
   </tfoot>  
 </table>
-<div className="text-end mt-1">
+<div className="text-end">
   <button
           style={{
             background: "red",
             color: "white",
             borderRadius: "20px",
-            padding: "6px 14px",
+            padding: "8px",
           }}
           onClick={handleDownloadPDF}
         >
@@ -752,7 +745,7 @@ const handleImageClick = (imageSrc, product) => {
         </button>
 </div>
 
-        <div className='payment'>
+        {/* <div className='payment'>
         <label className='fw-bold fs-5 w-100 p-2' style={{ background: "green", color: "white", borderRadius: "15px", width: "25px" }}>Payment Mode</label>
         <label className='fs-5 '>
             <input 
@@ -772,9 +765,9 @@ const handleImageClick = (imageSrc, product) => {
             />
             Cash On Delivery
           </label>
-    </div> 
+    </div>  */}
 
-    <div className="form-group mt-0">
+    {/* <div className="form-group mt-0">
               <label>Payment Transaction Details </label>
               <input
                 type="text"
@@ -784,9 +777,9 @@ const handleImageClick = (imageSrc, product) => {
                 placeholder="Payment Transaction Details"
                 readOnly
               />
-            </div>
+            </div> */}
             <Row>
-                  {/* Assigned To */}
+                  {/* Assigned To
                   <Col md={12}>
                     <Form.Group>
                       <label>Assigned To</label>
@@ -796,7 +789,7 @@ const handleImageClick = (imageSrc, product) => {
                       </Form.Control>
                       {error.assignedTo && <p className="text-danger">{error.assignedTo}</p>}
                     </Form.Group>
-                  </Col>
+                  </Col> */}
 
                    {/* New Delivery Partner Names Dropdown */}
                   <Col md={12}>
@@ -817,15 +810,30 @@ const handleImageClick = (imageSrc, product) => {
                       </Form.Control>
                     </Form.Group>
                   </Col>
-
                 </Row> 
             <div className="mt-2 d-flex justify-content-between">
-            <Button type="submit" className=" text-white mx-2" style={{background: 'green'}} onClick={() => navigate(`/adminNotifications`)} title="Back">
+            <Button type="submit" className=" text-white mx-2" style={{background: 'green'}} onClick={() => navigate(`/adminGroceryZoneDashboard`)} title="Back">
                 <ArrowBack />
                 </Button>
-                {/* <Button type="submit" className="text-white mx-2" style={{background: 'green'}} title="Forward" onClick={handleUpdatePaymentMethod}> 
-                <ForwardIcon />
-                </Button> */}
+                <Button
+                  type="submit"
+                  className="text-white mx-2"
+                  style={{ background: 'green' }}
+                  title="Forward"
+                  onClick={handleUpdatePaymentMethod}
+                 disabled={!!paidAmount || !selectedPartner}
+                >
+                  <ForwardIcon />
+                </Button>
+                <Button
+                  className="text-white mx-2"
+                  style={{ background: "red" }}
+                  onClick={handleCancelOrder}
+                  title="Cancel Order"
+                  disabled={selectedPartner}
+                >
+                  Cancel
+                </Button>
             </div>
           </form>
         </div>

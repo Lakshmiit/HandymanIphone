@@ -13,7 +13,7 @@
 
 
 // const RaiseQuotation = () => {
-//   const [isMobile, setIsMobile] = useState(false);
+//   const [isMobile, setIsMobile] = useState(false);    
 //   const [showMenu, setShowMenu] = useState(false);
 //   const {raiseTicketId} = useParams();
 //   const [id, setId] = useState('');
@@ -58,7 +58,7 @@
  
 //     // Fetch data from API on component mount
 //     useEffect(() => {
-//       const apiUrl = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/RaiseAQuote/GetRaiseAQuoteDetailsByid?raiseAQuotetId=${raiseTicketId}`;
+//       const apiUrl = `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/RaiseAQuote/GetRaiseAQuoteDetailsByid?raiseAQuotetId=${raiseTicketId}`;
 //       const fetchData = async () => {
 //         try {
 //           const response = await fetch(apiUrl);
@@ -138,7 +138,7 @@
 //   useEffect(() => {
 //         const fetchticketData = async () => {
 //           try {
-//             const response = await fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/RaiseTicket/GetTicket/${raiseTicketId}`);
+//             const response = await fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/RaiseTicket/GetTicket/${raiseTicketId}`);
 //             if (!response.ok) {
 //               throw new Error('Failed to fetch ticket data');
 //             }
@@ -258,7 +258,7 @@
 //     };
 //     try {
       
-//       const response = await fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/RaiseTicket/${raiseTicketId}`, {
+//       const response = await fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/RaiseTicket/${raiseTicketId}`, {
 //         method: 'PUT',
 //         headers: {
 //           'Content-Type': 'application/json',
@@ -308,7 +308,7 @@
 // })),
 //   }; 
 //   try {
-//     const response = await fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/RaiseAQuoteByDealer/CreateRaiseAQuoteByDealer`, {
+//     const response = await fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/RaiseAQuoteByDealer/CreateRaiseAQuoteByDealer`, {
 //       method: 'POST',
 //       headers: {
 //         'Content-Type': 'application/json',

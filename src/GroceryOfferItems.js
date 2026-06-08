@@ -5,7 +5,7 @@ import "./App.css";
 import Sidebar from "./Sidebar.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Dashboard as MoreVertIcon } from "@mui/icons-material";
-import { Button, Modal } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import SearchIcon from "@mui/icons-material/Search";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
@@ -13,12 +13,13 @@ import { CartStorage } from "./CartStorage";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ImageCache from "./utils/ImageCache";
 import Footer from "./Footer.js";
+// import { appConfig } from "./config";
 
-const normalizeName = (s) =>
-  String(s || "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
+// const normalizeName = (s) =>
+//   String(s || "")
+//     .toLowerCase()
+//     .replace(/\s+/g, " ")
+//     .trim();
 
 const getLimit = (product) => {
   if (!product) return Infinity;
@@ -44,13 +45,13 @@ const GroceryOfferItems = () => {
   const [products, setProducts] = useState([]);
   const [imageUrls, setImageUrls] = useState({});
   const [imageLoading, setImageLoading] = useState(true);
-  const [showZoomModal, setShowZoomModal] = useState(false);
-  const [zoomImage, setZoomImage] = useState("");
+  // const [showZoomModal, setShowZoomModal] = useState(false);
+  // const [zoomImage, setZoomImage] = useState("");
   const [cart, setCart] = useState({});
   const [checked, setChecked] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [likedProducts, setLikedProducts] = useState({});
-  const [zoomProduct, setZoomProduct] = useState(null);
+  // const [zoomProduct, setZoomProduct] = useState(null);
   const [grandSummary, setGrandSummary] = useState({ items: 0, total: 0 });
   const location = useLocation();
   const mobileNumber = localStorage.getItem("customerMobileNumber");
@@ -82,10 +83,10 @@ const GroceryOfferItems = () => {
     console.log(imageLoading, checked, grandSummary);
   }, [imageLoading, checked, grandSummary]);
 
-  const MIN_ORDER_TOTAL =
-    normalizeName(selectedCategory) === normalizeName("Unbeatable Offers")
-      ? 100
-      : 100;
+  // const MIN_ORDER_TOTAL =
+  //   normalizeName(selectedCategory) === normalizeName("Unbeatable Offers")
+  //     ? 100
+  //     : 100;
   const OFFERS = "Offers";
   const encodedCategory = OFFERS;
 
@@ -145,14 +146,14 @@ const GroceryOfferItems = () => {
     });
   }, [products]);
 
-  const handleIncrement = (productId) =>
-    setCart((prev) => {
-      const product = products.find((p) => String(p.id) === String(productId));
-      if (!product) return prev;
-      const nextQty = clampQtyFor(product, (prev[productId] || 0) + 1);
-      if (nextQty === prev[productId]) return prev;
-      return { ...prev, [productId]: nextQty };
-    });
+  // const handleIncrement = (productId) =>
+  //   setCart((prev) => {
+  //     const product = products.find((p) => String(p.id) === String(productId));
+  //     if (!product) return prev;
+  //     const nextQty = clampQtyFor(product, (prev[productId] || 0) + 1);
+  //     if (nextQty === prev[productId]) return prev;
+  //     return { ...prev, [productId]: nextQty };
+  //   });
 
   const handleAddClick = (id) => {
     const product = products.find((p) => String(p.id) === String(id));
@@ -163,14 +164,14 @@ const GroceryOfferItems = () => {
     setChecked(true);
   };
 
-  const getQty = (id) => Number(cart?.[id] || 0);
-  const canAddMore = (id) => {
-    const product = products.find((p) => String(p.id) === String(id));
-    if (!product) return false;
-    const current = getQty(id);
-    const maxAllowed = clampQtyFor(product, Infinity);
-    return current < maxAllowed;
-  };
+  // const getQty = (id) => Number(cart?.[id] || 0);
+  // const canAddMore = (id) => {
+  //   const product = products.find((p) => String(p.id) === String(id));
+  //   if (!product) return false;
+  //   const current = getQty(id);
+  //   const maxAllowed = clampQtyFor(product, Infinity);
+  //   return current < maxAllowed;
+  // };
 
   const handleDecrementClick = (productId) =>
     setCart((prev) => {
@@ -199,11 +200,11 @@ const GroceryOfferItems = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleImageClick = (imageSrc, product) => {
-    setZoomImage(imageSrc);
-    setZoomProduct(product);
-    setShowZoomModal(true);
-  };
+  // const handleImageClick = (imageSrc, product) => {
+  //   setZoomImage(imageSrc);
+  //   setZoomProduct(product);
+  //   setShowZoomModal(true);
+  // };
 
   function getItemTime(p) {
     if (p?.date) {
@@ -234,16 +235,13 @@ const GroceryOfferItems = () => {
   }
 
   useEffect(() => {
-    if (!selectedCategory) return;
+    if (!selectedCategory) return;     
     let cancelled = false;
     const controller = new AbortController();
-    const POLL_MS = 2000;
-    let pollId = null;
-
     async function fetchProductsAndFirstImages(warm = false, signal) {
       try {
         if (!warm) setImageLoading(true);
-        const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(
+        const url = `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(
           selectedCategory,
         )}`;
         const { data: items } = await axios.get(url, { signal });
@@ -270,9 +268,17 @@ const GroceryOfferItems = () => {
         const cachedMap = {};
         const misses = [];
         for (const { productId, photo } of firstImages) {
-          const cached = ImageCache.getBase64(photo);
+          const blobUrl = ImageCache.getBlobUrl(photo);
+          if (blobUrl) {
+            cachedMap[productId] = [blobUrl];
+            continue;
+          }
+
+          const cached = await ImageCache.getBase64(photo);
           if (cached) {
-            cachedMap[productId] = [`data:image/jpeg;base64,${cached}`];
+            const dataUrl = `data:image/jpeg;base64,${cached}`;
+            ImageCache.setBlobUrl(photo, dataUrl); 
+            cachedMap[productId] = [dataUrl];
           } else {
             misses.push({ productId, photo });
           }
@@ -284,23 +290,27 @@ const GroceryOfferItems = () => {
         const fetchOne = async ({ productId, photo }) => {
           try {
             const res = await fetch(
-              `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(
-                photo,
-              )}`,
+              `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
               { signal },  
             );
             const json = await res.json();
             const b64 = json?.imageData || "";
             if (!b64) return;
-            ImageCache.setBase64(photo, b64);
+
+            await ImageCache.setBase64(photo, b64);
             const dataUrl = `data:image/jpeg;base64,${b64}`;
+
+            ImageCache.setBlobUrl(photo, dataUrl);
+
             if (!cancelled) {
               setImageUrls((prev) => {
                 if (prev[productId]?.[0] === dataUrl) return prev;
                 return { ...prev, [productId]: [dataUrl] };
               });
             }
-          } catch {}
+          } catch (err) {
+            console.error("fetchOne failed:", err); 
+          }
         };
         await Promise.allSettled(misses.map(fetchOne));
       } catch (err) {
@@ -317,17 +327,11 @@ const GroceryOfferItems = () => {
     }
 
     fetchProductsAndFirstImages(false, controller.signal);
-    pollId = setInterval(() => {
-      const pollController = new AbortController();
-      fetchProductsAndFirstImages(true, pollController.signal);
-    }, POLL_MS);
-
-    return () => {
+ return () => {
       cancelled = true;
       controller.abort();
-      if (pollId) clearInterval(pollId);
     };
-  }, [selectedCategory]);
+  }, [selectedCategory]);         
 
   useEffect(() => {
     let savedCategories = [];
@@ -401,7 +405,7 @@ const GroceryOfferItems = () => {
                 fontFamily: "Roboto",
               }}
             >
-              Delivery Timings : 06:00 AM -09:00 PM
+              Delivery Timings : 07:00 AM -09:00 PM
             </span>
           </h1>
         </div>
@@ -584,13 +588,18 @@ const GroceryOfferItems = () => {
                                     : "pointer",
                                   borderRadius: "6px",
                                 }}
-                                onClick={() =>
-                                  !isOutOfStock &&
-                                  handleImageClick(
-                                    imageUrls[product.id][0],
-                                    product,
-                                  )
-                                }
+                                onClick={() => {
+                                  if (isOutOfStock) return;
+                                  navigate(
+                                    `/groceryComboOffer/${userType}/${userId}/${product.id}`,   
+                                    {
+                                      state: {
+                                        product,                              
+                                        imageUrl: imageUrls[product.id]?.[0] ?? null,  
+                                      },
+                                    }
+                                  );
+                                }}
                               />
                             ) : (
                               <span className="text-muted small">
@@ -628,7 +637,7 @@ const GroceryOfferItems = () => {
                             )}
                           </div>
 
-                          {/* Product Name */}
+                          {/* Product Name */}   
                           <h6
                             className="text-start fw-bold m-0"
                             style={{
@@ -667,6 +676,7 @@ const GroceryOfferItems = () => {
                                   {product.units}
                                 </b>
                               )}
+                          <p className="blinking-icon mb-0" style={{color: "#db1818", fontSize: "9px", fontWeight: "bold"}}>Click on the image to see more</p>
 
                               {(() => {
                                 const limit = getLimit(product);
@@ -700,103 +710,56 @@ const GroceryOfferItems = () => {
                                 type="checkbox"
                                 className="border-dark"
                                 checked={cart[product.id] > 0}
-                                readOnly
-                              />
+                                onChange={() => {
+                                  if (cart[product.id] > 0) {
+                                    handleDecrementClick(product.id);
+                                  } else {
+                                    handleAddClick(product.id);
+                                  }
+                                }}
+                              />   
                             </div>
                           )}
 
-                          {/* Add / Counter */}
-                          {!isOutOfStock && (
-                            <div
+                       {/* Add / Counter */}
+                        {!isOutOfStock && (
+                          <div
+                            style={{
+                              position: "absolute",
+                              bottom: "8px",
+                              right: "8px",
+                            }}
+                          >
+                            <button
+                              className="btn fw-bold"
                               style={{
-                                position: "absolute",
-                                bottom: "8px",
-                                right: "8px",
+                                border: "1px solid green",
+                                color: "white",
+                                backgroundColor: "green",
+                                borderRadius: "8px",
+                                padding: "2px 8px",
+                                fontSize: "11px",
+                              }}
+                              onClick={() => {
+                                handleAddClick(product.id);
+                                navigate(`/groceryComboOffer/${userType}/${userId}/${product.id}`, {
+                                  state: {
+                                    product,
+                                    imageUrl: imageUrls[product.id]?.[0] ?? null,
+                                  },
+                                });
                               }}
                             >
-                              {cart[product.id] ? (
-                                <div
-                                  className="d-flex align-items-center justify-content-between"
-                                  style={{
-                                    backgroundColor: "green",
-                                    color: "white",
-                                    borderRadius: "8px",
-                                    padding: "2px",
-                                    minWidth: "60px",
-                                  }}
-                                >
-                                  <button
-                                    className="btn btn-sm p-0 text-white"
-                                    style={{
-                                      fontWeight: "bold",
-                                      width: "25px",
-                                      height: "25px",
-                                    }}
-                                    onClick={() =>
-                                      handleDecrementClick(product.id)
-                                    }
-                                  >
-                                    –
-                                  </button>
-                                  <span className="fw-bold">
-                                    {cart[product.id]}
-                                  </span>
-                                  <button
-                                    className="btn btn-sm p-0 text-white"
-                                    style={{
-                                      fontWeight: "bold",
-                                      width: "25px",
-                                      height: "25px",
-                                      opacity: canAddMore(product.id) ? 1 : 0.5,
-                                      cursor: canAddMore(product.id)
-                                        ? "pointer"
-                                        : "not-allowed",
-                                    }}
-                                    onClick={() =>
-                                      canAddMore(product.id) &&
-                                      handleIncrement(product.id)
-                                    }
-                                    disabled={!canAddMore(product.id)}
-                                    title={
-                                      !canAddMore(product.id)
-                                        ? Number(product.stockLeft || 0) <=
-                                          getQty(product.id)
-                                          ? "No more stock"
-                                          : getLimit(product) === Infinity
-                                            ? "No more stock"
-                                            : `Limit ${getLimit(
-                                                product,
-                                              )} per customer`
-                                        : "Add one"
-                                    }
-                                  >
-                                    +
-                                  </button>
-                                </div>
-                              ) : (
-                                <button
-                                  className="btn fw-bold"
-                                  style={{
-                                    border: "1px solid green",
-                                    color: "green",
-                                    backgroundColor: "#f6fff6",
-                                    borderRadius: "8px",
-                                    padding: "2px 12px",
-                                    fontSize: "13px",
-                                  }}
-                                  onClick={() => handleAddClick(product.id)}
-                                >
-                                  ADD
-                                </button>
-                              )}
-                            </div>
-                          )}
+                              ADD
+                            </button>
+                          </div>
+                        )}
                         </div>
                       );
                     })}
 
                   {/* Cart Bar */}
-                  {(() => {
+                  {/* {(() => {
                     const readAllCategories = () => {
                       if (typeof window === "undefined") return [];
                       try {
@@ -919,7 +882,7 @@ const GroceryOfferItems = () => {
                           onClick={() => {
                             if (total < MIN_ORDER_TOTAL) return;
                             navigate(
-                              `/groceryOffersCart/${userType}/${userId}`,
+                              `/groceryCart/${userType}/${userId}`,
                               {
                                 state: { mobileNumber },
                               },
@@ -930,7 +893,7 @@ const GroceryOfferItems = () => {
                         </button>
                       </div>
                     ) : null;
-                  })()}
+                  })()} */}
                 </div>
               </>
             )}
@@ -939,7 +902,7 @@ const GroceryOfferItems = () => {
         <Footer />
       </div>
 
-      <Modal
+      {/* <Modal
         show={showZoomModal}
         onHide={() => {
           setShowZoomModal(false);
@@ -978,7 +941,7 @@ const GroceryOfferItems = () => {
             </p>
           )}
         </Modal.Body>
-      </Modal>
+      </Modal> */}
     </>
   );
 };

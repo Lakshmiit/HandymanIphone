@@ -78,7 +78,7 @@ import TechnicianViewBookTechnician from './TechnicianViewBookTechnician.js';
 import BookTechnicianDetailsNotifications from './BookTechnicianDetailsNotifications.js';
 import BookTechnicianDetailsGrid from './BookTechnicianDetailsGrid.js';
 import RaiseTicketConfirmation from './RaiseTicketConfirmation.js';
-import HandymanLogo from './HandymanLogo.js'; 
+import HandyManLogo from './HandyManLogo.js';
 import LoginPage from './LoginPage.js';
 import UserIdLogin from './UserIdLogin.js';
 import CustomerRaiseTicketGridView from './CustomerRaiseTicketGridView.js';
@@ -126,14 +126,22 @@ import { getLoginData } from "./utils/auth";
 import RoyalUpmaMix250g from './RoyalUpmaMix250g.js';
 import MartHomeAppliances from './MartHomeAppliances.js';
 import AdminOfferForm from './AdminOfferForm.js';
-
+import AdminBannerList from './AdminBannerList.js';
+import AdminGroceryZoneDashboard from './AdminGroceryZoneDashboard.js';
+import AdminGroceryClosedOrders from './AdminGroceryClosedOrders.js';
+import AdminGroceryDashboard from './AdminGroceryDashboard.js';
+import DeliveryPartnerPaymentMethod from './DeliveryPartnerPaymentMethod.js';
+// import AdminRegistrationNumbers from './AdminRegisterationNumbers.js';
+import GroceryComboOffer from './GroceryComboOffer.js';
+// import DeliveryPartnerDashboard from './DeliveryPartnerDashboard.js';
+// import OneRupeeGroceryItems from './OneRupeeGroceryItems.js';
 // import CustomerLocation from "./CustomerLocation.js";
 const PreventBackNavigation = () => {
    const navigate = useNavigate();
    const location = useLocation(); 
 
 useEffect(() => {
-    if (location.pathname === "/") {
+    if (location.pathname === "/") {    
       const newUserId = getLoginData();
       if (newUserId) {
         navigate(`/profilePage/customer/${newUserId}`, { replace: true });
@@ -155,7 +163,7 @@ useEffect(() => {
       window.removeEventListener("popstate", handlePopState);
     };
   }, []);
-  return null;
+  return null;  
 };
 
 function App() {
@@ -165,8 +173,14 @@ function App() {
       <div className="App"> 
         <main>
           {/* className="mt-100" */}       
-          <Routes>
-            <Route path="/adminOfferModal/Admin" element={<AdminOfferForm />} /> 
+          <Routes> 
+            <Route path="/groceryComboOffer/:userType/:userId/:id" element={<GroceryComboOffer />} />
+            {/* <Route path="/adminRegistrations/Admin" element={<AdminRegistrationNumbers />} /> */}
+            <Route path= "/deliverypartnerPaymentMethod" element={<DeliveryPartnerPaymentMethod />} />
+            {/* <Route path="/deliveryPartnerDashboard/:userType/:userId" element={<DeliveryPartnerDashboard />} /> */}
+            <Route path="/adminGroceryZoneDashboard" element={<AdminGroceryZoneDashboard />} />
+            <Route path="/adminGroceryClosedOrders/:groceryItemId" element={<AdminGroceryClosedOrders />} /> 
+            <Route path="/adminGroceryDashboard" element={<AdminGroceryDashboard />} />
             <Route path="/martHomeAppliances/:userType/:userId" element={<MartHomeAppliances />} /> 
             <Route path="/RoyalUpmaMix" element={<RoyalUpmaMix250g />} />
             <Route path="/termsandConditions" element={<TermsAndConditions />} />
@@ -178,9 +192,13 @@ function App() {
             <Route path="/deliveryPartner/:userType/:userId" element={<DeliveryPartner />} />
             <Route path="/deliveryTracking/:id" element={<DeliveryTracking />} />   
             {/* <Route path="/deliveryPartnerDirectory" element={<DeliveryPartnerDirectory />} /> */}
+            {/* <Route path="/groceryOneRupee/:userType/:userId" element={<OneRupeeGroceryItems />} /> */}
+ 
             <Route path="/grocery/:userType/:userId" element={<GroceryItems />} />
             <Route path="/groceryCart/:userType/:userId" element={<GroceryCartPage />} />
             {/* <Route path="/groceryIcons/:userType/:userId" element={<GroceryCategoryIcons />} /> */}
+            <Route path="/adminOfferModal/Admin" element={<AdminOfferForm />} /> 
+            <Route path="/adminBannerList/Admin" element={<AdminBannerList />} />   
             <Route path="/adminUploadGrocery/Admin" element={<AdminUploadGrocery />} />
             <Route path="/adminUpdateGrocery/:id/Admin" element={<AdminUpdateGrocery />} />
             <Route path="/adminGroceryApproval/:id/Admin" element={<AdminGroceryApproval />} /> 
@@ -209,7 +227,7 @@ function App() {
             {/* <Route path="/customerRegistration" element={<CustomerRegistration />} /> */}
             {/* <Route path="/technicianRegistration" element={<TechnicianRegistration />} /> */}
             <Route path="/profilePage/:userType/:userId" element={<ProfilePage />} />
-            <Route path="/" element={<HandymanLogo />} /> 
+            <Route path="/" element={<HandyManLogo />} /> 
             <Route path="/loginnew" element={<LoginPage />} />
             <Route path="/otpVerification" element={<OTPVerificationPage />} />
             <Route path="/userIdLogin" element={<UserIdLogin />} />
@@ -218,7 +236,6 @@ function App() {
             <Route path="/buyProducts/:userType/:userId" element={<BuyProducts />} /> 
             <Route path="/sidebar/:userType" element={<Sidebar />} />
             <Route path="/buyproduct-view/:userType/:userId/:id" element={<BuyProductView />} />
-            {/* <Route path="/adminRegistrations/Admin" element={<AdminRegistrationNumbers />} /> */}
             <Route path="/adminUploadForm/Admin" element={<AdminUploadForm />} />
             <Route path="/adminProductApproval/:id/Admin" element={<AdminProductApproval />} />
             <Route path="/adminProductList/Admin" element={<AdminProductList />} /> 
@@ -306,3 +323,4 @@ function App() {
 
 export default App; 
  
+

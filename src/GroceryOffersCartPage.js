@@ -16,10 +16,7 @@ import Footer from "./Footer.js";
 // import { useLocation } from "react-router-dom";
  
 const IMAGE_DOWNLOAD =
-  `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=`;
-
-const norm = (s) =>
-  String(s || "").toLowerCase().replace(/\s+/g, " ").replace("500ml", "500 ml").replace("1l", "1 l").trim();
+  `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=`;
 
 const getLimit = (item) => {
   const limit = Number(item?.limit);
@@ -150,24 +147,60 @@ const GroceryOffersCartPage = () => {
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [zoomImage, setZoomImage] = useState("");
   const [grandSummary, setGrandSummary] = useState({ items: 0, total: 0 });
-  const pollRef = useRef(null);
 const [walletAmount, setWalletAmount] = useState(0);
-const MIN_ORDER_TOTAL = Number(walletAmount) === 50 ? 150 : 100;
   const [addresses, setAddresses] = useState([]);
   const [fullName, setFullName] = useState("");
   const [isNewUser, setIsNewUser] = useState(true);
   const isGuestName = (name) => (name ?? "").trim().toLowerCase() === "guest";
-
+const [referralAmount, setReferralAmount] = useState(0);
+const MIN_ORDER_TOTAL =
+  Number(walletAmount) === 50 || Number(referralAmount) > 0
+    ? 150
+    : 100;
+    const normalizeName = (name) =>
+     String(name || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
  useEffect(() => {
     console.log(addresses, fullName, isNewUser);
   }, [addresses, fullName, isNewUser]);
 
-console.log("Wallet:", walletAmount);   
+console.log("Wallet:", walletAmount);
+
+const getReferralRecord = async (userId) => {
+  if (!userId) return null;
+  const url = `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/ReferralPoints/GetReferralPointsByUserId?referreId=${encodeURIComponent(userId)}`;
+  const res = await fetch(url);
+  const text = await res.text();
+  let data = [];
+  try {
+    data = text ? JSON.parse(text) : [];
+  } catch {
+    data = [];
+  }
+  if (Array.isArray(data) && data.length > 0) {
+    data.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return data[0];
+  }
+  return null;
+};
+
+useEffect(() => {
+  const fetchReferral = async () => {
+    const rec = await getReferralRecord(userId);
+    const points = Number(rec?.points || 0);
+    setReferralAmount(points);
+  };
+  if (userId) {
+    fetchReferral();
+  }
+}, [userId]);
 
   const fetchCustomerData = useCallback(async () => {
       try {
         const response = await fetch(
-          `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Address/GetAddressById/${userId}`,
+          `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Address/GetAddressById/${userId}`,
         );
         if (!response.ok) {
           throw new Error("Failed to fetch customer profile data");
@@ -310,25 +343,174 @@ setGrandSummary(computeTotals(clampedItems));
     };
   }, [cartItems, imageBlobMap]);
 
-const handleQtyChange = (rowId, delta) => {
+const handleQtyChange = async (rowId, delta) => {
+  const item = cartItems.find((i) => i.id === rowId);
+  if (!item) return;
+  const latest = await fetchLatestStock(item.name);
   setCartItems((prev) => {
-    const next = prev
+    const updated = prev
       .map((it) => {
         if (it.id !== rowId) return it;
-        const proposed = Number(it.qty || 0) + delta;
-        const clamped = clampQty(it, proposed);
-        return { ...it, qty: clamped };
+        const limitMax =
+          latest.limit > 0 ? latest.limit : Infinity;
+        const maxAllowed = Math.min(
+          latest.stockLeft,
+          limitMax
+        );
+        const proposedQty = Number(it.qty || 0) + delta;
+        if (latest.stockLeft === null) {
+          return it;
+        }
+
+        if (latest.stockLeft <= 0) {
+          return null;
+        }
+        if (proposedQty <= 0) {
+          return null;
+        }
+        return {
+          ...it,
+          stockLeft: latest.stockLeft,
+          limit: latest.limit,
+          qty: Math.min(proposedQty, maxAllowed),
+        };
       })
-      .filter(isValidCartItem);
-    writeBackToStorage(next);
-    setGrandSummary(computeTotals(next));
-    return next;
+      .filter(Boolean);
+    writeBackToStorage(updated);
+    setGrandSummary(computeTotals(updated));
+    return updated;
   });
+};
+
+const fetchLatestStock = useCallback(async (productName) => {
+  try {
+    const res = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsByProductName?productName=${encodeURIComponent(productName)}`
+    );
+    const data = await res.json();
+    const normalizedInput = normalizeName(productName);
+    const exactMatch = (Array.isArray(data) ? data : []).filter(
+      (x) => normalizeName(x.name) === normalizedInput
+    );
+    const latest = exactMatch.sort(
+      (a, b) => Date.parse(b?.date || 0) - Date.parse(a?.date || 0)
+    )[0];
+   if (!latest) {
+    return {
+      stockLeft: null,
+      limit: null,
+    };
+  }
+  return {
+    stockLeft: Number(latest.stockLeft),
+    limit: Number(latest.limit || 0),
+  };
+  } catch (err) {
+    console.error(err);
+    return {
+      stockLeft: null,
+      limit: null,
+    };
+  }
+}, []);
+
+const refreshAllCartStocks = useCallback(async () => {
+  const currentItems = cartItemsRef.current;
+  if (!currentItems.length) return;
+
+  const stockResults = await Promise.all(
+    currentItems.map(async (item) => ({
+      name: item.name,
+      latest: await fetchLatestStock(item.name),
+    }))
+  );
+
+  const updated = currentItems
+    .map((item) => {
+      const match = stockResults.find(
+        (x) =>
+          normalizeName(x.name) === normalizeName(item.name)
+      );
+      if (!match) return item;
+      const latestStock = match.latest.stockLeft;
+      const latestLimit =
+        match.latest.limit > 0
+          ? match.latest.limit
+          : Infinity;
+      if (latestStock === null) {
+        return item;
+      }
+
+      if (latestStock <= 0) {
+        return null;
+      }
+      return {
+        ...item,
+        stockLeft: latestStock,
+        limit: latestLimit,
+        qty: Math.min(item.qty, latestStock, latestLimit),
+      };
+    })
+    .filter(Boolean);
+  setCartItems(updated);
+  writeBackToStorage(updated);
+  setGrandSummary(computeTotals(updated));
+}, [fetchLatestStock]);
+
+useEffect(() => {
+  refreshAllCartStocks();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
+useEffect(() => {
+  const handleFocus = () => refreshAllCartStocks();
+  const handleOnline = () => refreshAllCartStocks();
+  const handleVisibility = () => {
+    if (document.visibilityState === "visible") {
+      refreshAllCartStocks();
+    }
+  };
+  window.addEventListener("focus", handleFocus);
+  window.addEventListener("online", handleOnline);
+  document.addEventListener(
+    "visibilitychange",
+    handleVisibility
+  );
+  return () => {
+    window.removeEventListener("focus", handleFocus);
+    window.removeEventListener("online", handleOnline);
+    document.removeEventListener(
+      "visibilitychange",
+      handleVisibility
+    );
+  };
+}, [refreshAllCartStocks]);
+
+const validateCartStockBeforeCheckout = async () => {
+  const checks = await Promise.all(
+    cartItems.map(async (item) => ({
+      name: item.name,
+      requestedQty: item.qty,
+      latest: await fetchLatestStock(item.name),
+    }))
+  );
+  const invalidItems = checks.filter(
+    (x) =>
+      x.latest.stockLeft <= 0 ||
+      x.requestedQty > x.latest.stockLeft
+  );
+  if (invalidItems.length > 0) {
+    await refreshAllCartStocks();
+    alert("Some items are out of stock. Cart updated.");
+    return false;
+  }
+  return true;
 };
 
   // ----- Proceed -----
   const handleGroceryProceed = async (event) => {
-    event.preventDefault();
+    const valid = await validateCartStockBeforeCheckout();
+    if (!valid) return;
     const allCategories =
           JSON.parse(localStorage.getItem("allCategories")) || [];
     //  const firstOrderData = await CheckFirstOrder(mobileNumber);
@@ -362,10 +544,17 @@ const handleQtyChange = (rowId, delta) => {
       longitude: 0,
       isPickUp: false,
       isDelivered: false,
+
+      totalWalletAmount:"",
+      availedAmount :"",
+     remainingAmount :"",
+
+      deliveryAssignedTime: "",
+      deliverySubmitTime: "",
       GrandTotal: String(grandSummary.total),
       TotalItemsSelected: String(grandSummary.items),
       categories: allCategories.map((cat) => {
-        const products = (cat.products || [])
+        const products = (cat.products || [])   
           .map((p) => {
             const persisted = p.image ?? p.productImage ?? "";
             const filename = getFilenameFromValue(persisted);
@@ -421,7 +610,7 @@ const handleQtyChange = (rowId, delta) => {
     };
     try {
       const response = await fetch(
-        `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Mart/UploadProductDetails`,
+        `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/UploadProductDetails`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -465,68 +654,6 @@ const cartItemsRef = useRef([]);
 useEffect(() => {
   cartItemsRef.current = cartItems;
 }, [cartItems]);
-
- // ----- Poll stock & re-clamp by stock + per-item limit -----
-useEffect(() => {
-  const fetchAndUpdateStock = async () => {
-    try {
-      const categories = Array.from(
-        new Set(
-          cartItemsRef.current
-            .map((it) => it.category)
-            .filter(Boolean)
-        )
-      );
-      if (!categories.length) return;
-      const allProducts = [];
-      for (const cat of categories) {
-        const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(
-          cat
-        )}`;
-        const res = await fetch(url);
-        const list = (await res.json()) || [];
-        allProducts.push(...list);
-      }
-     const byId = new Map();
-      const byName = new Map();
-      allProducts.forEach((p) => {
-        const stock = Number(p.stockLeft || 0);
-        const limit = Number(p.limit || 0);   
-        byId.set(String(p.id), { stock, limit });
-        byName.set(norm(p.name), { stock, limit });
-      });
-      setCartItems((prev) => {
-        let changed = false;
-        const next = prev.map((it) => {
-         const apiData =
-          byId.get(String(it.productId)) ??
-          byName.get(norm(it.name));
-        const stock = apiData?.stock ?? Number(it.stockLeft || 0);
-        const limit = Number(apiData?.limit || it.limit || 0);
-        const maxAllowed = Math.min(stock, getLimit({ limit }));
-        const clampedQty = Math.max(0, Math.min(Number(it.qty || 0), maxAllowed));
-          if (stock !== it.stockLeft || limit !== it.limit || clampedQty !== it.qty) {
-            changed = true;
-          }
-          return { ...it, stockLeft: stock, limit, qty: clampedQty };
-        });
-        const filtered = next.filter(isValidCartItem);
-        if (changed) {
-          writeBackToStorage(filtered);
-          setGrandSummary(computeTotals(filtered));
-        }
-        return filtered;
-      });
-    } catch (e) {
-       console.error("Stock/limit update failed:", e);
-    }
-  };
-  fetchAndUpdateStock();
-  pollRef.current = setInterval(fetchAndUpdateStock, 10000);
-  return () => {
-    if (pollRef.current) clearInterval(pollRef.current);
-  };
-}, []); 
 
   const handleImageClick = (imageSrc) => {
     setZoomImage(imageSrc);
@@ -771,7 +898,9 @@ useEffect(() => {
             marginTop: "0px",
           }}
         >
-          Minimum order is ₹{MIN_ORDER_TOTAL} and above
+          Minimum order is ₹{MIN_ORDER_TOTAL} and above  
+    {walletAmount === 50 && " (Wallet applied)"}  
+    {referralAmount > 0 && " (Referral applied)"}
         </p>
       )}
 

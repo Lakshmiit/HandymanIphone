@@ -13,6 +13,8 @@ import { CartStorage } from "./CartStorage";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ImageCache from "./utils/ImageCache";
 import Footer from "./Footer.js";
+// import { appConfig } from "./config";
+
 // import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 // import ArrowRightIcon from '@mui/icons-material/ArrowRight';
 const GroceryCard = () => {
@@ -27,7 +29,8 @@ const [isMobile, setIsMobile] = useState(false);
 const [showMenu, setShowMenu] = useState(false);
 const [products, setProducts] = useState([]);
 const [imageUrls, setImageUrls] = useState({});
-const [imageLoading, setImageLoading] = useState(true);
+// const [imageLoading, setImageLoading] = useState(true);
+const [loadingImages, setLoadingImages] = useState({}); 
 const [showZoomModal, setShowZoomModal] = useState(false);
 const [zoomImage, setZoomImage] = useState("");
 const [cart, setCart] = useState({});
@@ -36,10 +39,13 @@ const [searchQuery, setSearchQuery] = useState('');
 const [likedProducts, setLikedProducts] = useState({}); 
 const [zoomProduct, setZoomProduct] = useState(null);
 const [grandSummary, setGrandSummary] = useState({ items: 0, total: 0 });
+const FREE_DELIVERY_LIMIT = 150;
+const total = Number(grandSummary?.total || 0);
+const amountNeeded = FREE_DELIVERY_LIMIT - total;
 
-useEffect(() => {
-console.log(checked, imageLoading, grandSummary);
-}, [checked, imageLoading, grandSummary]);
+useEffect(() => {       
+console.log(checked, grandSummary);
+}, [checked, grandSummary]);
 
 const mobileNumber = localStorage.getItem("customerMobileNumber");
 console.log("Mobile Number from localStorage:", mobileNumber);
@@ -180,7 +186,7 @@ return idNum;
 //   async function fetchProductsAndFirstImages() {
 //     try {
 //       setImageLoading(true);
-//       const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(decodedCat)}`;
+//       const url = `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(decodedCat)}`;
 //       const { data: items } = await axios.get(url, { signal: controller.signal });
 //       const safeItems = Array.isArray(items) ? items : [];
 //       if (cancelled) return;
@@ -209,13 +215,13 @@ return idNum;
 //       const fetchOne = async ({ productId, photo }) => {
 //         try {
 //           const res = await fetch(
-//             `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
+//             `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
 //             { signal: controller.signal }
 //           );
 //           const json = await res.json();
 //           const b64 = json?.imageData || "";
 //           if (!b64) return;
-//           ImageCache.setBase64(photo, b64);
+//           ImageCachehandymanapiv14-cvccacc0cbggefds.centralindia-01.azurewebsites.net.setBase64(photo, b64);
 //           const dataUrl = `data:image/jpeg;base64,${b64}`;
 //           if (!cancelled) {
 //             setImageUrls(prev => {
@@ -246,95 +252,181 @@ return idNum;
 // }, [encodedCategory]);
 
 useEffect(() => {
-if (!encodedCategory) return;
-const decodedCat = decodeURIComponent(encodedCategory);
-setSelectedCategory(decodedCat);
-let cancelled = false;
-const controller = new AbortController();
-const POLL_MS = 2000; 
-let pollId = null;
-async function fetchProductsAndFirstImages(warm = false, signal) {
-try {
-if (!warm) setImageLoading(true);
-const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(decodedCat)}`;
-const { data: items } = await axios.get(url, { signal });
-const safeItems = Array.isArray(items) ? items : [];
-if (cancelled) return;
-const sorted = [...safeItems].sort((a, b) => {
-const stockA = Number(a.stockLeft || 0);
-const stockB = Number(b.stockLeft || 0);
-if (stockA <= 0 && stockB > 0) return 1;
-if (stockA > 0 && stockB <= 0) return -1;
-const timeA = getItemTime(a);
-const timeB = getItemTime(b);
-if (timeA !== timeB) return timeB - timeA;
-return String(b.id).localeCompare(String(a.id));
-});
-setProducts(sorted);
-if (warm) return;
-const firstImages = safeItems
-.map(p => ({ productId: p.id, photo: Array.isArray(p.images) ? p.images[0] : null }))
-.filter(x => !!x.photo);
+  if (!encodedCategory) return;
+  const decodedCat = decodeURIComponent(encodedCategory);
+  setSelectedCategory(decodedCat);
+  const controller = new AbortController();
 
-const cachedMap = {};
-const misses = [];   
-for (const { productId, photo } of firstImages) {
-const cached = ImageCache.getBase64(photo);
-if (cached) {
-cachedMap[productId] = [`data:image/jpeg;base64,${cached}`];
-} else {
-misses.push({ productId, photo });
-}
-}
+  const fetchProducts = async () => {
+    try {
+      const url = `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(decodedCat)}`;
+      const { data: items } = await axios.get(url, { signal: controller.signal });
+      const safeItems = Array.isArray(items) ? items : [];
 
-if (Object.keys(cachedMap).length) {
-setImageUrls(prev => ({ ...prev, ...cachedMap }));
-}
-if (cancelled) return;
-const fetchOne = async ({ productId, photo }) => {
-try {
-const res = await fetch(
-`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
-              { signal }     
-);
-const json = await res.json();
-const b64 = json?.imageData || "";
-if (!b64) return; 
-ImageCache.setBase64(photo, b64);
-const dataUrl = `data:image/jpeg;base64,${b64}`;
-if (!cancelled) {
-setImageUrls(prev => {
-if (prev[productId]?.[0] === dataUrl) return prev;
-return { ...prev, [productId]: [dataUrl] };
-});
-}
-} catch {}
-};
-await Promise.allSettled(misses.map(fetchOne));
-} catch (err) {
-if (err?.name !== "CanceledError" && err?.name !== "AbortError") {
-console.error("Error fetching grocery products:", err);
-if (!warm) {
-setProducts([]);
-setImageUrls({});
-}
-}
-} finally {
-if (!cancelled && !warm) setImageLoading(false);
-}
-}
-fetchProductsAndFirstImages(false, controller.signal);
-pollId = setInterval(() => {
-const pollController = new AbortController();
-fetchProductsAndFirstImages(true, pollController.signal);
-}, POLL_MS);
+      const sorted = [...safeItems].sort((a, b) => {
+        const stockA = Number(a.stockLeft || 0);
+        const stockB = Number(b.stockLeft || 0);
+        if (stockA <= 0 && stockB > 0) return 1;
+        if (stockA > 0 && stockB <= 0) return -1;
+        const timeA = getItemTime(a);
+        const timeB = getItemTime(b);
+        if (timeA !== timeB) return timeB - timeA;
+        return String(b.id).localeCompare(String(a.id));
+      });
 
-return () => {
-cancelled = true;
-controller.abort();
-if (pollId) clearInterval(pollId);
-};
+      setProducts(sorted);
+
+      const initialLoading = {};
+      safeItems.forEach(p => { initialLoading[p.id] = true; });
+      setLoadingImages(initialLoading);
+
+      safeItems.forEach(async (product) => {
+        const photo = Array.isArray(product.images) ? product.images[0] : null;
+
+        if (!photo) {
+          setLoadingImages(prev => ({ ...prev, [product.id]: false }));
+          return;
+        }
+
+        try {
+          const cachedBlob = ImageCache.getBlobUrl(photo);
+          if (cachedBlob) {
+            setImageUrls(prev => ({ ...prev, [product.id]: cachedBlob }));
+            return;
+          }
+
+            const cachedB64 = await ImageCache.getBase64(photo); 
+            if (cachedB64) {
+              const dataUrl = `data:image/jpeg;base64,${cachedB64}`;
+              ImageCache.setBlobUrl(photo, dataUrl);
+              setImageUrls(prev => ({ ...prev, [product.id]: dataUrl }));
+              return;
+            }
+
+          const res = await fetch(
+            `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
+            { signal: controller.signal }
+          );
+          if (!res.ok) {
+              console.error("Image fetch failed, status:", res.status);
+              return;
+            }
+          const json = await res.json();
+          console.log("Image API response:", json); 
+          const b64 = json?.imageData || "";
+            if (!b64) {
+              console.warn("No base64 data for:", photo);
+              return;
+            }
+          await ImageCache.setBase64(photo, b64);
+
+          const dataUrl = `data:image/jpeg;base64,${b64}`;
+          ImageCache.setBlobUrl(photo, dataUrl);
+          setImageUrls(prev => ({ ...prev, [product.id]: dataUrl }));
+        } catch (e) {
+          console.error("Image load error:", e);
+        } finally {
+          setLoadingImages(prev => ({ ...prev, [product.id]: false }));
+        }
+      });
+
+    } catch (err) {
+      if (err?.name !== "CanceledError" && err?.name !== "AbortError") {
+        console.error("Error fetching products:", err);
+        setProducts([]);
+      }
+    }
+  };
+
+  fetchProducts();
+  return () => controller.abort();
 }, [encodedCategory]);
+
+// useEffect(() => {
+// if (!encodedCategory) return;
+// const decodedCat = decodeURIComponent(encodedCategory);
+// setSelectedCategory(decodedCat);
+// let cancelled = false;
+// const controller = new AbortController();
+// // const POLL_MS = 2000; 
+// // let pollId = null;
+// async function fetchProductsAndFirstImages(warm = false, signal) {
+// try {
+// if (!warm) setImageLoading(true);
+// const url = `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${encodeURIComponent(decodedCat)}`;
+// const { data: items } = await axios.get(url, { signal });
+// const safeItems = Array.isArray(items) ? items : [];
+// if (cancelled) return;
+// const sorted = [...safeItems].sort((a, b) => {
+// const stockA = Number(a.stockLeft || 0);
+// const stockB = Number(b.stockLeft || 0);
+// if (stockA <= 0 && stockB > 0) return 1;
+// if (stockA > 0 && stockB <= 0) return -1;
+// const timeA = getItemTime(a);
+// const timeB = getItemTime(b);
+// if (timeA !== timeB) return timeB - timeA;
+// return String(b.id).localeCompare(String(a.id));
+// });
+// setProducts(sorted);
+// if (warm) return;
+// const firstImages = safeItems
+// .map(p => ({ productId: p.id, photo: Array.isArray(p.images) ? p.images[0] : null }))
+// .filter(x => !!x.photo);
+
+// const cachedMap = {};
+// const misses = [];   
+// for (const { productId, photo } of firstImages) {
+// const cached = ImageCache.getBase64(photo);
+// if (cached) {
+// cachedMap[productId] = [`data:image/jpeg;base64,${cached}`];
+// } else {
+// misses.push({ productId, photo });
+// }
+// }
+
+// if (Object.keys(cachedMap).length) {
+// setImageUrls(prev => ({ ...prev, ...cachedMap }));
+// }
+// if (cancelled) return;
+// const fetchOne = async ({ productId, photo }) => {
+// try {
+// const res = await fetch(
+// `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(photo)}`,
+//               { signal }     
+// );
+// const json = await res.json();
+// const b64 = json?.imageData || "";
+// if (!b64) return; 
+// ImageCache.setBase64(photo, b64);
+// const dataUrl = `data:image/jpeg;base64,${b64}`;
+// if (!cancelled) {
+// setImageUrls(prev => {
+// if (prev[productId]?.[0] === dataUrl) return prev;
+// return { ...prev, [productId]: [dataUrl] };
+// });
+// }
+// } catch {}
+// };
+// await Promise.allSettled(misses.map(fetchOne));
+// } catch (err) {
+// if (err?.name !== "CanceledError" && err?.name !== "AbortError") {
+// console.error("Error fetching grocery products:", err);
+// if (!warm) {
+// setProducts([]);
+// setImageUrls({});
+// }
+// }
+// } finally {
+// if (!cancelled && !warm) setImageLoading(false);
+// }
+// }
+// fetchProductsAndFirstImages(false, controller.signal);
+
+// return () => {
+// cancelled = true;
+// controller.abort();
+//  };
+// }, [encodedCategory]);
 
 useEffect(() => {
 const handleResize = () => setIsMobile(window.innerWidth <= 768);
@@ -418,7 +510,7 @@ textAlign: "center",
 fontFamily: "Roboto",
 }}
 >
-Delivery Timings : 06:00 AM -09:00 PM
+Delivery Timings : 07:00 AM -09:00 PM
 </span>
 </h1>
 </div>
@@ -619,47 +711,50 @@ onClick={() => toggleLike(product.id)}
 </div>
 {/* Product Image */}
 <div
-className="d-flex justify-content-center align-items-center position-relative"
-style={{ height: "90px" }}
+  className="d-flex justify-content-center align-items-center position-relative"
+  style={{ height: "90px" }}
 >
-{imageUrls[product.id]?.[0] ? (
-<img
-src={imageUrls[product.id]?.[0]}
-alt={product.name}
-decoding="async"
-loading="eager"
-fetchpriority="high"
-style={{
-maxHeight: "80px",
-maxWidth: "100%",
-objectFit: "contain",
-cursor: isOutOfStock ? "not-allowed" : "pointer",
-borderRadius: "6px",
-}}
-onClick={() => !isOutOfStock && handleImageClick(imageUrls[product.id][0], product)}
-/>
-) : (
-<span className="text-muted small">Loading Image</span>
-)}
+  {loadingImages[product.id] || !imageUrls[product.id] ? (
+    <div style={{
+      position: "relative",
+      width: "54px",
+      height: "54px",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}>
+      <div className="img-outer-ring" />
+      <div className="img-inner-ring" />
+      <div className="img-center-dot" />
+    </div>
+  ) : (
+    <img
+      src={imageUrls[product.id]}
+      alt={product.name}
+      style={{
+        maxHeight: "80px",
+        maxWidth: "100%",
+        objectFit: "contain",
+        cursor: isOutOfStock ? "not-allowed" : "pointer",
+        borderRadius: "6px",
+      }}
+      onClick={() =>
+        !isOutOfStock && handleImageClick(imageUrls[product.id], product)
+      }
+    />
+  )}
 
-{isOutOfStock && (
-<div
-className="position-absolute d-flex justify-content-center align-items-center"
-style={{
-top: 0, left: 0, width: "100%", height: "100%",
-background: "rgba(255,255,255,0.75)", borderRadius: "6px", zIndex: 2,
-}}
->
-<span
-style={{
-fontWeight: 500, backgroundColor: "grey", color: "white",
-fontSize: "10px", borderRadius: "6px", margin: "1px", padding: "2px",
-}}
->
-Out of Stock
-</span>
-</div>
-)}
+  {isOutOfStock && (
+    <div className="position-absolute d-flex justify-content-center align-items-center"
+      style={{ top: 0, left: 0, width: "100%", height: "100%",
+        background: "rgba(255,255,255,0.75)", borderRadius: "6px", zIndex: 2 }}
+    >
+      <span style={{ fontWeight: 500, backgroundColor: "grey", color: "white",
+        fontSize: "10px", borderRadius: "6px", margin: "1px", padding: "2px" }}>
+        Out of Stock
+      </span>
+    </div>
+  )}
 </div>
 
 {/* Product Name */}
@@ -781,6 +876,29 @@ ADD
 </div>
 );
 })}
+
+{total > 0 && total < FREE_DELIVERY_LIMIT && (
+  <div
+    style={{
+      position: "fixed",
+      bottom: "92px",
+      left: "10px",
+      right: "10px",
+      backgroundColor: "#FFF3CD",
+      color: "#D10000",
+      padding: "8px",
+      borderRadius: "8px",
+      textAlign: "center",
+      fontWeight: "600",
+      fontSize: "13px",
+      zIndex: 2001,
+      boxShadow: "0 2px 5px rgba(0,0,0,0.15)"
+    }}
+  >
+    🎉 Add ₹{amountNeeded} more to unlock save <strong style={{fontSize: "15px"}}>₹20</strong> FREE DELIVERY & Handling Charges
+  </div>      
+)}
+
 {/* Cart Bar */}
 {(() => {
 // Safe reader that ALWAYS returns an array of categories

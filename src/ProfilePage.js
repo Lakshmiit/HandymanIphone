@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef} from "react";
+import React, { useState, useEffect, useRef,useCallback} from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import './App.css';
 import { Modal, Button} from 'react-bootstrap';
-import Confetti from "react-confetti";
+// import Confetti from "react-confetti";
 import ImageCache from "./utils/ImageCache";
 import axios from "axios";    
 import Footer from './Footer.js';
@@ -12,20 +12,16 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import StorefrontIcon from '@mui/icons-material/Storefront'; 
 import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
 import PermIdentityIcon from '@mui/icons-material/PermIdentity';
-// import Banner3 from './img/Above45.jpeg'; 
-// import BannerVideo from './img/PongalOffers.mp4';
-// import VolumeOffIcon from '@mui/icons-material/VolumeOff';       
-// import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import { useNavigate, useParams } from "react-router-dom";   
 import Logo from "./img/Hm_Logo 1.png";
 import SearchIcon from "@mui/icons-material/Search";
 import LogoutIcon from "@mui/icons-material/Logout";   
-import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';          
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import MenuIcon from '@mui/icons-material/Menu';
 import Electrical from './img/Electrical.jpeg';
-import Electronics from './img/Electronics.jpeg';
+import Electronics from './img/Electronics.jpeg';  
 import Plumbing from './img/Plumbing.jpeg';
 import Hardware from './img/Hardware.jpeg';
 import HomeDecor from './img/HomeDecor.jpeg';
@@ -63,21 +59,12 @@ import { CartStorage } from "./CartStorage";
 import IcecreamImg from './img/IceCreams.jpeg';
 import DwakraProducts from './img/DwakraLogo.jpeg';
 import UnbeatableImg from './img/MilkOffers.jpeg';
-import Above45Img from './img/Above45.jpeg'; 
+import ComboPackImg from './img/ComboPack.jpeg'; 
 import AddIcCallIcon from '@mui/icons-material/AddIcCall';
 import RoyalImg from './img/LMartLogo.jpeg';
 import HomeElectricalImg from './img/HomeElectrical.jpeg';
 import HomePlumbingImg from './img/HomePlumbing.jpeg'; 
-// import Poster from './img/Poster.jpeg';  
-// import ReedemCode from "./ReedemCode.js";
-// import Container1Img from './img/599.jpg';
-// import Container2Img from './img/299.jpg';
-// import Container3Img from './img/Sugar.jpg';
-// import Container4Img from './img/999.jpg';       
-// import Container5Img from './img/1499.jpg'; 
-// import Container6Img from './img/1999.jpg'; 
-// import Image1 from './img/Image1.jpeg';     
-// import Image2 from './img/Image2.jpeg';
+import OffersBannerModal from './OffersBannerModal.js';
 // import { appConfig } from "./config";                     
 
 const getMenuList = (userType, userId, category, district ,ZipCode,technicianFullName, isMobile) => {
@@ -111,15 +98,14 @@ const categories = [
 ]; 
        
 const groceryCategories = [
+  {label: 'Grocery Value Combo Packs', value: 'Grocery Value Combo Packs', image: ComboPackImg},
   {label: 'LMart Products', value: 'LMart Special', image: RoyalImg},
   { label: 'Unbeatable 10 Offers', value: 'Unbeatable Offers', image: UnbeatableImg },
-  // { label: '₹1 Store', value: '₹1 Store', image: UnbeatableImg },
   { label: 'Rice & Ravva', value: 'Rice & Ravva', image: RavvaImg },    
   { label: 'Atta & Flours', value: 'Atta & Flours', image: AttaImg },
   { label: 'Vegetables', value: 'Vegetables', image: VegetablesImg },
   { label: 'Fruits', value: 'Fruits', image: FruitsImg }, 
   { label: 'Oils & Dals', value: 'Oils & Dals', image: OilsImg },
-  { label: 'Above 45 % Offers', value: 'Offers', image: Above45Img },
   { label: 'Masala, Spices & Pickles', value: 'Masala, Spices & Pickles', image: MasalaImg },
   { label: 'Instant Food, Chips & Namkeen', value: 'Instant Food, Chips & Namkeen', image: NamkeenImg },
   { label: 'Skin & Face Care', value: 'Skin & Face Care', image: SkinImg },
@@ -151,7 +137,7 @@ const collectionsCategories = [
   ];
 
   const IMAGE_API =
-  `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=`;
+  `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=`;
 
 const ProfilePage = () => {
    const [allProducts, setAllProducts] = useState([]);
@@ -167,8 +153,7 @@ const ProfilePage = () => {
     const [fullName, setFullName] = useState('');
     const [menuList, setMenuList] = useState([]);
     const [profile, setProfile] = useState({});
-    const [selectedTicket, setSelectedTicket] = useState(null);
-    const [showModal, setShowModal] = useState(false);
+   const [showModal, setShowModal] = useState(false);
     const [profileImage, setProfileImage] = useState(null);
     const fileInputRef = useRef(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -179,10 +164,7 @@ const ProfilePage = () => {
     const ticketScrollRef = useRef(null);  
    const [error, setError] = useState('');
     const [products, setProducts] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState("");
-    //  const videoRef = useRef(null);
-// const [isMuted] = useState(true);
-// const [isMuted, setIsMuted] = useState(true);  
+    const [selectedCategory, setSelectedCategory] = useState(""); 
 const [grocery, setGrocery] = useState([]);
 const [cartSummary, setCartSummary] = useState({
   items: 0,
@@ -208,28 +190,15 @@ const [paymentMode, setPaymentMode] = useState('');
 const clickLock = useRef(false);
 const [isRegistered, setIsRegistered] = useState(false);
 const [partnerStatus, setPartnerStatus] = useState("");
-// const [isPickup, setIsPickup] = useState(false);
-const [cartData, setCartData] = useState(null);
-const [transactionDetails, setTransactionDetails] = useState('');
-const [transactionStatus, setTransactionStatus] = useState('');
-const [longitude, setLongitude] = useState('');
-const [latitude, setLatitude] = useState('');
-const [paidAmount, setPaidAmount] = useState('');
-const [date, setDate] = useState('');
-const [grandTotal, setGrandTotal] = useState('');
-const [items, setItems] = useState('');
-const [assignedTo, setAssignedTo] = useState('');
-const [deliveryPartnerUserId, setDeliveryPartnerUserId] = useState('');
-const [totalItemsSelected, setTotalItemsSelected] = useState('');
-const [transactionNumber, setTransactionNumber] = useState('');
-const [city, setCity] = useState('');
+const [paidAmount] = useState('');
+const [items] = useState('');
 const HEADER_H = 0;          
 const MOBILE_ICONS_H = 0; 
 const MOBILE_EXTRA =0;     
 const MOBILE_PADDING_TOP = HEADER_H + MOBILE_ICONS_H + MOBILE_EXTRA;
 const [cartImages, setCartImages] = useState({});
-const [showCashbackModal, setShowCashbackModal] = useState(false);
-const [showConfetti, setShowConfetti] = useState(false);
+// const [showCashbackModal, setShowCashbackModal] = useState(false);
+// const [showConfetti, setShowConfetti] = useState(false);
 const [windowSize, setWindowSize] = useState({
   width: window.innerWidth,
   height: window.innerHeight,
@@ -243,181 +212,23 @@ const displayProducts =
 searchQuery.trim().length > 0 ? filteredProducts : products;
 const [imageLoading, setImageLoading] = useState(true);
 const [placeholderIndex, setPlaceholderIndex] = useState(0);
-// const carouselRef = useRef(null);
-// const carouselInstance = useRef(null);
 const firstCategories = groceryCategories.slice(0, 6);
 const secondCategories = groceryCategories.slice(6, 31);
-// const thirdCategories = groceryCategories.slice(15, 24);
-// const fourthCategories = groceryCategories.slice(24, 30);
-// const HEADER_HEIGHT = window.innerWidth <= 768 ? 50 : 100;
 const [showOffersModal, setShowOffersModal] = useState(false);
-const [offersData, setOffersData] = useState([]);
-const [offerImages, setOfferImages] = useState({});
-const [currentTime, setCurrentTime] = useState(new Date());
-// const staticImages = [Image1, Image2];
-const [showCoinsModal, setShowCoinsModal] = useState(false);
-// const offers = [
-//   {
-//     condition: "New Users Get - ₹50 in Wallet!",
-//     img: Container1Img,
-//   },
-//   {
-//     condition: "Cashback|Above ₹299",
-//     img: Container2Img,
-//   },
-//   {
-//     condition: "Free Sugar 1Kg|Above ₹599",
-//     img: Container3Img,
-//   },
-//   {
-//     condition: "Cashback|Above ₹999",
-//     img: Container4Img,
-//   },
-//   {
-//     condition: "Cashback|Above ₹1499",
-//     img: Container5Img,
-//   },
-//   {
-//     condition: "Cashback|Above ₹1999",
-//     img: Container6Img,
-//   },
-// ];
-
-//  const highlightText = (text) => {
-//   return text.split(/(₹\d+|Cashback)/g).map((part, index) => {
-//     if (/₹\d+/.test(part)) {
-//       return (
-//         <span key={index} style={{ color: "red", fontWeight: "bold" }}>
-//           {part}
-//         </span>
-//       );
-//     } else if (part === "Cashback") {
-//       return (
-//         <span
-//           key={index}
-//           style={{
-//             color: "green",
-//             fontWeight: "bold",
-//             fontSize: "15px", 
-//           }}
-//         >
-//           {part}
-//         </span>
-//       );
-//     } else {
-//       return (
-//         <span key={index} style={{ color: "green" }}>
-//           {part}
-//         </span>
-//       );
-//     }
-//   });
-// }; 
-
+// const [showCoinsModal, setShowCoinsModal] = useState(false);
+const [selectedTicket, setSelectedTicket] = useState(null);
+const [selectedOrder, setSelectedOrder] = useState(null);
+const [showOrderModal, setShowOrderModal] = useState(false);
+const [showDetails, setShowDetails] = useState(false);
+const [searchOrderId, setSearchOrderId] = useState("");
+const [walletAmount, setWalletAmount] = useState("0");
+const [walletLoading, setWalletLoading] = useState(true);
+const [showWalletMessage, setShowWalletMessage] = useState(false);
+const [showWelcomeMessage, setShowWelcomeMessage] = useState(false);
 useEffect(() => {
-  setShowOffersModal(true);
-}, []);
-
-useEffect(() => {
-  const fetchOffers = async () => {
-    try {
-      const res = await axios.get(
-        "https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UpLoadBannners/GetBanners"
-      );
-      setOffersData(res.data);
-      console.log("Offers Data:", res.data);
-    } catch (err) {
-      console.error("Error fetching offers:", err);
-    }
-  };
-  fetchOffers();
-}, []);
-
-// const now = new Date();
-
-const activeOffers = offersData.filter((offer) => {
-  const start = new Date(offer.startDate);
-  const end = new Date(offer.endDate);
-  return currentTime >= start && currentTime <= end;
-});
-
-useEffect(() => {
-  if (offersData.length > 0) {
-    const hasActive = offersData.some((offer) => {
-      const start = new Date(offer.startDate);
-      const end = new Date(offer.endDate);
-      return currentTime >= start && currentTime <= end;
-    });
-
-    setShowOffersModal(hasActive);
-  }
-}, [offersData, currentTime]);
-
-useEffect(() => {
-  if (!offersData.length) return;
-  const fetchImages = async () => {
-    const imagesMap = {};
-    for (const offer of offersData) {
-      imagesMap[offer.id] = [];
-      for (const img of offer.image || []) {
-        try {
-          const res = await fetch(
-            `${IMAGE_API}${encodeURIComponent(img.images)}`
-          );
-          const data = await res.json();
-          if (data?.imageData) {
-            imagesMap[offer.id].push(
-              `data:image/jpeg;base64,${data.imageData}`
-            );
-          }
-        } catch (err) {
-          console.error("Image load failed:", err);
-        }
-      }
-    }
-    setOfferImages(imagesMap);
-  };
-  fetchImages();
-}, [offersData]);
-
-useEffect(() => {
-  const interval = setInterval(() => {
-    setCurrentTime(new Date());
-  }, 5000); 
-  return () => clearInterval(interval);
-}, []);
-
-// const hasRun = useRef(false);
-
-// useEffect(() => {
-//   if (hasRun.current) return; 
-//   hasRun.current = true;
-//   const today = new Date().toDateString();
-//   const storedData = JSON.parse(
-//     localStorage.getItem("offersModalData") || "{}"
-//   );
-//   if (storedData.date === today) {
-//     if (storedData.count < 10) {
-//       setShowOffersModal(true);
-//       localStorage.setItem(
-//         "offersModalData",
-//         JSON.stringify({
-//           date: today,
-//           count: storedData.count + 1,
-//         })
-//       );
-//     }
-//   } else {
-//     setShowOffersModal(true);
-//     localStorage.setItem(
-//       "offersModalData",
-//       JSON.stringify({
-//         date: today,
-//         count: 1,
-//       })
-//     );
-//   }
-// }, []);
+  console.log(windowSize, state, address, mobileNumber,id, pinCode, paidAmount, paymentMode, martId,status, imageLoading, zoomProduct, zoomImage, showZoomModal, cartSummary, items, grocery,error, showMenu, products, selectedCategory, dress);
+}, [windowSize, state, address, mobileNumber, id, pinCode, paidAmount, paymentMode, martId, status, imageLoading, zoomProduct, zoomImage, showZoomModal, cartSummary, items, grocery, error,showMenu, products, selectedCategory, dress]);
+ 
  const placeholderSuggestions = [
   'Search "Milk"', 'Search "Freedom Refined Sunflower Oil"', 'Search "Sona Masoori Rice"',
   'Search "Paneer"', 'Search "Red Label"', 'Search "Coffee"', 'Search "Aashirvaad"',
@@ -426,153 +237,15 @@ useEffect(() => {
   'Search "Bread"', 'Search "Chicken"', 'Search "Shampoo"', 'Search "Soap"',
 ];
 
-// const [showRedeem, setShowRedeem] = useState(false);
-// const [refRecord, setRefRecord] = useState(null);
-// const [refLoading, setRefLoading] = useState(true);
-// // const [shouldShowGetCoins, setShouldShowGetCoins] = useState(false);
-// const [referralPoints, setReferralPoints] = useState('');
-// const [awardedPoints, setAwardedPoints] = useState(0);
-// const [awardLoading, setAwardLoading] = useState(true);
-// const [userPoints, setUserPoints] = useState(0);        
-// const [pointsLoading, setPointsLoading] = useState(true);
-// // const [claimAvailable, setClaimAvailable] = useState(false); 
-// const AWARDED_POINTS_KEY = `hm_referral_awarded_points_${userId || "guest"}`; 
-// // const [isReferralUsed, setIsReferralUsed] = useState(false);
-//   const [showMessage, setShowMessage] = useState(false);
-//   const [redeemOpen, setRedeemOpen] = useState(false);
-// const [displayNumbers, setDisplayNumbers] = useState("");
-// // redeemOpen, showRedeem, awardLoading,  awardedPoints, referralPoints,
-// useEffect(() => {
-//   console.log( redeemOpen, showRedeem, awardLoading,  awardedPoints, referralPoints);
-// }, [redeemOpen, showRedeem, awardLoading,  awardedPoints, referralPoints]);
-
-// const checkNewOrExisting = useCallback(async (num) => {
-//   try {
-//     const res = await fetch(
-//       `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UserOnBoarding/GuestUserVerificationByMobileNo?mobileNo=${encodeURIComponent(
-//         num
-//       )}`
-//     ); 
-//     const text = await res.text();
-//     let data = null;
-//     try { data = text ? JSON.parse(text) : null; } catch { data = null; }
-//     if (data === null) return "not registered";
-//     return "registered";
-//   } catch {
-//     return "invalid";
-//   }
-// }, []);
-
-// useEffect(() => {
-//   const numbers = (refRecord?.referralNumbers || "")
-//     .split(",")
-//     .map(s => s.trim())
-//     .filter(Boolean)
-//     .filter((v, i, a) => a.indexOf(v) === i);
-//   if (numbers.length === 0) {
-//     setDisplayNumbers("");
-//     return;
-//   }
-//   let isActive = true;
-//   const checkAllNumbers = async () => {
-//     try {
-//       const results = await Promise.all(
-//         numbers.map(async (num) => {
-//           try {
-//             const status = await checkNewOrExisting(num);
-//             if (status === "registered") return `${num} ✅ Registered`;
-//             if (status === "not registered") return `${num} ❌ Not Registered`;
-//             return `${num} ⚠️ Invalid`;
-//           } catch {
-//             return `${num} ⚠️ Error`;
-//           }
-//         })
-//       );
-//       if (isActive) {
-//          const joined = results.join(", ");
-//           setDisplayNumbers(joined);
-//         // setDisplayNumbers(results.join(", "));
-//         const allRegistered = results.every(r => r.includes("✅"));
-
-//       if (allRegistered) {
-//         // ✅ store award immediately
-//         localStorage.setItem(AWARDED_POINTS_KEY, "100");
-//         // ✅ enable button immediately
-//         setClaimAvailable(true);
-//       }
-//       }
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-//   checkAllNumbers();
-//   // ✅ Auto refresh every 1 seconds
-//   // const intervalId = setInterval(() => {
-//   //   checkAllNumbers();
-//   // }, 1000); 
-//     const intervalId = setInterval(checkAllNumbers, 1000);
-
-//   return () => {
-//     isActive = false;
-//     clearInterval(intervalId); 
-//   };
-// }, [refRecord?.referralNumbers, checkNewOrExisting, AWARDED_POINTS_KEY]);
-
-// useEffect(() => {
-//   const fetchOffers = async () => {
-//     try {
-//       const res = await axios.get(
-//         "https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UpLoadBannners/GetBanners"
-//       );
-//       setOffersData(res.data);
-//       console.log("Offers Data:", res.data);
-//     } catch (err) {
-//       console.error("Error fetching offers:", err);
-//     }
-//   };
-//   fetchOffers();
-// }, []);
-
-// const now = new Date();
-
-// const activeOffers = offersData.filter((offer) => {
-//   const start = new Date(offer.startDate);
-//   const end = new Date(offer.endDate);
-//   return now >= start && now <= end;
-// });
-
-// useEffect(() => {
-//   if (activeOffers.length > 0) {
-//     setShowOffersModal(true);
-//   }
-// }, [offersData, activeOffers.length]);
-    
-// useEffect(() => {
-//   if (!offersData.length) return;
-//   const fetchImages = async () => {
-//     const imagesMap = {};
-//     for (const offer of offersData) {
-//       imagesMap[offer.id] = [];
-//       for (const img of offer.image || []) {
-//         try {
-//           const res = await fetch(
-//             `${IMAGE_API}${encodeURIComponent(img.images)}`
-//           );
-//           const data = await res.json();
-//           if (data?.imageData) {
-//             imagesMap[offer.id].push(
-//               `data:image/jpeg;base64,${data.imageData}`
-//             );
-//           }
-//         } catch (err) {
-//           console.error("Image load failed:", err);
-//         }
-//       }
-//     }
-//     setOfferImages(imagesMap);
-//   };
-//   fetchImages();
-// }, [offersData]);
+useEffect(() => {
+  if (!profile.fullName) return;
+  const name = profile.fullName.trim().toLowerCase();
+  if (name === "guest") {
+    setShowWelcomeMessage(true);
+    const timer = setTimeout(() => setShowWelcomeMessage(false), 5000);
+    return () => clearTimeout(timer);
+  }
+}, [profile.fullName]);
 
 useEffect(() => {
   const onResize = () => {
@@ -585,325 +258,6 @@ useEffect(() => {
   return () => window.removeEventListener("resize", onResize);
 }, []);
 
-// useEffect(() => {
-//   const checkNewUser = async () => {
-//     try {
-//       const rec = await getReferralRecord(userId);
-//       if (!rec || readServerPoints(rec) === 0) {
-//         setShowRedeem(true);   
-//       } else {
-//         setShowRedeem(false);
-//       }
-//     } catch (err) {
-//       setShowRedeem(true);
-//     }
-//   };
-//   if (userId) checkNewUser();
-// }, [userId]);
-
-// useEffect(() => {
-//   const award = Number(localStorage.getItem(AWARDED_POINTS_KEY) || "0");
-//   if (award === 100 && userPoints === 0) {
-//     setClaimAvailable(true);
-//   } else {
-//     setClaimAvailable(false);
-//   }
-// }, [userPoints, AWARDED_POINTS_KEY]);
-
-// useEffect(() => {
-//   let cancelled = false;
-//   (async () => {
-//     try {
-//       // 1) Server points (authoritative UI value)
-//       const rec = await getReferralRecord(userId);
-//       const serverPts = rec ? readServerPoints(rec) : 0;
-//       // 2) Local award (pending 100 from Redeem flow)
-//       let localAward = 0;
-//       try { localAward = Number(localStorage.getItem(AWARDED_POINTS_KEY) || "0"); } catch {}
-//       if (!cancelled) {
-//         setUserPoints(serverPts);
-//         // Enable "Get Coins" ONLY when server is still 0 AND local says 100 is ready
-//         // setClaimAvailable(serverPts === 0 && localAward === 100);
-//         setClaimAvailable(serverPts === 0 && localAward === 100);      }
-//     } catch {
-//       if (!cancelled) {
-//         setUserPoints(0);
-//         setClaimAvailable(false);
-//       }
-//     } finally {
-//       if (!cancelled) setPointsLoading(false);
-//     }
-//   })();
-//   return () => { cancelled = true; };
-// }, [userId, AWARDED_POINTS_KEY]);
-
-// useEffect(() => {
-//   const fetchReferral = async () => {
-//     try {
-//       const rec = await getReferralRecord(userId);
-//       if (rec) {
-//         const raw =
-//           rec?.referralPoints ??
-//           rec?.referralpoints ??
-//           rec?.ReferralPoints ??
-//           rec?.ReferralPoints ??
-//           0;
-//         const pointsValue = Number(raw) || 0;
-//         setReferralPoints(pointsValue);
-//         setShouldShowGetCoins(pointsValue === 0); 
-//       } else {
-//         setReferralPoints(0);
-//         setShouldShowGetCoins(true); 
-//       }
-//     } catch (e) {
-//       console.error("Failed to load referral points:", e);
-//       setShouldShowGetCoins(false);
-//     }
-//   };
-//   fetchReferral();
-// }, [userId]);
-
-// load once
-// useEffect(() => {
-//   let cancelled = false;
-//   (async () => {
-//     try {
-//       const rec = await getReferralRecord(userId);
-//       if (!cancelled) setRefRecord(rec);
-//     } finally {
-//       if (!cancelled) setRefLoading(false);
-//     }
-//   })();
-//   return () => { cancelled = true; };
-// }, [userId]);
-
-// formatter (optional): clean, unique, spaced
-// const displayNumbers = (refRecord?.referralNumbers || "")
-//   .split(",")
-//   .map(s => s.trim())
-//   .filter(Boolean)
-//   .filter((v, i, a) => a.indexOf(v) === i)
-//   .join(", ");
-
-// ---- load once for this user ----
-// useEffect(() => {
-//   let cancelled = false;
-//   (async () => {
-//     try {
-//       const rec = await getReferralRecord(userId);
-//       const pts = rec ? readServerPoints(rec) : 0;
-//       if (!cancelled) setUserPoints(pts);
-//     } catch {
-//       if (!cancelled) setUserPoints(0);
-//     } finally {
-//       if (!cancelled) setPointsLoading(false);
-//     }
-//   })();
-//   return () => { cancelled = true; };
-// }, [userId]);
-
-// KEY used by ReedemCode
-// const awardKeyFor = (uid) => `hm_referral_awarded_points_${uid || "guest"}`;
-
-// Read localStorage award (100 only if all 3 registered) — doesn't change UI points
-// useEffect(() => {
-//   const KEY = awardKeyFor(userId);
-//   const readAward = () => {
-//     try {
-//       const raw = localStorage.getItem(KEY);
-//       const n = Number(raw);
-//       setAwardedPoints(Number.isFinite(n) ? n : 0);
-//     } catch {
-//       setAwardedPoints(0);
-//     } finally {
-//       setAwardLoading(false);
-//     }
-//   };
-//   readAward();
-//   const onStorage = (e) => { if (e.key === KEY) readAward(); };
-//   window.addEventListener("storage", onStorage);
-//   return () => window.removeEventListener("storage", onStorage);
-// }, [userId]);
-
-// When clicked, PUT 100 on server, update UI, clear local award
-// useEffect(() => {
-//   const KEY = awardKeyFor(userId);
-//   const readAward = () => {
-//     try {
-//       const raw = localStorage.getItem(KEY);
-//       const n = Number(raw);
-//       setAwardedPoints(Number.isFinite(n) ? n : 0);
-//     } catch {
-//       setAwardedPoints(0);
-//     } finally {
-//       setAwardLoading(false);
-//     }
-//   };
-//   readAward(); 
-//   // keep in sync if another tab updates
-//   const onStorage = (e) => {
-//     if (e.key === KEY) readAward();
-//   };
-//   window.addEventListener("storage", onStorage);
-//   return () => window.removeEventListener("storage", onStorage);
-// }, [userId]);
-
-// ---- helpers (keep near your other helpers) ----
-//  const getReferralRecord = async (userId) => {
-//   if (!userId) return null;
-//   const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/ReferralPoints/GetReferralPointsByUserId?referreId=${encodeURIComponent(
-//     userId
-//   )}`;
-//   const res = await fetch(url);
-//   const text = await res.text();
-//   let data = [];
-//   try { data = text ? JSON.parse(text) : []; } catch { data = []; }
-//   if (Array.isArray(data) && data.length > 0) {
-//     data.sort((a, b) => new Date(b.date) - new Date(a.date));
-//     const record = data[0];
-//     setReferralPoints(Number(record.referralpoints));  
-//     setIsReferralUsed(record.isReferralUsed);
-//     return record;
-//   }
-//   setReferralPoints(0);
-//   setIsReferralUsed(false);
-//   return null;
-// };
-
-// useEffect(() => {
-//   const localAward = Number(localStorage.getItem(AWARDED_POINTS_KEY) || "0");
-//   if (userPoints === 0 && localAward === 100) {
-//     setClaimAvailable(true);
-//   } else {
-//     setClaimAvailable(false);
-//   }
-// }, [userPoints, AWARDED_POINTS_KEY]);
-
-const formatDateTime = (dateString) => {
-  return new Date(dateString).toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-// const readServerPoints = (record) => {
-//   const raw =
-//     record?.referralPoints ??
-//     record?.referralpoints ??
-//     record?.ReferralPoints ??
-//     record?.ReferralPoints ??
-//     0;
-//   const n = Number(raw);
-//   return Number.isFinite(n) ? n : 0;
-// };   
-
-// const handleGetCoins = async () => {
-//   if (pointsLoading) return;
-//   const localAward = Number(localStorage.getItem(AWARDED_POINTS_KEY) || "0");
-//   // const isAllRegistered = displayNumbers
-//   //   ?.split(",")
-//   //   .every(item => item.includes("✅"));
-//   // ❌ Already claimed
-//   if (userPoints >= 100) {
-//     alert("Coins already claimed");
-//     return;
-//   }
-//   // ❌ Not completed
-//   if (localAward !== 100) {
-//     alert("Referral not completed yet");
-//     return;
-//   }
-//   try {
-//     setPointsLoading(true);
-//     setShowConfetti(true);
-//     setShowMessage(true);
-//     setTimeout(() => setShowConfetti(false), 4000);
-//     setTimeout(() => setShowMessage(false), 5000);
-//     const rec = await getReferralRecord(userId);
-//     if (!rec?.id) {
-//       alert("No referral record found");
-//       return;
-//     }
-//     const payload = {
-//       id: rec.id,
-//       date: rec.date,
-//       referralNumbers: rec.referralNumbers ?? "",
-//       referreId: rec.referreId ?? userId,
-//       isReferralUsed: false,
-//       referralPoints: "100",
-//     };
-//     const res = await fetch(
-//       `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/ReferralPoints/UpdateReferralPoints?id=${rec.id}`,
-//       {
-//         method: "PUT",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify(payload),
-//       }
-//     );
-//     if (!res.ok) throw new Error("Failed to update coins");
-//     // Update UI immediately
-//     setUserPoints(100);
-//     localStorage.removeItem(AWARDED_POINTS_KEY);
-//     // Disable button
-//     setClaimAvailable(false);
-//   } catch (err) {
-//     console.error(err);
-//     alert("Something went wrong");
-//   } finally {
-//     setPointsLoading(false);
-//   }
-// };
-
-// useEffect(() => {
-//   let cancelled = false;
-//   const bootstrapReferrals = async () => {
-//     if (!userId) return;
-//     const rec = await getReferralRecord(userId);
-//     if (!rec) {
-//       // brand-new user: open popup and start with 0 points
-//       if (!cancelled) {
-//         setShowRedeem(true);
-//         setUserPoints(0);
-//       }
-//       return;
-//     }
-//     // existing record: load points into UI
-//     const serverPts = Math.min(readServerPoints(rec), 150);
-//     if (!cancelled) {
-//       setUserPoints(serverPts);
-//       // if they have no numbers and 0 points -> treat as new-ish, open it
-//       const hasNumbers = Boolean((rec.referralNumbers || "").trim());
-//       if (!hasNumbers && serverPts === 0) {
-//         setShowRedeem(true);
-//       } else {
-//         setShowRedeem(false);
-//       }
-//     }
-//   };
-//   bootstrapReferrals();
-//   return () => { cancelled = true; };
-// }, [userId]);
-
-//   const handleSendRef = async (index, referralValue) => {
-//     console.log("sendRef", { index, referralValue });
-//   };
-
-//   const handleRedeemCoins = async (refsPayload) => {
-//   const earned = 50; 
-//   setUserPoints((prev) => {
-//     const next = (Number(prev) || 0) + earned;
-//     try {
-//     } catch (e) {
-//       console.error("Unable to write userPoints to localStorage on redeem:", e);
-//     }
-//     return next;
-//   });
-//   window.alert(`Coins added: ${earned}`);
-// };
-
 useEffect(() => {
   const interval = setInterval(() => {
     setPlaceholderIndex((prev) => (prev + 1) % placeholderSuggestions.length);
@@ -911,23 +265,42 @@ useEffect(() => {
   return () => clearInterval(interval);
 }, [placeholderSuggestions.length]);        
 
+const fetchWalletAmount = useCallback(async () => {
+  try {
+    setWalletLoading(true);
+    const response = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/OffersTransactions/GetOfferTransactionByUserId?userId=${userId}`
+    );
+    const data = await response.json();
+    if (data && data.length > 0) {
+      setWalletAmount(data[0].remainingAmount || "0");
+    } else {
+      setWalletAmount("0");
+    }
+  } catch (error) {
+    console.error("Error fetching wallet amount:", error);
+    setWalletAmount("0");
+  } finally {
+    setWalletLoading(false);
+  }
+}, [userId]);
+
 useEffect(() => {
-  console.log( imageLoading, zoomProduct, zoomImage, showZoomModal, cartSummary, items, grocery,error, showMenu, products, selectedCategory, dress);
-}, [imageLoading, zoomProduct, zoomImage, showZoomModal, cartSummary, items, grocery, error,showMenu, products, selectedCategory, dress]);
- 
+  if (userId) {
+    fetchWalletAmount();
+  }
+}, [userId, fetchWalletAmount]);
+
 useEffect(() => {  
   if (!selectedCategory) return;
   let cancelled = false;
   const controller = new AbortController();
-  // const POLL_MS = 2000;
-  // let pollId = null;
-
+  
   const category = selectedCategory; 
   async function fetchProductsAndFirstImages(warm = false, signal) {
     try {
       if (!warm) setImageLoading(true);
-      // https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net
-      const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${category}`;
+      const url = `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsBycategory?Category=${category}`;
 
       const { data: items } = await axios.get(url, { signal });
       const safeItems = (Array.isArray(items) ? items : []).map(normalizeProduct);
@@ -958,7 +331,7 @@ useEffect(() => {
       const fetchOne = async ({ productId, photo }) => {
         try {
           const res = await fetch(
-            `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${photo}`,
+            `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${photo}`,
             { signal }
           );
 
@@ -991,17 +364,10 @@ useEffect(() => {
       if (!cancelled && !warm) setImageLoading(false);
     }
   }
-  // First load
   fetchProductsAndFirstImages(false, controller.signal);
-  // Polling
-  // pollId = setInterval(() => {
-  //   const pollController = new AbortController();
-  //   fetchProductsAndFirstImages(true, pollController.signal);
-  // }, POLL_MS);
-  return () => {
+ return () => {
     cancelled = true;
     controller.abort();
-    // if (pollId) clearInterval(pollId);
   };
 }, [selectedCategory]); 
 
@@ -1059,14 +425,6 @@ useEffect(() => {
 }, [cartImages]); 
 
 useEffect(() => {
-  if (showCashbackModal) {
-    setShowConfetti(true);
-    const timer = setTimeout(() => setShowConfetti(false), 3000);
-    return () => clearTimeout(timer);
-  }
-}, [showCashbackModal]);
-
-useEffect(() => {
   const handleResize = () => {
     setWindowSize({
       width: window.innerWidth,
@@ -1111,90 +469,34 @@ useEffect(() => {
   mrp: Number(p.mrp || 0),
 });
 
-/* ================= FETCH PRODUCTS ================= */
-// useEffect(() => {
-//   let cancelled = false;
-//   const POLL_MS = 5000
-//   const fetchProducts = async (showLoader = false) => {
-//     if (showLoader) setLoading(true);
-//     try {
-//       const res = await axios.get(
-//         "https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetAllGroceryItems"
-//       );
-//       if (cancelled) return;
-//       const normalized = (Array.isArray(res.data) ? res.data : [])
-//         .map(normalizeProduct)
-//         .filter(p => p.status === "Approved");
-//       setAllProducts(prev => {
-//         if (
-//           prev.length === normalized.length &&
-//           prev.every((p, i) =>
-//             p.id === normalized[i].id &&
-//             p.stockLeft === normalized[i].stockLeft &&
-//             p.limit === normalized[i].limit
-//           )
-//         ) {
-//           return prev; 
-//         }
-//         return normalized;
-//       });
-//     } catch (err) {
-//       console.error("Fetching grocery items failed", err);
-//     } finally {
-//       if (showLoader && !cancelled) setLoading(false);
-//     }
-//   };
-//   fetchProducts(true);
-//   const intervalId = setInterval(() => {
-//     fetchProducts(false);
-//   }, POLL_MS);
-//   return () => {
-//     cancelled = true;
-//     clearInterval(intervalId);
-//   };
-// }, []);
-
-
 useEffect(() => {
-  let cancelled = false;
-  // const POLL_MS = 300000;
-
-  const sendLog = async () => {
-    try {
-      const payload = {
-        id: "1", 
-       
-        date: "string",
-        mobileNumber: profile.mobileNumber, 
-        message: "User fetching grocery items in profile page"
-      };
-
-      await axios.post(
-        `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/LmartLogs/UploadlogsDetails`,
-        payload
-      );
-    } catch (err) {
-      console.error("Log API failed", err);
-    }
-  };
-
+  // let cancelled = false;
+  // const sendLog = async () => {
+  //   try {
+  //     const payload = {
+  //       id: "1", 
+  //       date: "string",
+  //       mobileNumber: profile.mobileNumber, 
+  //       message: "User fetching grocery items in profile page"
+  //     };
+  //     await axios.post(
+  //       `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/LmartLogs/UploadlogsDetails`,
+  //       payload
+  //     );
+  //   } catch (err) {
+  //     console.error("Log API failed", err);
+  //   }
+  // };
   const fetchProducts = async (showLoader = false) => {
-   
-    sendLog();
-
+    // sendLog();
     if (showLoader) setLoading(true);
-
     try {
       const res = await axios.get(
-        `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetAllGroceryItems`
+        `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/UploadGrocery/GetAllGroceryItems`
       );
-
-      if (cancelled) return;
-
       const normalized = (Array.isArray(res.data) ? res.data : [])
         .map(normalizeProduct)
         .filter((p) => p.status === "Approved");
-
       setAllProducts((prev) => {
         if (
           prev.length === normalized.length &&
@@ -1209,24 +511,13 @@ useEffect(() => {
         }
         return normalized;
       });
-
     } catch (err) {
       console.error("Fetching grocery items failed", err);
     } finally {
-      if (showLoader && !cancelled) setLoading(false);
+      if (showLoader) setLoading(false);
     }
   };
-
   fetchProducts(true);
-
-  // const intervalId = setInterval(() => {
-  //   fetchProducts(false);
-  // }, POLL_MS);
-
-  return () => {
-    cancelled = true;
-    // clearInterval(intervalId);
-  };
 }, [profile.mobileNumber]);
 
   /* ================= FILTER ================= */
@@ -1303,99 +594,96 @@ const handleAddClick = (product) => {
   });
 };
 
-  // cashback logic
-useEffect(() => {
-  if (!showCashbackModal) return; 
-  const timer = setTimeout(() => {
-    setShowCashbackModal(false);
-  }, 5000);
-  return () => clearTimeout(timer); 
-}, [showCashbackModal]);
+// useEffect(() => {
+//   const fetchDeliveryData = async () => {
+//     try {    
+//       const response = await fetch(
+//         `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/GetProductDetails?id=${id}`
+//       );
+//       if (!response.ok) {
+//         throw new Error("Failed to fetch grocery product data");
+//       }
+//       const data = await response.json();
+//       console.log("Fetched Grocery Data:", data);
+//       setCartData(data);
+//       setId(data.id);
+//       setMartId(data.martId);
+//       setDate(data.date);
+//       setMobileNumber(data.customerPhoneNumber);
+//       setAddress(data.address);
+//       setState(data.state);
+//       setCity(data.district);
+//       setPinCode(data.zipCode);
+//       setPaymentMode(data.paymentMode);
+//       setTransactionDetails(data.utrTransactionNumber);
+//       setLongitude(data.longitude);
+//       setLatitude(data.latitude);
+//       setGrandTotal(data.grandTotal);
+//       setPaymentMode(data.paymentMode);
+//       setTotalItemsSelected(data.totalItemsSelected);
+//       setTransactionStatus(data.transactionStatus);
+//       setPaidAmount(data.paidAmount);
+//       setTransactionNumber(data.transactionNumber);
+//       setLatitude(data.latitude);
+//       setLongitude(data.longitude);
+//       setTotalItemsSelected(data.totalItemsSelected);
+//       setDeliveryPartnerUserId(data.deliveryPartnerUserId);
+//       setAssignedDateTime(data.deliveryAssignedTime);
+//       setAssignedTo(data.assignedTo);
+//       let allProducts = [];
+//       let totalAmountFromApi = 0;
 
-useEffect(() => {
-  const fetchDeliveryData = async () => {
-    try {    
-      const response = await fetch(
-        `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Mart/GetProductDetails?id=${id}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch grocery product data");
-      }
-      const data = await response.json();
-      console.log("Fetched Grocery Data:", data);
-      setCartData(data);
-      setId(data.id);
-      setMartId(data.martId);
-      setDate(data.date);
-      setMobileNumber(data.customerPhoneNumber);
-      setAddress(data.address);
-      setState(data.state);
-      setCity(data.district);
-      setPinCode(data.zipCode);
-      setPaymentMode(data.paymentMode);
-      setTransactionDetails(data.utrTransactionNumber);
-      setLongitude(data.longitude);
-      setLatitude(data.latitude);
-      setGrandTotal(data.grandTotal);
-      setPaymentMode(data.paymentMode);
-      setTotalItemsSelected(data.totalItemsSelected);
-      setTransactionStatus(data.transactionStatus);
-      setPaidAmount(data.paidAmount);
-      setTransactionNumber(data.transactionNumber);
-      setLatitude(data.latitude);
-      setLongitude(data.longitude);
-      setTotalItemsSelected(data.totalItemsSelected);
-      setDeliveryPartnerUserId(data.deliveryPartnerUserId);
-      setAssignedTo(data.assignedTo);
-      let allProducts = [];
-      let totalAmountFromApi = 0;
-
-      if (data.categories && Array.isArray(data.categories)) {
-        data.categories.forEach((cat) => {
-          totalAmountFromApi += Number(cat.totalAmount) || 0;
-          cat.products.forEach((p, idx) => {
-            allProducts.push({
-              serial: allProducts.length + 1,
-              name: p.productName,
-              category: cat.categoryName,
-              mrp: p.mrp,
-              discount: p.discount,
-              afterDiscountPrice: p.afterDiscountPrice,
-              quantity: p.noOfQuantity,
-              total: p.afterDiscountPrice * p.noOfQuantity,
-            });
-          });
-        });
-        setItems(allProducts);
-      }
-      const grandTotalNumeric = Number(data.grandTotal) || 0;
-      const cashback = totalAmountFromApi - grandTotalNumeric;
-      if ((cashback >= 49 && cashback <= 51) ||(cashback >= 99 && cashback <= 101) || (cashback >= 199 && cashback <= 201))
-      {
-        setCashbackAmount(cashback); 
-      } else {
-        setCashbackAmount(0);     
-      }
-    } catch (error) {
-      console.error("Error fetching grocery product data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  if (id) {
-    fetchDeliveryData();
-  }
-}, [id]);
+//       if (data.categories && Array.isArray(data.categories)) {
+//         data.categories.forEach((cat) => {
+//           totalAmountFromApi += Number(cat.totalAmount) || 0;
+//           cat.products.forEach((p, idx) => {
+//             allProducts.push({
+//               serial: allProducts.length + 1,
+//               name: p.productName,
+//               category: cat.categoryName,
+//               mrp: p.mrp,
+//               discount: p.discount,
+//               afterDiscountPrice: p.afterDiscountPrice,
+//               quantity: p.noOfQuantity,
+//               total: p.afterDiscountPrice * p.noOfQuantity,
+//             });
+//           });
+//         });
+//         setItems(allProducts);
+//       }
+//       const grandTotalNumeric = Number(data.grandTotal) || 0;
+//       const cashback = totalAmountFromApi - grandTotalNumeric;
+//       if ((cashback >= 49 && cashback <= 51) ||(cashback >= 99 && cashback <= 101) || (cashback >= 199 && cashback <= 201))
+//       {
+//         setCashbackAmount(cashback); 
+//       } else {
+//         setCashbackAmount(0);     
+//       }
+//     } catch (error) {
+//       console.error("Error fetching grocery product data:", error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+//   if (id) {
+//     fetchDeliveryData();
+//   }
+// }, [id]);
 
  useEffect(() => {
   const fetchGroceryData = async () => {
     try {
-      const response = await fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Mart/GetMartTicketsByUserId?userId=${userId}`);
+      const response = await fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/GetMartTicketsByUserId?userId=${userId}`);
       if (!response.ok) throw new Error('Failed to fetch ticket data');
       const data = await response.json();
       const tickets = Array.isArray(data) ? data : (data && typeof data === "object" ? [data] : []);
-      setGroceryData(tickets);
-      const first = tickets[0] || {};
+      const inProgressTickets = tickets.filter(
+        (item) =>
+          item.status &&
+          item.status.toLowerCase() === "in progress"
+      );
+      setGroceryData(inProgressTickets);
+      const first = inProgressTickets[0] || {};
       setMartId(first.martId || "");
       setState(first.state || "");
       setDistrict(first.district);
@@ -1425,7 +713,7 @@ const handleDeliveryPartnerClick = async () => {
   clickLock.current = true;
   try {
     const res = await axios.get(
-      `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/DeliveryPartner/GetDeliveryPartnerDetailsByUserId?userId=${userId}`
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/DeliveryPartner/GetDeliveryPartnerDetailsByUserId?userId=${userId}`
     );
     const raw = res?.data ?? null;
     const profile = Array.isArray(raw)
@@ -1463,54 +751,129 @@ useEffect(() => {
   setCartSummary(summary);
 }, []);
 
-const handleUpdatePaymentMethod = async () => {
-    try {
-  const payload = {
-    ...cartData,
-    customerName: fullName,
-    address: address, 
-    state: state,
-    district: city,
-    zipCode: pinCode,
-    customerPhoneNumber: mobileNumber,
-    id: id,
-    userId: userId, 
-    martId: martId,
-    date: date,
-    grandTotal: grandTotal,
-    totalItemsSelected: totalItemsSelected,
-    status: status,
-    paymentMode: paymentMode,
-    utrTransactionNumber: transactionDetails,
-    transactionNumber: transactionNumber,
-    transactionStatus: transactionStatus,
-    paidAmount: paidAmount,
-    AssignedTo: assignedTo,
-    DeliveryPartnerUserId: deliveryPartnerUserId,
-    latitude: latitude,
-    longitude: longitude,
-    isPickUp: true,
-    isDelivered: false,    
-  };
+const isActionLocked =
+  selectedOrder?.status === "Open" || selectedOrder?.status === "Return";
 
-    let response = await fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Mart/UpdateProductDetails/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
+const handleStatusUpdate = async (ticket, newStatus) => {
+  try {
+    const detailsResponse = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/GetProductDetails?id=${ticket.id}`
+    );
 
-    if (!response.ok) {
-      throw new Error('Failed to Update Technician.');
+    if (!detailsResponse.ok) {
+      throw new Error("Failed to fetch order details");
     }
-    window.location.href = `/deliveryTracking/${id}`;
+    const currentOrderData = await detailsResponse.json();
+    const payload = {
+      ...currentOrderData,
+      id: ticket.id,
+      userId: userId,
+      martId: ticket.martId,
+      date: ticket.date,  
+      status: newStatus,
+      PaymentMode: newStatus === "Open" || newStatus === "Return" ? "" : ticket.paymentType,
+      utrTransactionNumber:  currentOrderData.utrTransactionNumber || "",
+      transactionNumber:  currentOrderData.transactionNumber || "",
+      transactionStatus:  currentOrderData.transactionStatus || "",
+      PaidAmount: newStatus === "Open" || newStatus === "Return" ? "" : String(ticket.receivedAmount || 0),
+      AssignedTo: newStatus === "Open" ? ` ${currentOrderData.assignedTo} has Declined` : newStatus === "Return"
+      ? `${currentOrderData.assignedTo} Return`: currentOrderData.assignedTo,
+      DeliveryPartnerUserId: newStatus === "Open" || newStatus === "Return" ? ""  : currentOrderData.deliveryPartnerUserId,
+      deliveryAssignedTime:newStatus === "Open" || newStatus === "Return" ? "" : currentOrderData.deliveryAssignedTime,
+      deliverySubmitTime: new Date().toISOString(),
+      latitude: currentOrderData.latitude,
+      longitude: currentOrderData.longitude,
+      isDelivered: true,
+    };
+    console.log("FINAL PAYLOAD:", payload);
+    const response = await fetch(      
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/UpdateProductDetails/${ticket.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to update order");
+    }
+    if (newStatus === "Open") {
+      alert("You declined the order.");
+      setShowNotificationModal(false);
+    } else if(newStatus === "Return") {
+      alert("Order returned.");
+      setShowNotificationModal(false);
+    }
   } catch (error) {
-    console.error('Error:', error);
-    window.alert('Failed to Update Technician. Please try again later.');
-  }
+    console.error("Status update error:", error);
+  }    
 };
 
+const handleUpdatePaymentMethod = async (ticket) => {
+  try {
+    const detailsResponse = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/GetProductDetails?id=${ticket.id}`
+    );
+
+    if (!detailsResponse.ok) {
+      throw new Error("Failed to fetch order details");
+    }
+    const currentOrderData = await detailsResponse.json();
+    const payload = {
+      ...currentOrderData,
+      id: ticket.id,
+      userId: userId,
+      martId: ticket.martId,
+      date: ticket.date,
+      status: "Delivered",
+      utrTransactionNumber:  currentOrderData.utrTransactionNumber || "",
+      transactionNumber:  currentOrderData.transactionNumber || "",
+      transactionStatus:  currentOrderData.transactionStatus || "",
+      PaymentMode: ticket.paymentType,
+      PaidAmount:
+          ticket.paymentType?.toLowerCase() === "cash&online"
+            ? `cash=${ticket.cashAmount || 0}, online=${ticket.onlineAmount || 0}`
+            : String(ticket.receivedAmount || 0),
+     AssignedTo: currentOrderData.assignedTo,
+      DeliveryPartnerUserId: currentOrderData.deliveryPartnerUserId,
+      deliveryAssignedTime:currentOrderData.deliveryAssignedTime,
+      deliverySubmitTime: new Date().toISOString(),
+      latitude: currentOrderData.latitude,
+      longitude: currentOrderData.longitude,
+      isDelivered: true,
+    };
+    console.log("FINAL PAYLOAD:", payload);
+    const response = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/UpdateProductDetails/${ticket.id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+    if (!response.ok) {
+      throw new Error("Failed to update order");
+    }
+    setGroceryData((prev) =>
+      prev.map((g) =>
+        g.id === ticket.id
+          ? { ...g, status: "Delivered" }
+          : g
+      )
+    );
+
+    setSelectedTicket(null);
+    alert("Order Delivered Successfully");
+    setShowNotificationModal(false);
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Failed to update. Please try again.");
+  }
+};
 // useEffect(() => {
 //   const autoOpenForNewUser = async () => {
 //     if (!userId) return;
@@ -1569,7 +932,7 @@ const handleGroceryCategoryClick = (category) => {
     return;
   }
   
-  if (value === "Unbeatable Offers") {
+  if (value === "Grocery Value Combo Packs") {
     navigate(`/groceryOffers/${userType}/${userId}`, {
       state: { mobileNumber },
     });     
@@ -1578,6 +941,9 @@ const handleGroceryCategoryClick = (category) => {
       state: { mobileNumber },
     });
   }
+//   navigate(`/grocery/${userType}/${userId}`, {
+//   state: { mobileNumber },
+// });
 };
 
 const handleDressCategoryClick = async (category) => {
@@ -1601,11 +967,11 @@ const handleDressCategoryClick = async (category) => {
           const fetchAllTickets = async () => {
             try { 
               const [ticketResponse, productResponse, technicianResponse, groceriesResponse, lakshmiResponse] = await Promise.all([
-                fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/RaiseTicket/GetAllTicketsList?userId=${userId}&type=raiseTicket`),
-                fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/RaiseTicket/GetAllTicketsList?userId=${userId}&type=buyProduct`),
-                fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/RaiseTicket/GetAllTicketsList?userId=${userId}&type=bookTechnician`),
-                fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/RaiseTicket/GetAllTicketsList?userId=${userId}&type=mart`),
-                fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/RaiseTicket/GetAllTicketsList?userId=${userId}&type=collections`),
+                fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/RaiseTicket/GetAllTicketsList?userId=${userId}&type=raiseTicket`),
+                fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/RaiseTicket/GetAllTicketsList?userId=${userId}&type=buyProduct`),
+                fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/RaiseTicket/GetAllTicketsList?userId=${userId}&type=bookTechnician`),
+                fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/RaiseTicket/GetAllTicketsList?userId=${userId}&type=mart`),
+                fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/RaiseTicket/GetAllTicketsList?userId=${userId}&type=collections`),
               ]);      
               if (!ticketResponse.ok || !productResponse.ok || !technicianResponse || !groceriesResponse || !lakshmiResponse) {
                 throw new Error("Failed to fetch ticket, product and technician data");
@@ -1616,7 +982,11 @@ const handleDressCategoryClick = async (category) => {
               const groceryData = await groceriesResponse.json(); 
               const collectionsData = await lakshmiResponse.json(); 
               const groceryOpenTickets = Array.isArray(groceryData)
-              ? groceryData.filter(item => String(item?.status).toLowerCase() === "open")
+              ? groceryData.filter(item =>
+                  ["open", "in progress", "delivered"].includes(
+                    String(item?.status).toLowerCase()
+                  )
+                )
               : [];
               const collectionOpenTickets = Array.isArray(collectionsData)
               ? collectionsData.filter(item => String(item?.status).toLowerCase() === "open")
@@ -1650,7 +1020,7 @@ const handleDressCategoryClick = async (category) => {
 
   const grandTotalNumeric = Number(ticket.grandTotal) || 0;
   const cashback = totalAmountFromApi - grandTotalNumeric;
-  if ((cashback >= 49 && cashback <= 51) ||(cashback >= 99 && cashback <= 101) || (cashback >= 199 && cashback <= 201)) {
+  if ((cashback >= 49 && cashback <= 51) ||(cashback >= 79 && cashback <= 81) ||(cashback >= 99 && cashback <= 101) || (cashback >= 199 && cashback <= 201)) {
     return cashback;
   }
   return 0;
@@ -1708,7 +1078,7 @@ const handleCustomerCareCall = () => {
           try {
             let apiUrl = "";
             if (userType === "customer") {
-              apiUrl = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/customer/customerProfileData?profileType=${userType}&UserId=${userId}`;
+              apiUrl = `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/customer/customerProfileData?profileType=${userType}&UserId=${userId}`;
             }
             if (!apiUrl) return;
             const response = await axios.get(apiUrl);
@@ -1747,7 +1117,7 @@ const fetchImageUrl = async (photoId) => {
   try { 
     if (!photoId) return;
     const response = await axios.get(
-      `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${photoId}`
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${photoId}`
     );
     if (response.status === 200 && response.data.imageData) {
       const imageUrl = `data:image/jpeg;base64,${response.data.imageData}`;
@@ -1797,12 +1167,56 @@ const updateLocalStorageCart = (product, qty) => {
       category.products[index] = item;
     }
   }
-
   localStorage.setItem("allCategories", JSON.stringify(stored));
 };
 
+const filteredGroceryData = groceryData.filter((t) =>
+    t.martId?.toString().toLowerCase().includes(searchOrderId.toLowerCase())
+  );
+
   return (
     <>
+    <OffersBannerModal/>
+    {showWelcomeMessage && (
+  <div
+    style={{
+      position: "fixed",
+      top: isMobile ? "175px" : "80px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      backgroundColor: "#fff8e1",
+      border: "2px solid #ffca28",
+      borderRadius: "12px",
+      padding: "16px 20px",
+      zIndex: 9999,
+      maxWidth: "340px",
+      width: "90%",
+      boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+      textAlign: "center",
+    }}
+  >
+    <button
+      onClick={() => setShowWelcomeMessage(false)}
+      style={{
+        position: "absolute",
+        top: "8px",
+        right: "12px",
+        background: "none",
+        border: "none",
+        fontSize: "18px",
+        cursor: "pointer",
+        color: "#555",
+      }}
+    >
+      &times;
+    </button>
+    <p style={{ margin: 0, fontSize: "15px", fontWeight: "600", color: "#333" }}>
+      🎉 Welcome to Handyman App! Place your first order and get{" "}
+      <span style={{ color: "green", fontWeight: "bold" }}>₹50 bonus</span>{" "}
+      added to your wallet.
+    </p>
+  </div>
+)}
     <header className="header d-flex align-items-center justify-content-between p-2 bg-white shadow-sm" 
       style={{ position: 'fixed', top: 0, left: 0, right: 0, width: '100%', zIndex: 1000 }}>
        {isMobile ? (
@@ -1844,21 +1258,58 @@ const updateLocalStorageCart = (product, qty) => {
               </span>
             </div> */} 
           </div>
- 
-  {/* Profile Image */}
-  <div className="profile-img-wrapper">
-    <img
-      src={profileImage}
-      alt="Profile"
-      className="profile-img"
-    />
-  </div>
-</div>
-</div>
-    </div>
-    </header>
 
-     <Modal
+           {/* Wallet Amount */}
+            <div 
+              className="coin-wrap" 
+              style={{ marginLeft: 10, cursor: "pointer" }}
+              onMouseEnter={() => setShowWalletMessage(true)}  
+              onMouseLeave={() => setShowWalletMessage(false)}  
+              onClick={() => setShowWalletMessage(true)}         
+            >
+              <span className="coin-value" style={{ color: "blue" }}>
+                ₹ {walletLoading ? "0" : walletAmount}
+              </span>
+            </div>
+        {/* Profile Image */}
+        <div className="profile-img-wrapper">
+          <img
+            src={profileImage}
+            alt="Profile"
+            className="profile-img"
+          />
+        </div> 
+      </div>
+      </div>
+    </div> 
+    </header>
+           {showWalletMessage && (
+              <div
+                className="alert alert-danger"
+                style={{
+                  position: "fixed",
+                  top: "80px",
+                  right: "20px",
+                  zIndex: 9999,
+                  maxWidth: "320px",
+                  cursor: "default",
+                }}
+                onTouchEnd={() => setTimeout(() => setShowWalletMessage(false), 2500)}
+              >
+                <div className="d-flex justify-content-between align-items-start">
+                  <span className="blinking-icon" style={{fontSize: "15px"}}>  
+                    Wallet Balance: <strong>₹{walletAmount}.</strong> Enjoy<strong> ₹10 </strong>
+                    off from your wallet for every<strong> ₹100 </strong> spent.
+                  </span>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowWalletMessage(false)}
+                  ></button>
+                </div>
+              </div>
+            )}
+     {/* <Modal
   show={showCoinsModal}
   onHide={() => setShowCoinsModal(false)}
   centered
@@ -1866,11 +1317,11 @@ const updateLocalStorageCart = (product, qty) => {
   <Modal.Header closeButton>
     <Modal.Title>🎁 Redeem Coins</Modal.Title>
   </Modal.Header>
-  <Modal.Body>
+  <Modal.Body> */}
     {/* Coins Display */}
-    <div className="text-center mb-3">
+    {/* <div className="text-center mb-3"> */}
     {/* <h5 className="gold-shine-text">{pointsLoading ? "0" : userPoints} Coins</h5> */}
-    </div>
+    {/* </div> */}
     {/* Get Coins Button */}
    {/* {shouldShowGetCoins && !isReferralUsed && (
       <button
@@ -1926,8 +1377,8 @@ const updateLocalStorageCart = (product, qty) => {
             ))
           )}
       </div> */}
-  </Modal.Body>
-</Modal>
+  {/* </Modal.Body>
+</Modal> */}
 
       <div className="pt-1 mt-100"> 
     <div
@@ -2087,90 +1538,405 @@ const updateLocalStorageCart = (product, qty) => {
 <Modal
   show={showNotificationModal}
   onHide={() => setShowNotificationModal(false)}
-  centered>
+  centered
+>
   <Modal.Header closeButton>
     <Modal.Title>Notification</Modal.Title>
   </Modal.Header>
+
   <Modal.Body>
     {isRegistered && partnerStatus === "open" ? (
       loading ? (
         <p>Loading tickets…</p>
-      ) : groceryData.length === 0 ? (
-        <p>No tickets found.</p>
       ) : (
-        <div className="notification-list">
-          {groceryData.map((t) => (
-            <div key={t.id || t.martId} className="notification-item mb-3 p-2 border rounded">
-              <div className="notification-header">
-                <strong>Grocery ID: </strong> {t.martId}
-              </div>
-              <div>
-                <strong>Customer Name:</strong> {t.customerName}
-              </div>
-              <div>
-                <strong>Address:</strong>{" "}
-                {[t.address, t.district, t.state, (t.zipCode || t.pinCode), t.customerPhoneNumber]
-                  .filter(Boolean)
-                  .join(", ")}
-              </div>
-              <div className="notification-date">
-                <strong>Payment Mode:</strong> {t.paymentMode}
-              </div>
-              {t.status && (
-                <div>
-                  <strong>Status:</strong> {t.status}
-                </div>
-              )}
-
-              {/* ✅ IsPickup checkbox for this ticket */}
-              <div className="form-check mt-2">
-                <input
-                  id={`isPickup-${t.id || t.martId}`}
-                  className="form-check-input border-dark"
-                  type="checkbox"
-                  checked={!!t.isPickup}
-                  onChange={(e) => {
-                    const updated = groceryData.map((g) =>
-                      g.id === t.id || g.martId === t.martId
-                        ? { ...g, isPickup: e.target.checked }
-                        : g
-                    );
-                    setGroceryData(updated);
-                  }}
-                />
-                <label
-                  className="form-check-label"
-                  htmlFor={`isPickup-${t.id || t.martId}`}
+        <>
+          {/* Search */}
+          <input
+            type="text"
+            className="form-control mb-3"
+            placeholder="Search by Order ID..."
+            value={searchOrderId}
+            onChange={(e) => setSearchOrderId(e.target.value)}
+          />
+          {filteredGroceryData.length === 0 ? (
+            <p>No Tickets Found.</p>
+          ) : (
+            <div className="notification-list">
+              {filteredGroceryData.map((t) => (
+                <div
+                  key={t.id || t.martId}
+                  className="notification-item mb-3 p-2 border rounded"
                 >
-                  Is Pickup
-                </label>
-              </div>
+                  <div>
+                    <strong>Order Id:</strong>{" "}
+                    <span
+                      style={{ color: "blue", cursor: "pointer" }}
+                      onClick={() => {
+                        setSelectedTicket(t);
+                        setSelectedOrder({
+                          ...t,
+                          paymentType: t.paymentType || "",
+                          receivedAmount: t.receivedAmount || "",
+                          cashAmount: t.cashAmount || "",
+                          onlineAmount: t.onlineAmount || "",
+                        });
+                        setShowOrderModal(true);
+                      }}
+                    >
+                      {t.martId}
+                    </span>
+                    <br />
 
-              {/* Go to Maps */}
-              {t.isPickup && t.latitude && t.longitude && (
-                <div className="mt-1 text-end">
-                  <a
-                    href={`/deliveryTracking/${t.id}?lat=${t.latitude}&lng=${t.longitude}&isPickup=true`}
-                    className="link-primary"
-                    onClick={() => {
-                      setShowNotificationModal(false);
-                      handleUpdatePaymentMethod(t); 
-                    }}
-                  >
-                    Go to Maps
-                  </a>
+                    <strong>Name:</strong>{" "}
+                    <span style={{ color: "blue", cursor: "pointer" }}>
+                      {t.customerName}
+                    </span>
+                  </div>
                 </div>
-              )}
+              ))}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )
     ) : (
       <p>You are already registered, pending for admin approval.</p>
     )}
   </Modal.Body>
 </Modal>
+<Modal
+  show={showOrderModal}
+  onHide={() => setShowOrderModal(false)}
+  centered
+>
+  <Modal.Header closeButton
+    style={{ backgroundColor: "green", color: "white" }}
+  >
+    <Modal.Title>Order Details</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {selectedOrder && (
+      <>
+        {/* Customer Info */}
+        <div className="mb-1">
+        <strong>Order Id:</strong> {selectedOrder.martId} <br />
+          <strong>Customer Name:</strong> {selectedOrder.customerName}
+        </div>
+        <div className="mb-1">
+          <strong>Address:</strong>{" "}
+          {[selectedOrder.address, selectedOrder.district, selectedOrder.state, selectedOrder.zipCode]
+            .filter(Boolean)
+            .join(", ")}
+        </div>
+        {/* View Details Link */}
+        <div className="mb-1">
+          <span
+            onClick={() => setShowDetails(!showDetails)}
+            style={{
+              color: "blue",
+              cursor: "pointer",
+              textDecoration: "underline",
+              fontWeight: "500"
+            }}
+          >
+            {showDetails ? "Hide Details" : "View Details"}
+          </span>
+        </div>
 
+        {/* Table - Show only when clicked */}
+        {showDetails && (
+          <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+            <table className="table table-bordered text-center">
+              <thead
+                style={{
+                  backgroundColor: "#cfe2d9",
+                  position: "sticky",
+                  top: 0,
+                  zIndex: 1
+                }}
+              >
+                <tr>
+                  <th>S.No</th>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Price (₹)</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {selectedOrder.categories
+                  ?.flatMap((cat) => cat.products)
+                  ?.map((p, index) => (
+                    <tr key={index}>
+                      <td>{index + 1}</td>
+                      <td>{p.productName}</td>
+                      <td>{p.noOfQuantity}</td>
+                      <td>{p.afterDiscountPrice.toFixed(0)}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+                  {/* Totals */}
+                  <div className="text-center text-danger mt-1">
+                    <h6>
+                      <strong>Total Amount:</strong> ₹
+                      {selectedOrder.categories?.reduce(
+                        (sum, cat) => sum + (cat.totalAmount || 0),
+                        0
+                      )}
+                    </h6>
+                    <h6>
+                      <strong>Grand Total:</strong> ₹{selectedOrder.grandTotal}
+                    </h6>
+                  </div>
+                   {/* EXPANDED DETAILS */}
+                  {selectedOrder.status !== "Delivered" && (
+                  <div className="mt-2 p-2 border-top">
+                    {/* Payment Type */}
+                    <div className="mt-2">
+                      <input
+                        type="radio"
+                        name="paymentType"
+                        disabled={isActionLocked}
+                        checked={selectedOrder.paymentType === "cash"}
+                        onChange={() =>
+                          setSelectedOrder((prev) => ({
+                            ...prev,
+                            paymentType: "cash",
+                            receivedAmount: "",
+                            cashAmount: "",
+                            onlineAmount: "",
+                          }))
+                        }
+                      />{" "}
+                      Cash
+
+                      <input
+                        type="radio"
+                        name="paymentType"
+                        className="ms-3"
+                        disabled={isActionLocked}
+                        checked={selectedOrder.paymentType === "online"}
+                        onChange={() =>
+                          setSelectedOrder((prev) => ({
+                            ...prev,
+                            paymentType: "online",
+                            receivedAmount: "",
+                            cashAmount: "",
+                            onlineAmount: "",
+                          }))
+                        }
+                      />{" "}
+                      Online
+
+                      <input
+                        type="radio"
+                        name="paymentType"
+                        className="ms-3"
+                        disabled={isActionLocked}
+                        checked={selectedOrder.paymentType === "Cash&Online"}
+                        onChange={() =>
+                          setSelectedOrder((prev) => ({
+                            ...prev,
+                            paymentType: "Cash&Online",
+                            receivedAmount: "",
+                            cashAmount: "",
+                            onlineAmount: "",
+                          }))
+                        }
+                      />{" "}
+                      Cash & Online
+                    </div>
+
+                    {/* Payment Inputs */}
+                    {selectedOrder.paymentType === "Cash&Online" ? (
+                      <div className="mt-2 d-flex gap-3 flex-wrap align-items-end">
+                        <div>
+                          <label>Cash:</label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            style={{ width: "120px" }}
+                            disabled={isActionLocked}
+                            value={selectedOrder.cashAmount || ""}
+                            onChange={(e) => {
+                              const cash = Number(e.target.value);
+                              const online = Number(selectedOrder.onlineAmount || 0);
+
+                              setSelectedOrder((prev) => ({
+                                ...prev,
+                                cashAmount: cash,
+                                receivedAmount: cash + online,
+                              }));
+                            }}
+                          />
+                        </div>
+
+                        <div>
+                          <label>Online:</label>
+                          <input
+                            type="number"
+                            className="form-control"
+                            style={{ width: "120px" }}
+                            disabled={isActionLocked}
+                            value={selectedOrder.onlineAmount || ""}
+                            onChange={(e) => {
+                              const online = Number(e.target.value);
+                              const cash = Number(selectedOrder.cashAmount || 0);
+
+                              setSelectedOrder((prev) => ({
+                                ...prev,
+                                onlineAmount: online,
+                                receivedAmount: cash + online,
+                              }));
+                            }}
+                          />
+                        </div>
+
+                        <div className="mb-1">
+                          <strong>Total: ₹ {selectedOrder.receivedAmount || 0}</strong>
+                        </div>
+                        <button
+                          className="btn btn-success"
+                          onClick={() => {
+                            handleUpdatePaymentMethod(selectedOrder);
+                            setGroceryData((prev) =>
+                              prev.map((item) =>
+                                item.id === selectedOrder.id ? selectedOrder : item
+                              )
+                            );
+                            setShowOrderModal(false);
+                          }}
+                          disabled={
+                             isActionLocked ||
+                            !selectedOrder.cashAmount ||
+                            Number(selectedOrder.cashAmount) <= 0 ||
+                            !selectedOrder.onlineAmount ||
+                            Number(selectedOrder.onlineAmount) <= 0
+                          }
+                        >
+                          Submit
+                        </button>
+                              {/* Decline */}
+                    <div className="mb-1">
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => {
+                          handleStatusUpdate(selectedOrder, "Open");
+                          setGroceryData((prev) =>
+                            prev.map((item) =>
+                              item.id === selectedOrder.id
+                                ? { ...item, status: "Open" }
+                                : item
+                            )
+                          );
+
+                          setShowOrderModal(false);
+                        }}
+                      >
+                        Decline
+                      </button>
+                       <button
+                        className="btn btn-warning ms-2"
+                        onClick={() => {
+                          handleStatusUpdate(selectedOrder, "Return");
+
+                          setGroceryData((prev) =>
+                            prev.map((item) =>
+                              item.id === selectedOrder.id
+                                ? { ...item, status: "Return" }
+                                : item
+                            )
+                          );
+                        }}
+                      >
+                        Return
+                      </button>
+                                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-1 d-flex align-items-center gap-2 flex-wrap">
+                        <label className="mb-0">Amount:</label>
+                        <input
+                          type="number"
+                          className="form-control"
+                          style={{ width: "110px" }}
+                          placeholder="Enter Amount"
+                          value={selectedOrder.receivedAmount || ""}
+                          onChange={(e) =>
+                            setSelectedOrder((prev) => ({
+                              ...prev,
+                              receivedAmount: Number(e.target.value),
+                            }))
+                          }
+                        />
+                        <button
+                          className="btn btn-success"
+                          onClick={() => {
+                            handleUpdatePaymentMethod(selectedOrder);
+
+                            setGroceryData((prev) =>
+                              prev.map((item) =>
+                                item.id === selectedOrder.id ? selectedOrder : item
+                              )
+                            );
+
+                            setShowOrderModal(false);
+                          }}
+                          disabled={
+                            !selectedOrder.paymentType ||
+                            !selectedOrder.receivedAmount ||
+                            Number(selectedOrder.receivedAmount) <= 0
+                          }
+                        >
+                          Submit
+                        </button>
+                              {/* Decline */}
+                    <div className="mb-2">
+                      <button
+                        className="btn btn-danger"
+                        onClick={() => {
+                          handleStatusUpdate(selectedOrder, "Open");
+
+                          setGroceryData((prev) =>
+                            prev.map((item) =>
+                              item.id === selectedOrder.id
+                                ? { ...item, status: "Open" }
+                                : item
+                            )
+                          );
+
+                          setShowOrderModal(false);
+                        }}
+                      >
+                        Decline
+                      </button>
+                       <button
+                        className="btn btn-warning ms-2"
+                        onClick={() => {
+                          handleStatusUpdate(selectedOrder, "Return");
+
+                          setGroceryData((prev) =>
+                            prev.map((item) =>
+                              item.id === selectedOrder.id
+                                ? { ...item, status: "Return" }
+                                : item
+                            )
+                          );
+                        }}
+                      >
+                        Return
+                      </button>
+                    </div>
+                      </div>
+                    )}
+                  </div>
+                )}    
+                </>
+              )}
+            </Modal.Body>
+          </Modal>
 {/* {showRedeem && (
             <ReedemCode
               openOverride={true}     
@@ -2594,7 +2360,6 @@ const updateLocalStorageCart = (product, qty) => {
   </div>
 )}
   
-        {/* Address with Location */}
         <div className="col-md-9">
           {/* HOME APPLIANCES */}
     <div
@@ -2699,7 +2464,6 @@ const updateLocalStorageCart = (product, qty) => {
             style={{
               fontSize: "12px",
               fontWeight: "bold",
-              // fontFamily: "Roboto",
               marginTop: "6px",
               minHeight: "24px", 
               display: "flex",
@@ -2962,13 +2726,15 @@ const updateLocalStorageCart = (product, qty) => {
 )}
 
                 <p><strong>{ticket.subject ? "Subject:" : ticket.productName ? "Product Name" : ticket?.categoriess?.[0]?.productName ? "Collection Name" : ticket.productName ? "Job Description" : ""}</strong> {ticket.subject || ticket.productName || ticket?.categoriess?.[0]?.productName || ticket.jobDescription}</p>
-                <p><strong>{ticket.category || ticket.lakshmiCollectionId ? "Category:" : "Delivery in 45 minutes"} </strong> {ticket.category || ticket?.categoriess?.[0]?.categoryName || ticket.category}</p>
+                <p><strong>{ticket.category || ticket.lakshmiCollectionId ? "Category:" : ""} </strong> {ticket.category || ticket?.categoriess?.[0]?.categoryName || ticket.category}</p>
                 <p><strong>Status:</strong> 
                 <span className={ticket.status.toLowerCase()}> {ticket.status}</span>
                 </p> 
                 <p><strong>{ticket.assignedTo ? "Assigned To" : "Payment Mode"}: </strong> {ticket.assignedTo || ticket.assignedTo || ticket.assignedTo || `${ticket.paymentMode} or UPI`}</p>
                 <p><strong>Date:</strong> {ticket.date ? new Date(ticket.date).toLocaleDateString('en-GB') : "N/A"}</p>
-              
+                {ticket?.martId && (
+                  <p><strong>Delivery Time Intimated Shortly!</strong></p>
+                )}
                  {/* View Details Button */}
                   {ticket.paidAmount && (
                     <>
@@ -2989,41 +2755,6 @@ const updateLocalStorageCart = (product, qty) => {
         </div> 
         </div>
         </div>
-       
-        {/* First Order Cashback Modal */}
-         <Modal
-          show={showCashbackModal}
-          onHide={() => setShowCashbackModal(false)}
-          centered
-          dialogClassName="cashback-modal"
-        >
-          <Modal.Body className="cashback-modal-body text-center">
-            {showConfetti && (
-              <Confetti
-                width={windowSize.width}
-                height={windowSize.height}
-                numberOfPieces={5000}
-                recycle={false}
-              />
-            )}
-            <div className="cashback-badge">₹50 CASHBACK</div>
-            <h3 className="cashback-title mt-3 mb-2">
-              Thank You for Choosing <span>Handyman</span>!
-            </h3>
-            <p className="cashback-text mb-2">
-              You&apos;ve got <strong>₹50 cashback</strong> on your first order.
-            </p>
-            <p className="cashback-subtext mb-4">
-              Place your first order and you can avail this cashback offer on your bill.
-            </p>
-            <Button
-              variant="light"
-              className="cashback-cta-btn"
-              onClick={() => setShowCashbackModal(false)}
-            > Close
-            </Button>
-          </Modal.Body>
-        </Modal> 
   
         {/* Modal for Mart Ticket Details */}
       <Modal show={showModal} onHide={() => setShowModal(false)} centered size="lg">
@@ -3119,217 +2850,6 @@ const updateLocalStorageCart = (product, qty) => {
   <Modal.Header closeButton>
    <Modal.Title style={{ fontSize: "15px", fontWeight: "bold" }}>🎉Handyman Special Offer Sale!</Modal.Title>
   </Modal.Header>
-  {/* <Modal.Body>
-  <div className="p-0">
-
-    <div
-      id="staticCarousel"
-      className="carousel slide carousel-fade"
-      data-bs-ride="carousel"
-      data-bs-interval="2000"
-    >
-
-      // {/* ✅ Indicators 
-      <div className="carousel-indicators">
-        {staticImages.map((_, i) => (
-          <button
-            key={i}
-            type="button"
-            data-bs-target="#staticCarousel"
-            data-bs-slide-to={i}
-            className={i === 0 ? "active" : ""}
-          ></button>
-        ))}
-      </div>
-
-      // {/* ✅ Images 
-      <div className="carousel-inner">
-        {staticImages.map((img, i) => (
-          <div
-            key={i}
-            className={`carousel-item ${i === 0 ? "active" : ""}`}
-          >
-            <img
-              src={img}
-              className="d-block w-100"
-              alt={`offer-${i}`}
-              style={{
-                maxHeight: "500px",
-                objectFit: "contain",
-              }}
-            />
-          </div>
-        ))}
-      </div>
-      // {/* Prev 
-      <button
-        className="carousel-control-prev"
-        type="button"
-        data-bs-target="#staticCarousel"
-        data-bs-slide="prev"
-      >
-        <span className="carousel-control-prev-icon"></span>
-      </button>
-      // {/* ✅ Next 
-      <button
-        className="carousel-control-next"
-        type="button"
-        data-bs-target="#staticCarousel"
-        data-bs-slide="next"
-      >
-        <span className="carousel-control-next-icon"></span>
-      </button>
-    </div>
-    // {/* ✅ Offer Text 
-    <p
-      style={{
-        textAlign: "center",
-        // marginTop: "10px",
-        fontWeight: "700",
-        color: "red",
-      }}
-    >
-      Offer valid till: 30 Apr 2026, 11:59 PM
-    </p>
-  </div>
-</Modal.Body> */}
-  <Modal.Body>
-  {activeOffers.length === 0 ? (
-    <div
-      style={{
-        height: "250px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: "20px",
-        fontWeight: "bold",
-        color: "red",
-      }}
-    >
-      Offer has expired ⏳
-    </div>
-  ) : (
-    activeOffers.map((offer, index) => {
-      const images = Array.isArray(offerImages[offer.id])
-        ? offerImages[offer.id]
-        : [];
-      return (
-        <div key={offer.id} className="p-0">
-          {/* ✅ SINGLE IMAGE */}
-          {images.length === 1 && (
-            <img
-              src={images[0]}
-              alt="offer"
-              style={{
-                width: "100%",
-                maxHeight: "500px",
-                objectFit: "contain",
-              }}
-            />
-          )}
-         <p
-          style={{
-            textAlign: "center",
-            marginTop: "10px",
-            fontWeight: "600",
-            color: "#333",
-          }}
-        >
-          Offer valid till: {formatDateTime(offer.endDate)}
-        </p> 
-          {/* ✅ MULTIPLE IMAGES */}
-          {images.length > 1 && (
-            <div
-              id={`carousel-${index}`}
-              className="carousel slide carousel-fade"
-              data-bs-ride="carousel"
-              data-bs-interval="2000"
-            >
-              <div className="carousel-inner">
-                {images.map((img, i) => (
-                  <div
-                    key={i}
-                    className={`carousel-item ${i === 0 ? "active" : ""}`}
-                  >
-                    <img
-                      src={img}
-                      className="d-block w-100"
-                      alt="offer"
-                      style={{
-                        maxHeight: "500px",
-                        objectFit: "contain",
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-              <button
-                className="carousel-control-prev"
-                type="button"
-                data-bs-target={`#carousel-${index}`}
-                data-bs-slide="prev"
-              >
-                <span className="carousel-control-prev-icon"></span>
-              </button>
-              <button
-                className="carousel-control-next"
-                type="button"
-                data-bs-target={`#carousel-${index}`}
-                data-bs-slide="next"
-              >
-                <span className="carousel-control-next-icon"></span>
-              </button>
-            </div>
-          )}
-        </div>
-      );
-    })
-  )}
-</Modal.Body> 
-  {/* <Modal.Body>    */}
-     {/* <ul style={{ paddingLeft: "10px" }}>
-     <li>🛍️ New Users Get  → {" "} 
-  <span style={{ color: "green", fontWeight: "bold" }}>₹50 in Wallet!</span> <br/></li>
-      </ul> */}
-     
-     {/* <div className="container"> */}
-          {/* <div className="row">
-            {offers.map((offer, index) => (
-              <div className="col-6 mb-1" key={index}>
-                <div className="offer-card">
-                  {/*  Image * *
-                  {offer.img ? (
-                    <img src={offer.img} alt="offer" className="offer-img" />
-                  ) : (
-                    <div className="offer-img-box"></div>
-                  )}
-                  {/* Text *
-                 <div className="offer-condition">
-                  {offer.condition.split("|").map((line, i) => (
-                    <div key={i}>{highlightText(line)}</div>
-                  ))}
-                </div>
-                </div>
-              </div>
-            ))}
-          </div> */}
-        {/* </div> */}
-         {/* <div className="text-center">
-        <img  
-          src={Poster} 
-          alt="Grocery Offer Poster"
-          style={{ width: "100%", maxWidth: "500px", height: "50%" }}
-        />
-      </div> */}
-    {/* <div className="text-center">
-       <b style={{ color: "red", fontSize: "14px" }}>
-        💥 Handyman App – No Extra Charges. Pay Only Product Cost After Free Home Delivery.
-      </b> <br/> 
-       <b style={{ color: "green",fontSize: "13px" }}>
-        For any Queries Contact Customer Care: <span style={{color: "red", fontSize: "15px"}}>6281198953</span>
-      </b>
-    </div> */}
-  {/* </Modal.Body> */}
   <Modal.Footer>
     <Button variant="success" onClick={() => setShowOffersModal(false)}> 
       Shop Now 🛒

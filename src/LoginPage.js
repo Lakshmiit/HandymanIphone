@@ -4,6 +4,7 @@ import './App.css';
 import {useNavigate } from "react-router-dom";
 import HandyManCharacter from "./img/hm_char.png";
 import HandyManLogo from "./img/Hm_Logo 1.png";
+// import { appConfig } from "./config";
 
 const LoginPage = () => {
   const Navigate = useNavigate();
@@ -12,7 +13,7 @@ const LoginPage = () => {
   const [submitted, setSubmitted] = useState(false);
   const [isChecked, setIsChecked] = useState('');
   const [showModal, setShowModal] = useState(false);
-  const handleMobileChange = (e) => {
+  const handleMobileChange = (e) => {   
     const value = e.target.value;
     if (/^\d{0,10}$/.test(value)) {
         setMobile(value);   
@@ -46,7 +47,7 @@ const handleOTP = async (e) => {
   };
 
   try {
-    const response = await fetch(`https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Auth/bhashsmssendotp`, {
+    const response = await fetch(`https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Auth/bhashsmssendotp`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -118,7 +119,7 @@ const handleOTP = async (e) => {
   />
   </div>
     {error && <div className="text-danger mt-1">{error}</div>}
-   <a className="link" href="/userIdLogin" style={{fontSize: "14px"}}>Login With User ID</a>
+   {/* <a className="link" href="/userIdLogin" style={{fontSize: "14px"}}>Login With User ID</a> */}
    <div className="d-flex align-items-center flex-wrap">
   <input 
     type="checkbox" 

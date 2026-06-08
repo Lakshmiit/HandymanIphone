@@ -12,7 +12,6 @@ import CartImg from "./img/Cart.jpeg";
 import { useNavigate, useParams } from "react-router-dom";
 import Footer from "./Footer.js";
 // import { appConfig } from "./config";
-
 // import { useLocation } from "react-router-dom";
  
 const GroceryCartPage = () => {
@@ -21,7 +20,6 @@ const GroceryCartPage = () => {
   const { userId } = useParams();
   const { userType } = useParams();
   const [cartItems, setCartItems] = useState([]);
-  const removalTimers = useRef({});
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [zoomImage, setZoomImage] = useState("");
   const [grandSummary, setGrandSummary] = useState({ items: 0, total: 0 });
@@ -31,19 +29,56 @@ const GroceryCartPage = () => {
   const [fullName, setFullName] = useState("");
   const [isNewUser, setIsNewUser] = useState(true);
   const isGuestName = (name) => (name ?? "").trim().toLowerCase() === "guest";
-  const [walletAmount, setWalletAmount] = useState(0);
-const MIN_ORDER_TOTAL = Number(walletAmount) === 50 ? 150 : 100;
-   
+  // const [walletAmount, setWalletAmount] = useState(0);
+// const MIN_ORDER_TOTAL = Number(walletAmount) === 50 ? 150 : 100;
+   const [comboInfo, setComboInfo] = useState(null);
+const [comboImages, setComboImages] = useState({});
   useEffect(() => {
     console.log(addresses, fullName, isNewUser);
   }, [addresses, fullName, isNewUser]);
 
-console.log("Wallet:", walletAmount);
+
+useEffect(() => {
+  try {
+    const raw = localStorage.getItem("comboSelectedItems");
+    if (!raw) return;
+    setComboInfo(JSON.parse(raw));
+  } catch {}
+}, []);
+
+useEffect(() => {
+  if (!comboInfo?.items?.length) return;
+  let cancelled = false;
+  (async () => {
+    const map = {};
+    await Promise.allSettled(
+      comboInfo.items.map(async ({ productName, image }) => {
+        if (!image) return;
+        try {
+          const res = await fetch(
+            `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(image)}`
+          );
+          const contentType = res.headers.get("content-type") || "";
+          if (contentType.includes("application/json")) {
+            const data = await res.json();
+            if (data?.imageData) {
+              map[productName] = `data:image/jpeg;base64,${data.imageData}`;
+            }
+          } else {
+            map[productName] = res.url;
+          }
+        } catch {}
+      })
+    );
+    if (!cancelled) setComboImages(map);
+  })();
+  return () => { cancelled = true; };
+}, [comboInfo]);
 
   const fetchCustomerData = useCallback(async () => {
       try {
         const response = await fetch(
-          `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Address/GetAddressById/${userId}`,
+          `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Address/GetAddressById/${userId}`,
         );
         if (!response.ok) {
           throw new Error("Failed to fetch customer profile data");
@@ -61,14 +96,13 @@ console.log("Wallet:", walletAmount);
           emailAddress: addr.emailAddress,
           mobileNumber: addr.mobileNumber,
           fullName: addr.fullName,
-          walletAmount: addr.walletAmount,
+          // walletAmount: addr.walletAmount,
         }));            
         setAddresses(formattedAddresses);
-        // console.log(JSON.stringify(data));
         const apiFullName = addresses[0]?.fullName ?? "";
           setFullName(apiFullName);
-          const wallet = addresses[0]?.walletAmount ?? 0;
-          setWalletAmount(Number(wallet));
+          // const wallet = addresses[0]?.walletAmount ?? 0;
+          // setWalletAmount(Number(wallet));
         if (!apiFullName || isGuestName(apiFullName)) {
           setIsNewUser(true);
         } else {
@@ -86,36 +120,32 @@ useEffect(() => {
 }, [userId, fetchCustomerData]);
 
   const IMAGE_DOWNLOAD =
-    `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/FileUpload/download?generatedfilename=`;
+    `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=`;
 
-  function toNum(v, f = 0) {
-    const n = Number(v);
-    return Number.isFinite(n) ? n : f;
-  }
+  // function toNum(v, f = 0) {
+  //   const n = Number(v);
+  //   return Number.isFinite(n) ? n : f;
+  // }
 
-  const getDynamicLimit = (productName) => {
+  const getDynamicLimit = useCallback((productName) => {
     const key = String(productName || "")
       .trim()
       .toLowerCase();
     return limitMap[key] ?? Infinity;
-  };
+  }, [limitMap]);
 
   useEffect(() => {
     if (!cartItems.length) return;
-
     const uniqueNames = Array.from(
       new Set(cartItems.map((x) => x.name).filter(Boolean)),
     );
-
     let cancelled = false;
-
     (async () => {
       try {
         const results = await Promise.allSettled(
           uniqueNames.map(async (name) => {
             const res = await fetch(
-              // lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net
-              `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsByProductName?productName=${encodeURIComponent(
+              `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsByProductName?productName=${encodeURIComponent(
                 name,
               )}`,
             );
@@ -189,162 +219,8 @@ useEffect(() => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
 }, []);
 
-  const refreshStocksOnce = React.useCallback(async (signal) => {
-    const norm = (s) =>
-      String(s || "")
-        .toLowerCase()
-        .trim();
-    const isOffersRow = (obj) => norm(obj?.category) === "offers";
-
-    function pickBestNonOffer(items, name) {
-      const pool = (items || []).filter((it) => !isOffersRow(it));
-      if (!pool.length) return null;
-      const lname = norm(name);
-      const exact = pool.filter((it) => norm(it?.name) === lname);
-      const p = exact.length ? exact : pool;
-      return (
-        p.slice().sort((a, b) => {
-          const aStock = Number(a?.stockLeft || 0);
-          const bStock = Number(b?.stockLeft || 0);
-          if ((bStock > 0) !== (aStock > 0)) {
-              return bStock > 0 ? 1 : -1;
-          }
-          return Date.parse(b?.date || 0) - Date.parse(a?.date || 0);
-        })[0] || null
-      );
-    }
-    const saved = JSON.parse(localStorage.getItem("allCategories") || "[]");
-    const flat = saved
-      .flatMap((cat) =>
-        (cat.products || []).map((p) => ({
-          categoryName: cat.categoryName,
-          productName: p.productName || p.name || "",
-          qty: Math.min(
-            toNum(p.qty, 0),
-            getDynamicLimitRef(p.productName || p.name || ""),
-          ),
-          mrp: toNum(p.mrp, 0),
-          discount: toNum(p.discount, 0),
-          price: toNum(p.afterDiscountPrice ?? p.price, 0),
-          stockLeft: toNum(p.stockLeft, 0),
-          code: p.code,
-          units: p.units,
-          image: p.image ?? p.productImage ?? null,
-        })),
-      )
-      .filter((x) => x.qty > 0 && x.productName);
-    if (!flat.length) return;
-    const uniqueNames = Array.from(
-      new Set(flat.map((x) => x.productName.trim())),  
-    );
-    const lookups = await Promise.allSettled(
-      uniqueNames.map(async (name) => {
-        const url = `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsByProductName?productName=${encodeURIComponent(
-          name,
-        )}`;
-        const res = await fetch(url, { signal });
-        const text = await res.text();  
-        let data = [];
-        try {
-          data = text ? JSON.parse(text) : [];
-        } catch {
-          data = [];
-        }
-        return { name, items: Array.isArray(data) ? data : data ? [data] : [] };
-      }),
-    );
-    const stockMap = new Map();
-    lookups.forEach((r) => {
-      if (r.status !== "fulfilled") return;
-      const { name, items } = r.value || {};
-      const best = pickBestNonOffer(items, name);
-      if (!best) return;
-      const newStock = toNum(best?.stockLeft, null);
-      if (newStock !== null) stockMap.set(name, newStock);
-    });
-
-    if (!stockMap.size) return;
-    const updated = saved.map((cat) => ({
-      ...cat,
-      products: (cat.products || [])
-        .map((p) => {
-          const pname = p.productName || p.name || "";
-          if (!pname) return p;
-          const latestStock = stockMap.get(pname);
-          if (latestStock == null) return p;
-          const limit = getDynamicLimitRef(p.productName || p.name || "");
-          const currentQty = Math.min(toNum(p.qty, 0), limit);
-          const clampedQty = Math.max(0, Math.min(currentQty, latestStock));
-          return {
-            ...p,
-            stockLeft: String(latestStock),
-            qty: clampedQty,
-          };
-        })
-        .filter((p) => toNum(p.qty, 0) > 0),
-    }));
-    localStorage.setItem("allCategories", JSON.stringify(updated));
-    const allItems = updated
-      .flatMap((cat) =>
-        (cat.products || []).map((p, idx) => {
-          const persisted = p.image ?? p.productImage ?? "";
-          const imageFilename = getFilenameFromValue(persisted);
-          const imageUrl = imageFilename
-            ? fileToUrl(imageFilename)
-            : typeof persisted === "string"
-              ? persisted
-              : "";
-          return {
-            id: `${cat.categoryName}-${p.productId ?? p.id ?? idx}`,
-            productId: p.productId ?? p.id ?? idx,
-            name: p.productName ?? p.name ?? "",
-            category: cat.categoryName,
-            qty: toNum(p.qty, 0),
-            mrp: toNum(p.mrp, 0),
-            discount: toNum(p.discount, 0),
-            price: toNum(p.afterDiscountPrice ?? p.price, 0),
-            stockLeft: toNum(p.stockLeft, 0),
-            code: p.code,
-            units: p.units,
-            imageFilename,
-            imageUrl,
-          };
-        }),
-      )
-      .filter((it) => it.qty > 0 && Number(it.stockLeft) > 0);
-    setCartItems(allItems);
-    setGrandSummary({
-      items: allItems.reduce((s, it) => s + toNum(it.qty, 0), 0),
-      total: Math.round(
-        allItems.reduce(
-          (s, it) => s + toNum(it.price, 0) * toNum(it.qty, 0),
-          0,
-        ),
-      ),
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    const ctrl = new AbortController();
-    const tick = () => {
-      if (ctrl.signal.aborted) return;
-      refreshStocksOnce(ctrl.signal).catch((e) => {
-        if (e?.name !== "AbortError") console.warn("Stock refresh failed:", e);
-      });
-    };
-
-    tick();
-    const id = setInterval(tick, 5000);
-    return () => {
-      clearInterval(id);
-      ctrl.abort();
-    };
-  }, [refreshStocksOnce]);
-
   const buildCartFromStorage = React.useCallback(() => {
     const saved = JSON.parse(localStorage.getItem("allCategories") || "[]");
-
     const items = saved.flatMap((cat) =>
       (cat.products || [])
         .filter((p) => Number(p.qty) > 0)
@@ -376,7 +252,6 @@ useEffect(() => {
           };
         }),
     );
-
     return items;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -406,9 +281,6 @@ useEffect(() => {
       try {
         const results = await Promise.allSettled(
           filenames.map(async (fn) => {
-            // const res = await fetch(
-            //   `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net${encodeURIComponent(fn)}`,
-            // );
             const res = await fetch(fileToUrl(fn));
             const contentType = res.headers.get("content-type") || "";
             if (contentType.includes("application/json")) {
@@ -421,7 +293,7 @@ useEffect(() => {
               const blobUrl = URL.createObjectURL(blob);
               return { fn, url: blobUrl };
             } else {
-              return { fn, url: `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net${encodeURIComponent(fn)}` };
+              return { fn, url: `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/FileUpload/download?generatedfilename=${encodeURIComponent(fn)}` };
             }
           }),
         );
@@ -444,7 +316,7 @@ useEffect(() => {
     };
   }, [cartItems, imageBlobMap, fileToUrl]);
 
-  const writeBackToStorage = (items) => {
+  const writeBackToStorage = useCallback((items) => {
     const grouped = items.reduce((acc, it) => {
       (acc[it.category] ||= []).push({
         productId: it.productId,
@@ -471,33 +343,43 @@ useEffect(() => {
       }),
     );
     localStorage.setItem("allCategories", JSON.stringify(allCategories));
-  };
+  },[]);
 
-  const handleQtyChange = (rowId, delta) => {
-    setCartItems((prev) => {
-      const next = prev
-        .map((it) => {
-          if (it.id !== rowId) return it;
+const handleQtyChange = async (rowId, delta) => {
+  const item = cartItems.find((i) => i.id === rowId);
+  if (!item) return;
 
-          const stockMax = Number.isFinite(it.stockLeft)
-            ? it.stockLeft
-            : Infinity;
-          const limitMax = getDynamicLimit(it.name);
-          const maxAllowed = Math.min(stockMax, limitMax);
+  const latestStock = await fetchLatestStock(item.name);
 
-          const currentQty = Number(it.qty || 0);
-          const proposed = currentQty + delta;
-          const clamped = Math.max(0, Math.min(proposed, maxAllowed));
-
-          return { ...it, qty: clamped };
-        })
-        .filter((it) => it.qty > 0);
-
-      writeBackToStorage(next);
-      setGrandSummary(computeTotals(next));
-      return next;
-    });
-  };
+  setCartItems((prev) => {
+    const updated = prev.map((it) => {
+      if (it.id !== rowId) return it;
+      const limitMax = getDynamicLimit(it.name);
+      const maxAllowed = Math.min(latestStock, limitMax);
+      const proposedQty = Number(it.qty || 0) + delta;
+      if (latestStock <= 0) {
+        return {
+          ...it,
+          stockLeft: 0,
+          outOfStock: true,
+          qty: 0,
+        };
+      }
+      if (proposedQty <= 0) {
+        return null; 
+      }
+      return {
+        ...it,
+        stockLeft: latestStock,
+        outOfStock: false,
+        qty: Math.min(proposedQty, maxAllowed),
+      };
+    }).filter(Boolean);
+    writeBackToStorage(updated);
+    setGrandSummary(computeTotals(updated));
+    return updated;
+  });
+};
 
   const computeTotals = (items) => ({
     items: items.reduce((s, it) => s + Number(it.qty || 0), 0),
@@ -509,50 +391,331 @@ useEffect(() => {
     ),
   });
 
+  const fetchLatestStock = useCallback(async (productName) => {
+  try {
+    const res = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/UploadGrocery/GetGroceryItemsByProductName?productName=${encodeURIComponent(productName)}`
+    );
+    const data = await res.json();
+    const normalizedInput = normalizeName(productName);
+    const exactMatch = (Array.isArray(data) ? data : []).filter(
+      (x) => normalizeName(x.name) === normalizedInput
+    );
+    const latest = exactMatch.sort(
+      (a, b) => Date.parse(b?.date || 0) - Date.parse(a?.date || 0)
+    )[0];
+    return Number(latest?.stockLeft || 0);
+  } catch (err) {
+    console.error(err);
+    return 0;
+  }
+},[]);
+
+const normalizeName = (name) =>
+  String(name || "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+const refreshAllCartStocks = useCallback(async () => {
+  const saved =
+    JSON.parse(localStorage.getItem("allCategories")) || [];
+
+  const currentItems = saved.flatMap((cat) =>
+    (cat.products || []).map((p, idx) => ({
+      id: `${cat.categoryName}-${p.productId ?? p.id ?? idx}`,
+      productId: p.productId ?? p.id ?? idx,
+      name: p.productName ?? p.name ?? "",
+      category: cat.categoryName,
+      qty: Number(p.qty || 0),
+      mrp: Number(p.mrp || 0),
+      discount: Number(p.discount || 0),
+      price: Number(p.afterDiscountPrice || p.price || 0),
+      stockLeft: Number(p.stockLeft || 0),
+      code: p.code,
+      units: p.units,
+      imageFilename: getFilenameFromValue(p.image ?? p.productImage ?? ""),
+      imageUrl: fileToUrl(p.image ?? p.productImage ?? ""),
+    }))
+  );
+
+  if (!currentItems.length) return;
+
+  const stockResults = await Promise.all(
+    currentItems.map(async (item) => ({
+      name: item.name,
+      stockLeft: await fetchLatestStock(item.name),
+    }))
+  );
+
+  const updated = currentItems
+    .map((item) => {
+      const latest = stockResults.find(
+        (x) => normalizeName(x.name) === normalizeName(item.name)
+      );
+
+      if (!latest) return item;
+
+      const limit = getDynamicLimit(item.name);
+
+      if (latest.stockLeft <= 0) {
+        return {
+          ...item,
+          stockLeft: 0,
+          outOfStock: true,
+          qty: 0,
+        };
+      }
+
+      return {
+        ...item,
+        stockLeft: latest.stockLeft,
+        qty: Math.min(item.qty, latest.stockLeft, limit),
+      };
+    })
+    .filter(Boolean);
+
+  setCartItems(updated);
+  writeBackToStorage(updated);
+  setGrandSummary(computeTotals(updated));
+}, [fetchLatestStock, getDynamicLimit, writeBackToStorage, fileToUrl]);
+
+useEffect(() => {
+  refreshAllCartStocks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []);
+
+useEffect(() => {
+  const handleFocus = () => {
+    refreshAllCartStocks();
+  };
+const handleOnline = () => {
+    refreshAllCartStocks();
+  };
+  const handleVisibility = () => {
+    if (document.visibilityState === "visible") {
+      refreshAllCartStocks();
+    }
+  };
+  window.addEventListener("focus", handleFocus);
+  window.addEventListener("online", handleOnline);
+  document.addEventListener("visibilitychange", handleVisibility);
+  return () => {
+    window.removeEventListener("focus", handleFocus);
+    window.removeEventListener("online", handleOnline);
+    document.removeEventListener("visibilitychange", handleVisibility);
+  };
+}, [refreshAllCartStocks]);
+
+const validateCartStockBeforeCheckout = async () => {
+  const checks = await Promise.all(
+    cartItems.map(async (item) => ({
+      name: item.name,
+      requestedQty: item.qty,
+      stockLeft: await fetchLatestStock(item.name),
+    }))
+  );
+
+  const invalidItems = checks.filter(
+    (x) => x.stockLeft <= 0 || x.requestedQty > x.stockLeft
+  );
+
+  if (invalidItems.length > 0) {
+    setCartItems((prev) => {
+      const updated = prev
+      .map((item) => {
+        const latest = checks.find(
+          (x) => normalizeName(x.name) === normalizeName(item.name)
+        );
+
+        if (!latest) return item;
+
+        if (latest.stockLeft <= 0) {
+          return {
+            ...item,
+            stockLeft: 0,
+            outOfStock: true,
+            qty: 0,
+          };
+        }
+
+        return {
+          ...item,
+          stockLeft: latest.stockLeft,
+          outOfStock: false,
+          qty: Math.min(item.qty, latest.stockLeft),
+        };
+      })
+      .filter(Boolean);
+      writeBackToStorage(updated);
+      setGrandSummary(computeTotals(updated));
+      return updated;
+    });
+     const itemNames = invalidItems.map((item) => item.name).join(", ");
+    alert(`${itemNames} items are out of stock.`);
+  return false;
+  }
+  return true;
+};
+
+  // const handleGroceryProceed = async (event) => {
+  //   event.preventDefault();
+  //  const valid = await validateCartStockBeforeCheckout();
+  //   if (!valid) return;
+
+  //   const allCategories =
+  //     JSON.parse(localStorage.getItem("allCategories")) || [];
+
+  //   const payload = {
+  //     id: "string",
+  //     martId: "string",
+  //     date: "string",
+  //     customerId: userId,
+  //     status: "Draft",
+  //     paymentMode: "",
+  //     utrTransactionNumber: "",
+  //     transactionNumber: "",
+  //     transactionStatus: "",
+  //     TransactionType: "",
+  //     paidAmount: "",
+  //     walletAmount: "walletValue",
+  //     customerName: "",
+  //     address: "",
+  //     state: "",
+  //     district: "",
+  //     zipCode: "",
+  //     customerPhoneNumber: "",
+  //     AssignedTo: "",
+  //     DeliveryPartnerUserId: "",
+  //     latitude: 0,     
+  //     longitude: 0,
+  //     isPickUp: false,
+  //     isDelivered: false,
+  //     DeliveryAssignedTime: "",
+  //     DeliverySubmitTime: "",
+  //     GrandTotal: roundedGrandTotal.toString(),
+  //     TotalItemsSelected: grandSummary.items.toString(),
+  //     categories: allCategories.map((cat) => {
+  //       const products = (cat.products || []).map((p) => {
+  //         const persisted = p.image ?? p.productImage ?? "";
+  //         const filename = getFilenameFromValue(persisted);
+  //         const safeImage =
+  //           filename || (typeof persisted === "string" ? persisted : "");
+  //         return {
+  //           productName: p.productName?.trim() || p.name?.trim() || "",
+  //           noOfQuantity: String(p.qty),
+  //           productImage: safeImage,
+  //           mrp: String(p.mrp || 0),
+  //           discount: String(p.discount || 0),
+  //           afterDiscountPrice: String(p.afterDiscountPrice || p.price || 0),
+  //           stockLeft: String(p.stockLeft - p.qty),
+  //           code: String(p.code),
+  //           units: String(p.units),
+  //         };
+  //       });
+  //       return {
+  //         categoryName: cat.categoryName,
+  //         numberOfItemsSelected: products.reduce(
+  //           (sum, p) => sum + Number(p.noOfQuantity),
+  //           0,
+  //         ),
+  //         totalAmount: Math.round(
+  //           products.reduce(
+  //             (sum, p) =>
+  //               sum + Number(p.afterDiscountPrice) * Number(p.noOfQuantity),
+  //             0,
+  //           ),
+  //         ),
+  //         products,
+  //       };
+  //     }),
+  //   };
+
+  //   try {
+  //     const response = await fetch(
+  //       `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/UploadProductDetails`,
+  //       {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         body: JSON.stringify(payload),
+  //       },
+  //     );
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       const extractedId = data.id;
+  //       if (extractedId) {
+  //         const currentCart = localStorage.getItem("allCategories") || "[]";
+  //         localStorage.setItem(`cartSnapshot_${extractedId}`, currentCart);
+  //         localStorage.setItem("activeOrderId", extractedId);
+  //         localStorage.setItem(
+  //           `cartMeta_${extractedId}`,
+  //           JSON.stringify({
+  //             items: grandSummary.items,
+  //             total: roundedGrandTotal,
+  //           }),
+  //         );
+  //         navigate(
+  //           `/groceryPaymentMethod/${userType}/${userId}/${extractedId}`,
+  //         );
+  //       }
+  //     } else {
+  //       const errorText = await response.text();
+  //       alert("Failed to upload order: " + errorText);
+  //     }
+  //   } catch (error) {
+  //     console.error("API Error:", error);
+  //     alert("An error occurred while uploading the order.");
+  //   }
+  // };
+const activeItems = cartItems.filter(
+    (item) => !item.outOfStock && item.stockLeft > 0 && item.qty > 0
+  );
+
   const handleGroceryProceed = async (event) => {
-    event.preventDefault();
-    const allCategories =
-      JSON.parse(localStorage.getItem("allCategories")) || [];
+  event.preventDefault();
+  if (activeItems.length === 0) {
+    alert("Your cart is empty. Please add items before proceeding.");
+    return;
+  }
+  await createWelcomeWalletIfEligible();
+  const valid = await validateCartStockBeforeCheckout();
+  if (!valid) return;
 
-    // const firstOrderData = await CheckFirstOrder(mobileNumber);
-    // // If null → new user
-    // const isNewUser = !firstOrderData;
-    // // ✅ SIMPLE WALLET LOGIC
-    // const walletValue = isNewUser ? "50" : "0";
+  const allCategories = JSON.parse(localStorage.getItem("allCategories")) || [];
 
-    const payload = {
-      id: "string",
-      martId: "string",
-      date: "string",
-      customerId: userId,
-      status: "Draft",
-      paymentMode: "",
-      utrTransactionNumber: "",
-      transactionNumber: "",
-      transactionStatus: "",
-      TransactionType: "",
-      paidAmount: "",
-      walletAmount: "walletValue",
-      customerName: "",
-      address: "",
-      state: "",
-      district: "",
-      zipCode: "",
-      customerPhoneNumber: "",
-      AssignedTo: "",
-      DeliveryPartnerUserId: "",
-      latitude: 0,
-      longitude: 0,
-      isPickUp: false,
-      isDelivered: false,
-      GrandTotal: roundedGrandTotal.toString(),
-      TotalItemsSelected: grandSummary.items.toString(),
-      categories: allCategories.map((cat) => {
+  const comboRaw = localStorage.getItem("comboSelectedItems");
+  let comboCategory = null;
+
+  if (comboRaw) {
+    try {
+      const comboData = JSON.parse(comboRaw);
+      if (comboData?.items?.length > 0) {
+        comboCategory = {
+          categoryName: comboData.comboProductName || "Combo Selections",
+          numberOfItemsSelected: comboData.items.length,
+          totalAmount: 0,  
+          products: comboData.items.map((item) => ({
+            productName: item.productName?.trim() || "",
+            noOfQuantity: "1",
+            productImage: item.image || "",
+            mrp: "0",
+            discount: "0",
+            afterDiscountPrice: "0",
+            stockLeft: "0",
+            code: "",
+            units: item.category || "",   
+          })),
+        };
+      }
+    } catch {}
+  }
+
+  const finalCategories = comboCategory
+    ? [...allCategories.map((cat) => {
         const products = (cat.products || []).map((p) => {
           const persisted = p.image ?? p.productImage ?? "";
           const filename = getFilenameFromValue(persisted);
-          const safeImage =
-            filename || (typeof persisted === "string" ? persisted : "");
+          const safeImage = filename || (typeof persisted === "string" ? persisted : "");
           return {
             productName: p.productName?.trim() || p.name?.trim() || "",
             noOfQuantity: String(p.qty),
@@ -567,73 +730,195 @@ useEffect(() => {
         });
         return {
           categoryName: cat.categoryName,
-          numberOfItemsSelected: products.reduce(
-            (sum, p) => sum + Number(p.noOfQuantity),
-            0,
-          ),
+          numberOfItemsSelected: products.reduce((sum, p) => sum + Number(p.noOfQuantity), 0),
           totalAmount: Math.round(
-            products.reduce(
-              (sum, p) =>
-                sum + Number(p.afterDiscountPrice) * Number(p.noOfQuantity),
-              0,
-            ),
+            products.reduce((sum, p) => sum + Number(p.afterDiscountPrice) * Number(p.noOfQuantity), 0)
           ),
           products,
         };
-      }),
+      }), comboCategory]
+    : allCategories.map((cat) => {
+        const products = (cat.products || []).map((p) => {
+          const persisted = p.image ?? p.productImage ?? "";
+          const filename = getFilenameFromValue(persisted);
+          const safeImage = filename || (typeof persisted === "string" ? persisted : "");
+          return {
+            productName: p.productName?.trim() || p.name?.trim() || "",
+            noOfQuantity: String(p.qty),
+            productImage: safeImage,
+            mrp: String(p.mrp || 0),
+            discount: String(p.discount || 0),
+            afterDiscountPrice: String(p.afterDiscountPrice || p.price || 0),
+            stockLeft: String(p.stockLeft - p.qty),
+            code: String(p.code),
+            units: String(p.units),
+          };
+        });
+        return {
+          categoryName: cat.categoryName,
+          numberOfItemsSelected: products.reduce((sum, p) => sum + Number(p.noOfQuantity), 0),
+          totalAmount: Math.round(
+            products.reduce((sum, p) => sum + Number(p.afterDiscountPrice) * Number(p.noOfQuantity), 0)
+          ),
+          products,
+        };
+      });
+
+  const payload = {
+    id: "string",
+    martId: "string",
+    date: "string",
+    customerId: userId,
+    status: "Draft",
+    paymentMode: "",
+    utrTransactionNumber: "",
+    transactionNumber: "",
+    transactionStatus: "",
+    TransactionType: "",
+    paidAmount: "",
+    walletAmount: "walletValue",
+    customerName: "",
+    address: "",
+    state: "",
+    district: "",
+    zipCode: "",
+    customerPhoneNumber: "",
+    AssignedTo: "",
+    DeliveryPartnerUserId: "",
+    latitude: 0,
+    longitude: 0,
+    isPickUp: false,
+    isDelivered: false,
+    TotalWalletAmount:"",
+    RemainingAmount:"",
+    AvailedAmount:"",
+    DeliveryAssignedTime: "",
+    DeliverySubmitTime: "",
+    GrandTotal: roundedGrandTotal.toString(),
+    TotalItemsSelected: grandSummary.items.toString(),
+    categories: finalCategories,  
+    Location: '', 
+  };
+
+  try {
+    const response = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Mart/UploadProductDetails`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+    );
+    if (response.ok) {
+      const data = await response.json(); 
+      const extractedId = data.id;
+      if (extractedId) {
+        const currentCart = localStorage.getItem("allCategories") || "[]";
+        localStorage.setItem(`cartSnapshot_${extractedId}`, currentCart);
+        localStorage.setItem("activeOrderId", extractedId);
+        localStorage.setItem(
+          `cartMeta_${extractedId}`,
+          JSON.stringify({ items: grandSummary.items, total: roundedGrandTotal }),
+        );
+
+        localStorage.removeItem("comboSelectedItems");
+
+        navigate(`/groceryPaymentMethod/${userType}/${userId}/${extractedId}`);
+      }
+    } else {
+      const errorText = await response.text();
+      alert("Failed to upload order: " + errorText);
+    }
+  } catch (error) {
+    console.error("API Error:", error);
+    alert("An error occurred while uploading the order.");
+  }
+};
+
+const createWelcomeWalletIfEligible = async () => {
+  try {
+    const primaryAddress = addresses.find((addr) => addr.type === "primary");
+    const mobileNumber = primaryAddress?.mobileNumber;
+    if (!mobileNumber) return;
+
+    // Step 1: Verify Guest User
+    const guestResponse = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/Customer/GuestUserExistingVerification/${mobileNumber}`
+    );
+    if (!guestResponse.ok) return;
+    const guestData = await guestResponse.json();
+    if (!Array.isArray(guestData) || guestData.length === 0) return;
+
+    const customer = guestData[0];
+    const isGuest = customer?.firstName?.trim().toLowerCase() === "guest";
+    if (!isGuest) {
+      console.log("Existing User - No Welcome Wallet");
+      return;
+    }   
+
+    // Step 2: Check if wallet transaction already exists
+    const offerResponse = await fetch(
+      `https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/OffersTransactions/GetOfferTransactionByUserId?userId=${userId}`
+    );
+
+    if (offerResponse.ok) {
+      const offerData = await offerResponse.json();
+
+      if (Array.isArray(offerData) && offerData.length > 0) {
+        console.log("Welcome wallet already exists — skipping POST.");
+        return;
+      }
+    }
+
+    const payload3 = {
+      id: "string",
+      UserId: customer.userId,
+      CreatedDate: new Date().toISOString(),
+      UpdatedDate: new Date().toISOString(),
+      TicketId: "",
+      TotalWalletAmount: "50",
+      AvailedAmount: "0",
+      RemainingAmount: "50",
     };
 
-    try {
-      const response = await fetch(
-        `https://lmarttestapi-ctajf3hqfddkgebw.centralindia-01.azurewebsites.net/api/Mart/UploadProductDetails`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
-      if (response.ok) {
-        const data = await response.json();
-        const extractedId = data.id;
-        if (extractedId) {
-          const currentCart = localStorage.getItem("allCategories") || "[]";
-          localStorage.setItem(`cartSnapshot_${extractedId}`, currentCart);
-          localStorage.setItem("activeOrderId", extractedId);
-          localStorage.setItem(
-            `cartMeta_${extractedId}`,
-            JSON.stringify({
-              items: grandSummary.items,
-              total: roundedGrandTotal,
-            }),
-          );
-          navigate(
-            `/groceryPaymentMethod/${userType}/${userId}/${extractedId}`,
-          );
-        }
-      } else {
-        const errorText = await response.text();
-        alert("Failed to upload order: " + errorText);
+    const createResponse = await fetch(
+      "https://handymanapiv15-cmhuc3b9fcd0eeb9.canadacentral-01.azurewebsites.net/api/OffersTransactions/UploadOffersTransactionsDetails",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload3),
       }
-    } catch (error) {
-      console.error("API Error:", error);
-      alert("An error occurred while uploading the order.");
+    );
+
+    if (createResponse.ok) {
+      console.log("₹50 Welcome Wallet Created Successfully");
+    } else {
+      console.error("Failed to create welcome wallet:", await createResponse.text());
     }
-  };
+
+  } catch (error) {
+    console.error("createWelcomeWalletIfEligible error:", error);
+  }
+};
+
+  const outOfStockCount = cartItems.filter(
+    (item) => item.outOfStock || item.stockLeft <= 0
+  ).length;
 
   const handleImageClick = (imageSrc) => {
     setZoomImage(imageSrc);
     setShowZoomModal(true);
   };
 
-  const handleRestore = (id) => {
-    clearTimeout(removalTimers.current[id]);
-    delete removalTimers.current[id];
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, qty: 1, removing: false } : item,
-      ),
-    );
-  };
+  // const handleRestore = (id) => {
+  //   clearTimeout(removalTimers.current[id]);
+  //   delete removalTimers.current[id];
+  //   setCartItems((prev) =>
+  //     prev.map((item) =>
+  //       item.id === id ? { ...item, qty: 1, removing: false } : item,
+  //     ),
+  //   );
+  // };
 
   const itemsTotal = Math.round(
     cartItems.reduce((s, it) => s + it.mrp * it.qty, 0),
@@ -643,7 +928,14 @@ useEffect(() => {
   );
   const roundedItemsTotal = Math.round(itemsTotal);
   const roundedGrandTotal = Math.round(grandTotal);
-
+ const deliveryCharge = roundedGrandTotal >= 150 ? 0 : 15;
+  const handlingCharge = roundedGrandTotal >= 150 ? 0 : 5;
+  const extraCharges = deliveryCharge + handlingCharge;
+  const finalGrandTotal = roundedGrandTotal + extraCharges;
+  const FREE_DELIVERY_LIMIT = 150;
+  const amountNeeded = Math.max( 0,
+  FREE_DELIVERY_LIMIT - roundedGrandTotal
+);
   return (
     <div
       className="cart-container d-flex flex-column"
@@ -685,78 +977,150 @@ useEffect(() => {
           marginTop: "48px",
         }}
       >
-        {cartItems.map((item) => (
+        {outOfStockCount > 0 && (
+          <div
+            style={{
+              background: "#fff3cd",
+              color: "#856404",
+              padding: "8px",
+              borderRadius: "6px",
+              marginBottom: "10px",
+              fontSize: "12px",
+              fontWeight: "500",
+            }}
+          >
+            {outOfStockCount} item(s) are currently unavailable.
+          </div>
+        )}
+        {cartItems.map((item) => {
+        const isOutOfStock = item.outOfStock || item.stockLeft <= 0;
+
+        return (
           <div
             key={item.id}
-            className="cart-item d-flex align-items-start justify-content-between mb-2"
+            style={{
+              position: "relative",
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              marginBottom: "12px",
+              padding: "10px",
+              borderRadius: "8px",
+              border: "1px solid #eee",
+              backgroundColor: isOutOfStock ? "#f5f5f5" : "#fff",
+            }}
           >
-            {/* Product Image */}
-            <img
-              src={
-                (item.imageFilename && imageBlobMap[item.imageFilename]) ||
-                (item.imageFilename && fileToUrl(item.imageFilename)) ||
-                item.imageUrl ||
-                "/placeholder.png"
-              }
-              alt={item.name}
-              onClick={() =>
-                handleImageClick(
-                  (item.imageFilename && imageBlobMap[item.imageFilename]) ||
-                    (item.imageFilename && fileToUrl(item.imageFilename)) ||
-                    item.imageUrl ||
-                    "/placeholder.png",
-                )
-              }
+            {/* faded content */}
+            <div
               style={{
-                height: 50,
-                width: 30,
-                cursor: "pointer",
-                borderRadius: 6,
+                display: "flex",
+                flex: 1,
+                opacity: isOutOfStock ? 0.45 : 1,
               }}
-              onError={(e) => {
-                e.currentTarget.src = "/placeholder.png";
-              }}
-            />
+            >
+              {/* Product Image */}
+              <img
+                src={
+                  (item.imageFilename && imageBlobMap[item.imageFilename]) ||
+                  (item.imageFilename && fileToUrl(item.imageFilename)) ||
+                  item.imageUrl ||
+                  "/placeholder.png"
+                }
+                alt={item.name}
+                onClick={() =>
+                  handleImageClick(
+                    (item.imageFilename && imageBlobMap[item.imageFilename]) ||
+                      (item.imageFilename && fileToUrl(item.imageFilename)) ||
+                      item.imageUrl ||
+                      "/placeholder.png"
+                  )
+                }
+                style={{
+                  height: 50,
+                  width: 30,
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  // filter: isOutOfStock
+                  //   ? "grayscale(100%)"
+                  //   : "none",
+                }}
+              />
 
-            {/* Product Details */}
-            <div style={{ flex: 1, marginLeft: "8px" }}>
+              {/* Product Details */}
               <div
                 style={{
-                  fontWeight: "500",
-                  fontSize: "12px",
-                  marginRight: "5px",
+                  flex: 1,
+                  marginLeft: "10px",
+                  paddingRight: "70px",
                 }}
               >
-                {item.name}
-              </div>
-              <div style={{ fontSize: "12px", color: "#666" }}>
-                MRP: <s>₹{Math.round(item.mrp)}</s> &nbsp;
-                <span style={{ color: "red" }}>
-                  {Math.round(item.discount)}% off
-                </span>
-                <span style={{ color: "dark", marginLeft: "5px" }}>
-                  {item.units}
-                </span>
-              </div>
-              <div style={{ fontWeight: "600", fontSize: "12px" }}>
-                ₹{Math.round(item.price)}
+                <div
+                  style={{
+                    fontWeight: "500",
+                    fontSize: "12px",
+                    textDecoration: isOutOfStock
+                      ? "line-through"
+                      : "none",
+                  }}
+                >
+                  {item.name}
+                </div>
+
+                <div
+                  style={{
+                    fontSize: "12px",
+                    color: "#666",
+                    textDecoration: isOutOfStock
+                      ? "line-through"
+                      : "none",
+                  }}
+                >
+                  MRP: <s>₹{Math.round(item.mrp)}</s>
+                  <span style={{ color: "red", marginLeft: "5px" }}>
+                    {Math.round(item.discount)}% off
+                  </span>
+                  <span style={{ marginLeft: "5px" }}>
+                    {item.units}
+                  </span>
+                </div>
+
+                <div
+                  style={{
+                    fontWeight: "600",
+                    fontSize: "12px",
+                    textDecoration: isOutOfStock
+                      ? "line-through"
+                      : "none",
+                  }}
+                >
+                  ₹{Math.round(item.price)}
+                </div>
               </div>
             </div>
 
-            {/* Quantity Box */}
-            {item.removing ? (
+            {/* Right Side */}
+            {isOutOfStock ? (
               <button
-                onClick={() => handleRestore(item.id)}
+                onClick={() => {
+                  const updated = cartItems.filter(
+                    (x) => x.id !== item.id
+                  );
+                  setCartItems(updated);
+                  writeBackToStorage(updated);
+                  setGrandSummary(computeTotals(updated));
+                }}
                 style={{
-                  backgroundColor: "white",
-                  color: "green",
-                  border: "1px solid green",
+                  border: "1px solid #d32f2f",
+                  color: "#d32f2f",
+                  background: "white",
                   borderRadius: "6px",
-                  fontSize: "14px",
-                  padding: "8px",
+                  padding: "6px 10px",
+                  fontSize: "11px",
+                  fontWeight: "600",
+                  zIndex: 3,
                 }}
               >
-                Add
+                Remove
               </button>
             ) : (
               <div
@@ -776,35 +1140,101 @@ useEffect(() => {
                 >
                   <RemoveIcon fontSize="small" />
                 </IconButton>
+
                 <span style={{ fontWeight: "bold", fontSize: "12px" }}>
-                  {Math.min(item.qty, getDynamicLimit(item.name))}
+                  {item.qty}
                 </span>
+
                 <IconButton
                   size="small"
                   onClick={() => handleQtyChange(item.id, 1)}
-                  style={{
-                    color: "white",
-                    padding: "2px",
-                    opacity: item.qty >= item.stockLeft ? 0.5 : 1,
-                  }}
-                  disabled={
-                    Math.min(item.qty, getDynamicLimit(item.name)) >=
-                    Math.min(item.stockLeft, getDynamicLimit(item.name))
-                  }
-                  title={
-                    Number.isFinite(item.stockLeft) &&
-                    item.qty >= item.stockLeft
-                      ? "No more stock"
-                      : "Add one"
-                  }
+                  style={{ color: "white", padding: "2px" }}
+                  disabled={item.qty >= item.stockLeft}
                 >
                   <AddIcon fontSize="small" />
                 </IconButton>
               </div>
             )}
+
+            {/* Out Of Stock Text */}
+            {isOutOfStock && (
+              <div
+                style={{
+                  position: "absolute",
+                  left: "50%",
+                  bottom: "12px",
+                  transform: "translateX(-50%)",
+                  color: "#d32f2f",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  zIndex: 4,
+                  background: "transparent",
+                }}
+              >
+                Out of Stock
+              </div>
+            )}
           </div>
-        ))}
+        );
+      })}
       </div>
+
+      {/* Combo selected items panel */}
+{comboInfo?.items?.length > 0 && (
+  <div style={{ padding: "8px", borderTop: "1px solid #eee" }}>
+    <p style={{ fontSize: "13px", fontWeight: "600", marginBottom: "8px" }}>
+      📦 {comboInfo.comboProductName} — Your Selections
+    </p>
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+      {comboInfo.items.map(({ category, productName }) => (
+        <div
+          key={category}
+          style={{
+            display: "flex", flexDirection: "column", alignItems: "center",
+            gap: "4px", minWidth: "72px", maxWidth: "88px",
+          }}
+        >
+          <div
+            style={{
+              width: 56, height: 56, borderRadius: 8, overflow: "hidden",
+              background: "#f3f4f6", display: "flex",
+              alignItems: "center", justifyContent: "center",
+            }}
+          >
+            {comboImages[productName] ? (
+              <img
+                src={comboImages[productName]}
+                alt={productName}
+                style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+              />
+            ) : (
+              <span style={{ fontSize: 22 }}>🛒</span>
+            )}
+          </div>
+          <span
+            style={{
+              fontSize: "10px", fontWeight: "500", textAlign: "center",
+              color: "#374151", lineHeight: 1.3,
+              display: "-webkit-box", WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical", overflow: "hidden",
+            }}
+          >
+            {productName}
+          </span>
+          <span
+            style={{
+              fontSize: "9px", color: "#6b7280",
+              background: "#f0fdf4", borderRadius: 4,
+              padding: "1px 5px", fontWeight: 500,
+            }}
+          >
+            {category}
+          </span>
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
       {/* Bill Details */}
       <div className="bill-details p-1">
@@ -820,29 +1250,47 @@ useEffect(() => {
           <span>
             🚲 Delivery charge <InfoIcon fontSize="small" />
           </span>
-          <span className="text-danger fw-bold" style={{ fontSize: "10px" }}>
-            FREE
+          <span
+            className={deliveryCharge === 0 ? "text-danger fw-bold" : "fw-bold"}
+            style={{ fontSize: "10px" }}
+          >
+            {deliveryCharge === 0 ? "FREE" : `₹${deliveryCharge}`}
           </span>
         </div>
         <div className="d-flex justify-content-between align-items-center">
           <span>
             👜 Handling charge <InfoIcon fontSize="small" />
           </span>
-          <span className="text-danger fw-bold" style={{ fontSize: "10px" }}>
-            FREE
+          <span
+            className={handlingCharge === 0 ? "text-danger fw-bold" : "fw-bold"}
+            style={{ fontSize: "10px" }}
+          >
+            {handlingCharge === 0 ? "FREE" : `₹${handlingCharge}`}
           </span>
         </div>
         <hr className="my-2" />
         <div className="d-flex justify-content-between align-items-center fw-bold">
           <span>Grand total</span>
-          <span>₹{roundedGrandTotal}</span>
+          <span>₹{finalGrandTotal}</span>
         </div>
       </div>
       <Divider />
-      {roundedGrandTotal < MIN_ORDER_TOTAL && (
-        <p style={{ color: "red", fontSize: "13px", marginTop: "0px" }}>
-          Minimum order is ₹{MIN_ORDER_TOTAL} and above
-        </p>
+      {roundedGrandTotal > 0 && roundedGrandTotal < FREE_DELIVERY_LIMIT && (
+        <div
+          style={{
+            backgroundColor: "#FFF3CD",
+            color: "#D10000",
+            padding: "10px",
+            borderRadius: "8px",
+            marginBottom: "10px",
+            fontSize: "13px",
+            fontWeight: "600",
+            textAlign: "center",
+            border: "1px solid #FFE69C"
+          }}
+        >
+              🎉 Add ₹{amountNeeded} more to unlock save <strong style={{fontSize: "15px"}}>₹20</strong> FREE DELIVERY & Handling Charges
+        </div>
       )}
 
       {/* Footer */}
@@ -858,7 +1306,7 @@ useEffect(() => {
         <div>
           <span style={{ fontSize: "12px" }}>{grandSummary.items} items</span>
           <div style={{ fontWeight: "500", fontSize: "15px" }}>
-            ₹{roundedGrandTotal}
+            ₹{finalGrandTotal}
           </div>
         </div>
 
@@ -866,17 +1314,16 @@ useEffect(() => {
           style={{
             fontWeight: "500",
             fontSize: "15px",
-            cursor:
-              roundedGrandTotal < MIN_ORDER_TOTAL ? "not-allowed" : "pointer",
-            opacity: roundedGrandTotal < MIN_ORDER_TOTAL ? 0.6 : 1,
+            cursor: activeItems.length === 0 ? "not-allowed" : "pointer", 
+            opacity: activeItems.length === 0 ? 0.5 : 1,
           }}
           onClick={
-            roundedGrandTotal >= MIN_ORDER_TOTAL
+            activeItems.length > 0
               ? handleGroceryProceed
               : undefined
           }
         >
-          {roundedGrandTotal < MIN_ORDER_TOTAL ? "Add More Items" : "Proceed →"}
+          Proceed →
         </div>
       </div>
 
@@ -885,7 +1332,7 @@ useEffect(() => {
           className="btn btn-warning mt-1 mb-1"
           onClick={() => navigate(`/profilePage/${userType}/${userId}`)}
         >
-          Back
+          Add More Items
         </button>
       </div>
       <Footer />
