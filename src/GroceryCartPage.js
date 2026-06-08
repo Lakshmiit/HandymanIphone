@@ -872,12 +872,12 @@ const createWelcomeWalletIfEligible = async () => {
 
     const payload3 = {
       id: "string",
-      UserId: customer.userId,
+      UserId: userId,
       CreatedDate: new Date().toISOString(),
       UpdatedDate: new Date().toISOString(),
       TicketId: "",
       TotalWalletAmount: "50",
-      AvailedAmount: "0",
+      AvailedAmount: "0",    
       RemainingAmount: "50",
     };
 
